@@ -1,0 +1,67 @@
+id,name_ru,category,type,weight_g,season,is_mandatory
+gear_01,Палатка 2-местная (3 сезона),shelter,group,2200,spring_autumn,true
+gear_02,Палатка штурмовая с ветрозащитной юбкой,shelter,group,3500,winter,true
+gear_03,Тент защитный (3х3 м) с оттяжками,shelter,group,600,all,false
+gear_04,Колышки облегченные (комплект),shelter,group,130,all,true
+gear_05,Спальник летний (комфорт +10°C),shelter,personal,700,summer,true
+gear_06,Спальник демисезонный (комфорт -5°C),shelter,personal,1250,spring_autumn,true
+gear_07,Спальник зимний пуховый (комфорт -18°C),shelter,personal,1800,winter,true
+gear_08,Коврик-пенка (каремат / EVA),shelter,personal,450,all,true
+gear_09,Надувной утепленный коврик (R-value > 4.0),shelter,personal,620,winter,false
+gear_10,Бивуачный мешок (Bivy bag),shelter,personal,320,all,false
+gear_11,Горелка газовая резьбовая,cooking,group,85,spring_autumn,true
+gear_12,Горелка мультитопливная (бензин/газ),cooking,group,440,winter,true
+gear_13,Котелок с крышкой (1.5–2 л),cooking,group,300,all,true
+gear_14,Ветрозащитный экран для горелки,cooking,group,120,all,false
+gear_15,Газовый баллон резьбовой (230 г газа),cooking,group,370,all,true
+gear_16,Фильтр для воды мембранный,cooking,group,110,spring_autumn,true
+gear_17,Таблетки обеззараживания воды,cooking,personal,20,all,false
+gear_18,КЛМН (Кружка, ложка, миска, нож),cooking,personal,250,all,true
+gear_19,Бутылка для воды / фляга (1 л),cooking,personal,150,all,true
+gear_20,Питьевая система (гидратор на 2 л),cooking,personal,180,summer,false
+gear_21,Термос вакуумный (0.75–1.0 л),cooking,personal,520,winter,false
+gear_22,Нож туристический фиксированный (Full-tang),tools,personal,210,all,true
+gear_23,Пила складная туристическая (18-21 см),tools,group,230,all,true
+gear_24,Топор туристический малый,tools,group,800,winter,false
+gear_25,Огниво ферроцериевое,tools,personal,50,all,false
+gear_26,Штормовые спички в гермобоксе,tools,personal,30,all,true
+gear_27,Турбо-зажигалка ветрозащитная,tools,personal,40,all,true
+gear_28,Сухое горючее в таблетках (растопка),tools,personal,100,all,false
+gear_29,Шнур паракорд 550 (20 м),tools,personal,120,all,true
+gear_30,Армированный скотч (моток Duct tape),tools,group,70,all,true
+gear_31,Мультитул с пассатижами,tools,group,250,all,true
+gear_32,Налобный фонарь (IPX6/8),electronics,personal,85,all,true
+gear_33,Запасные элементы питания / кабель,electronics,personal,90,all,true
+gear_34,Повербанк ударопрочный (10000-20000 mAh),electronics,personal,320,all,true
+gear_35,Компас жидкостный планшетный,electronics,personal,50,all,true
+gear_36,Топографическая карта в гермочехле,electronics,group,120,all,true
+gear_37,Спутниковый трекер / SOS-маяк,electronics,group,160,all,false
+gear_38,Свисток сигнальный,electronics,personal,10,all,true
+gear_39,Групповая походная аптечка,med_hygiene,group,650,all,true
+gear_40,Индивидуальный перевязочный пакет (ИПП),med_hygiene,personal,120,all,true
+gear_41,Спасательное термоодеяло,med_hygiene,personal,55,all,true
+gear_42,Солнцезащитный крем (SPF 50+),med_hygiene,personal,70,all,true
+gear_43,Репеллент от насекомых и клещей,med_hygiene,personal,100,summer,false
+gear_44,Полотенце из микрофибры быстросохнущее,med_hygiene,personal,65,all,false
+gear_45,Биоразлагаемое мыло / антисептик,med_hygiene,personal,50,all,true
+gear_46,Гигиенический мини-набор,med_hygiene,personal,70,all,true
+gear_47,Термобелье ходовое (синтетика, верх+низ),clothing,personal,350,all,true
+gear_48,Термобелье теплое для сна (шерсть),clothing,personal,400,winter,false
+gear_49,Флисовая кофта (утепляющий слой),clothing,personal,380,all,true
+gear_50,Ветро-влагозащитная куртка (Hardshell),clothing,personal,450,all,true
+gear_51,Мембранные штаны-самосбросы,clothing,personal,300,all,false
+gear_52,Куртка-пуховка легкая компактная,clothing,personal,420,spring_autumn,false
+gear_53,Трекинговые носки плотные (3 пары),clothing,personal,210,all,true
+gear_54,Перчатки ветрозащитные (Softshell),clothing,personal,85,spring_autumn,true
+gear_55,Бафф и панама / кепка от солнца,clothing,personal,80,all,true
+gear_56,Шапка теплая флисовая,clothing,personal,60,all,true
+gear_57,Гамаши / туристические фонарики,clothing,personal,180,spring_autumn,false
+gear_58,Рюкзак туристический каркасный (65–85 л),packs,personal,2200,all,true
+gear_59,Накидка от дождя на рюкзак,packs,personal,120,all,true
+gear_60,Комплект гермомешков (3 шт),packs,personal,200,all,true
+gear_61,Трекинговые палки телескопические (пара),packs,personal,500,all,false
+gear_62,Снегоступы походные рамные (пара),winter,personal,1850,winter,true
+gear_63,Лавинная лопата алюминиевая,winter,group,650,winter,true
+gear_64,Кошки / ледоступы туристические,winter,personal,620,winter,false
+gear_65,Рукавицы-верхонки утепленные (краги),winter,personal,250,winter,true
+gear_66,Чехол теплоизоляционный для баллона,winter,group,40,winter,true

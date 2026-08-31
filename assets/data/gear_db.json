@@ -1,0 +1,596 @@
+[
+  {
+    "id": "gear_01",
+    "nameRu": "Палатка 2-местная (3 сезона)",
+    "category": "shelter",
+    "type": "group",
+    "weightG": 2200,
+    "season": "spring_autumn",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_02",
+    "nameRu": "Палатка штурмовая с ветрозащитной юбкой",
+    "category": "shelter",
+    "type": "group",
+    "weightG": 3500,
+    "season": "winter",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_03",
+    "nameRu": "Тент защитный (3х3 м) с оттяжками",
+    "category": "shelter",
+    "type": "group",
+    "weightG": 600,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_04",
+    "nameRu": "Колышки облегченные (комплект)",
+    "category": "shelter",
+    "type": "group",
+    "weightG": 130,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_05",
+    "nameRu": "Спальник летний (комфорт +10°C)",
+    "category": "shelter",
+    "type": "personal",
+    "weightG": 700,
+    "season": "summer",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_06",
+    "nameRu": "Спальник демисезонный (комфорт -5°C)",
+    "category": "shelter",
+    "type": "personal",
+    "weightG": 1250,
+    "season": "spring_autumn",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_07",
+    "nameRu": "Спальник зимний пуховый (комфорт -18°C)",
+    "category": "shelter",
+    "type": "personal",
+    "weightG": 1800,
+    "season": "winter",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_08",
+    "nameRu": "Коврик-пенка (каремат / EVA)",
+    "category": "shelter",
+    "type": "personal",
+    "weightG": 450,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_09",
+    "nameRu": "Надувной утепленный коврик (R-value > 4.0)",
+    "category": "shelter",
+    "type": "personal",
+    "weightG": 620,
+    "season": "winter",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_10",
+    "nameRu": "Бивуачный мешок (Bivy bag)",
+    "category": "shelter",
+    "type": "personal",
+    "weightG": 320,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_11",
+    "nameRu": "Горелка газовая резьбовая",
+    "category": "cooking",
+    "type": "group",
+    "weightG": 85,
+    "season": "spring_autumn",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_12",
+    "nameRu": "Горелка мультитопливная (бензин/газ)",
+    "category": "cooking",
+    "type": "group",
+    "weightG": 440,
+    "season": "winter",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_13",
+    "nameRu": "Котелок с крышкой (1.5–2 л)",
+    "category": "cooking",
+    "type": "group",
+    "weightG": 300,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_14",
+    "nameRu": "Ветрозащитный экран для горелки",
+    "category": "cooking",
+    "type": "group",
+    "weightG": 120,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_15",
+    "nameRu": "Газовый баллон резьбовой (230 г газа)",
+    "category": "cooking",
+    "type": "group",
+    "weightG": 370,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_16",
+    "nameRu": "Фильтр для воды мембранный",
+    "category": "cooking",
+    "type": "group",
+    "weightG": 110,
+    "season": "spring_autumn",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_17",
+    "nameRu": "Таблетки обеззараживания воды",
+    "category": "cooking",
+    "type": "personal",
+    "weightG": 20,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_18",
+    "nameRu": "КЛМН (Кружка, ложка, миска, нож)",
+    "category": "cooking",
+    "type": "personal",
+    "weightG": 250,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_19",
+    "nameRu": "Бутылка для воды / фляга (1 л)",
+    "category": "cooking",
+    "type": "personal",
+    "weightG": 150,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_20",
+    "nameRu": "Питьевая система (гидратор на 2 л)",
+    "category": "cooking",
+    "type": "personal",
+    "weightG": 180,
+    "season": "summer",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_21",
+    "nameRu": "Термос вакуумный (0.75–1.0 л)",
+    "category": "cooking",
+    "type": "personal",
+    "weightG": 520,
+    "season": "winter",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_22",
+    "nameRu": "Нож туристический фиксированный (Full-tang)",
+    "category": "tools",
+    "type": "personal",
+    "weightG": 210,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_23",
+    "nameRu": "Пила складная туристическая (18-21 см)",
+    "category": "tools",
+    "type": "group",
+    "weightG": 230,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_24",
+    "nameRu": "Топор туристический малый",
+    "category": "tools",
+    "type": "group",
+    "weightG": 800,
+    "season": "winter",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_25",
+    "nameRu": "Огниво ферроцериевое",
+    "category": "tools",
+    "type": "personal",
+    "weightG": 50,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_26",
+    "nameRu": "Штормовые спички в гермобоксе",
+    "category": "tools",
+    "type": "personal",
+    "weightG": 30,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_27",
+    "nameRu": "Турбо-зажигалка ветрозащитная",
+    "category": "tools",
+    "type": "personal",
+    "weightG": 40,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_28",
+    "nameRu": "Сухое горючее в таблетках (растопка)",
+    "category": "tools",
+    "type": "personal",
+    "weightG": 100,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_29",
+    "nameRu": "Шнур паракорд 550 (20 м)",
+    "category": "tools",
+    "type": "personal",
+    "weightG": 120,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_30",
+    "nameRu": "Армированный скотч (моток Duct tape)",
+    "category": "tools",
+    "type": "group",
+    "weightG": 70,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_31",
+    "nameRu": "Мультитул с пассатижами",
+    "category": "tools",
+    "type": "group",
+    "weightG": 250,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_32",
+    "nameRu": "Налобный фонарь (IPX6/8)",
+    "category": "electronics",
+    "type": "personal",
+    "weightG": 85,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_33",
+    "nameRu": "Запасные элементы питания / кабель",
+    "category": "electronics",
+    "type": "personal",
+    "weightG": 90,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_34",
+    "nameRu": "Повербанк ударопрочный (10000-20000 mAh)",
+    "category": "electronics",
+    "type": "personal",
+    "weightG": 320,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_35",
+    "nameRu": "Компас жидкостный планшетный",
+    "category": "electronics",
+    "type": "personal",
+    "weightG": 50,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_36",
+    "nameRu": "Топографическая карта в гермочехле",
+    "category": "electronics",
+    "type": "group",
+    "weightG": 120,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_37",
+    "nameRu": "Спутниковый трекер / SOS-маяк",
+    "category": "electronics",
+    "type": "group",
+    "weightG": 160,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_38",
+    "nameRu": "Свисток сигнальный",
+    "category": "electronics",
+    "type": "personal",
+    "weightG": 10,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_39",
+    "nameRu": "Групповая походная аптечка",
+    "category": "med_hygiene",
+    "type": "group",
+    "weightG": 650,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_40",
+    "nameRu": "Индивидуальный перевязочный пакет (ИПП)",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 120,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_41",
+    "nameRu": "Спасательное термоодеяло",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 55,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_42",
+    "nameRu": "Солнцезащитный крем (SPF 50+)",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 70,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_43",
+    "nameRu": "Репеллент от насекомых и клещей",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 100,
+    "season": "summer",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_44",
+    "nameRu": "Полотенце из микрофибры быстросохнущее",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 65,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_45",
+    "nameRu": "Биоразлагаемое мыло / антисептик",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 50,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_46",
+    "nameRu": "Гигиенический мини-набор",
+    "category": "med_hygiene",
+    "type": "personal",
+    "weightG": 70,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_47",
+    "nameRu": "Термобелье ходовое (синтетика, верх+низ)",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 350,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_48",
+    "nameRu": "Термобелье теплое для сна (шерсть)",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 400,
+    "season": "winter",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_49",
+    "nameRu": "Флисовая кофта (утепляющий слой)",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 380,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_50",
+    "nameRu": "Ветро-влагозащитная куртка (Hardshell)",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 450,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_51",
+    "nameRu": "Мембранные штаны-самосбросы",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 300,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_52",
+    "nameRu": "Куртка-пуховка легкая компактная",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 420,
+    "season": "spring_autumn",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_53",
+    "nameRu": "Трекинговые носки плотные (3 пары)",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 210,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_54",
+    "nameRu": "Перчатки ветрозащитные (Softshell)",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 85,
+    "season": "spring_autumn",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_55",
+    "nameRu": "Бафф и панама / кепка от солнца",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 80,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_56",
+    "nameRu": "Шапка теплая флисовая",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 60,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_57",
+    "nameRu": "Гамаши / туристические фонарики",
+    "category": "clothing",
+    "type": "personal",
+    "weightG": 180,
+    "season": "spring_autumn",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_58",
+    "nameRu": "Рюкзак туристический каркасный (65–85 л)",
+    "category": "packs",
+    "type": "personal",
+    "weightG": 2200,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_59",
+    "nameRu": "Накидка от дождя на рюкзак",
+    "category": "packs",
+    "type": "personal",
+    "weightG": 120,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_60",
+    "nameRu": "Комплект гермомешков (3 шт)",
+    "category": "packs",
+    "type": "personal",
+    "weightG": 200,
+    "season": "all",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_61",
+    "nameRu": "Трекинговые палки телескопические (пара)",
+    "category": "packs",
+    "type": "personal",
+    "weightG": 500,
+    "season": "all",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_62",
+    "nameRu": "Снегоступы походные рамные (пара)",
+    "category": "winter",
+    "type": "personal",
+    "weightG": 1850,
+    "season": "winter",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_63",
+    "nameRu": "Лавинная лопата алюминиевая",
+    "category": "winter",
+    "type": "group",
+    "weightG": 650,
+    "season": "winter",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_64",
+    "nameRu": "Кошки / ледоступы туристические",
+    "category": "winter",
+    "type": "personal",
+    "weightG": 620,
+    "season": "winter",
+    "isMandatory": false
+  },
+  {
+    "id": "gear_65",
+    "nameRu": "Рукавицы-верхонки утепленные (краги)",
+    "category": "winter",
+    "type": "personal",
+    "weightG": 250,
+    "season": "winter",
+    "isMandatory": true
+  },
+  {
+    "id": "gear_66",
+    "nameRu": "Чехол теплоизоляционный для баллона",
+    "category": "winter",
+    "type": "group",
+    "weightG": 40,
+    "season": "winter",
+    "isMandatory": true
+  }
+]

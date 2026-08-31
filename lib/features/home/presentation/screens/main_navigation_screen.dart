@@ -1,0 +1,74 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
+import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
+import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
+
+class MainNavigationScreen extends ConsumerStatefulWidget {
+  const MainNavigationScreen({super.key});
+
+  @override
+  ConsumerState<MainNavigationScreen> createState() =>
+      _MainNavigationScreenState();
+}
+
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
+  int _currentIndex = 0;
+
+  void _switchTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screens = [
+      TripSetupScreen(onCalculatePressed: () => _switchTab(1)),
+      DashboardScreen(
+        onGoToRation: () => _switchTab(2),
+        onGoToGear: () => _switchTab(3),
+      ),
+      const FoodBreakdownScreen(),
+      const GearChecklistScreen(),
+    ];
+
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: _switchTab,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.tune),
+            selectedIcon: Icon(Icons.tune, color: OutdoorTheme.signalOrange),
+            label: 'Параметры',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.analytics_outlined),
+            selectedIcon:
+                Icon(Icons.analytics, color: OutdoorTheme.signalOrange),
+            label: 'Дашборд',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.restaurant_menu),
+            selectedIcon:
+                Icon(Icons.restaurant_menu, color: OutdoorTheme.signalOrange),
+            label: 'Раскладка',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.checklist_rtl),
+            selectedIcon:
+                Icon(Icons.checklist_rtl, color: OutdoorTheme.signalOrange),
+            label: 'Снаряжение',
+          ),
+        ],
+      ),
+    );
+  }
+}
