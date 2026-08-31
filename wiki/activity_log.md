@@ -80,5 +80,6 @@
 - **[2026-08-31 20:16:00]** | `UI_ENHANCEMENT` | `lib/features/home/presentation/screens/main_navigation_screen.dart`, `lib/core/theme/outdoor_theme.dart` | Нижняя панель навигации переведена в премиальный стиль «Плавающий док» (Floating Pill Dock): добавлены отступы от физических краев экрана (`fromLTRB(12, 0, 12, 10)`), скругление углов $R=20\text{px}$, тактильная рамка и мягкая тень. Тексты вкладок больше не съедаются скруглениями экрана. 35/35 тестов пройдены.
 - **[2026-08-31 20:18:30]** | `BUILD_RELEASE` | `build/SurvivalCalc_v1.0.0.apk` | Успешно скомпилирован обновленный релизный APK `SurvivalCalc_v1.0.0.apk` (72.0 МБ) с плавающей навигационной панелью (Floating Dock) и адаптивной версткой под любые скругления экрана.
 - **[2026-08-31 20:22:50]** | `GIT_PUSH` | `origin/feature/gps-tracking-and-camp-debrief` | Ветка `feature/gps-tracking-and-camp-debrief` успешно опубликована на GitHub репозитории (`https://github.com/kobaltgit/SurvivalCalc.git`).
+- **[2026-08-31 20:24:00]** | `DOCS_UPDATE` | `README.md` | Создана подробная, иллюстрированная документация проекта: архитектура Clean Architecture, математическая модель BMR/PAL/TDEE, все ключевые модули, стек технологий, руководство по запуску, тестированию и сборке APK.
 
 
