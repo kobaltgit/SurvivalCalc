@@ -20,8 +20,43 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   final MapController _mapController = MapController();
   bool _followUser = true;
 
-  // Default initial center (e.g. Altai / Elbrus or generic coordinate before GPS fix)
+  // Default initial center (generic coordinate before GPS fix)
   LatLng _lastCenter = const LatLng(43.3550, 42.4392);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _requestInitialLocation();
+    });
+  }
+
+  Future<void> _requestInitialLocation() async {
+    final pt =
+        await ref.read(trackingProvider.notifier).fetchInitialLocation();
+    if (pt != null && mounted) {
+      final target = LatLng(pt.latitude, pt.longitude);
+      setState(() {
+        _lastCenter = target;
+        _followUser = true;
+      });
+      _mapController.move(target, 15.0);
+    }
+  }
+
+  Future<void> _centerOnUser() async {
+    final curPt = ref.read(trackingProvider).currentPoint;
+    if (curPt != null) {
+      final target = LatLng(curPt.latitude, curPt.longitude);
+      setState(() {
+        _lastCenter = target;
+        _followUser = true;
+      });
+      _mapController.move(target, 16.0);
+    } else {
+      await _requestInitialLocation();
+    }
+  }
 
   String _formatDuration(int totalSeconds) {
     final int hours = totalSeconds ~/ 3600;
@@ -31,13 +66,6 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
     }
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  void _centerOnUser(LatLng target) {
-    _mapController.move(target, 16.0);
-    setState(() {
-      _followUser = true;
-    });
   }
 
   void _openAddWaypointDialog(BuildContext context) {
@@ -405,7 +433,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
           // 3. Map Utility Floating Buttons
           PositionBar(
-            onCenter: () => _centerOnUser(_lastCenter),
+            onCenter: _centerOnUser,
             isFollowing: _followUser,
             onZoomIn: () => _mapController.move(
               _mapController.camera.center,

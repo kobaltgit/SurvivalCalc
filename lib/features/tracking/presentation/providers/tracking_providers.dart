@@ -165,6 +165,52 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     return true;
   }
 
+  Future<GpsPoint?> fetchInitialLocation() async {
+    final hasPerm = await checkAndRequestPermission();
+    if (!hasPerm) return null;
+
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+
+      final pt = GpsPoint(
+        latitude: pos.latitude,
+        longitude: pos.longitude,
+        altitude: pos.altitude,
+        timestamp: DateTime.now(),
+        speedKmh: pos.speed > 0 ? pos.speed * 3.6 : 0.0,
+        accuracy: pos.accuracy,
+      );
+
+      state = state.copyWith(currentPoint: pt, errorMessage: null);
+      return pt;
+    } catch (e) {
+      try {
+        final lastPos = await Geolocator.getLastKnownPosition();
+        if (lastPos != null) {
+          final pt = GpsPoint(
+            latitude: lastPos.latitude,
+            longitude: lastPos.longitude,
+            altitude: lastPos.altitude,
+            timestamp: DateTime.now(),
+            speedKmh: lastPos.speed > 0 ? lastPos.speed * 3.6 : 0.0,
+            accuracy: lastPos.accuracy,
+          );
+          state = state.copyWith(currentPoint: pt, errorMessage: null);
+          return pt;
+        }
+      } catch (_) {}
+      state = state.copyWith(
+        errorMessage: 'Поиск спутников GPS... (убедитесь, что GPS включен)',
+      );
+      return null;
+    }
+  }
+
   Future<void> startTracking({int dayIndex = 1, String? title}) async {
     final hasPerm = await checkAndRequestPermission();
     if (!hasPerm) return;

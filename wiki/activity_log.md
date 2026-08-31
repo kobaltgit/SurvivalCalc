@@ -64,6 +64,8 @@
 - **[2026-08-31 18:00:00]** | `DOMAIN_LAYER` | `lib/features/tracking/domain/` | Реализованы доменные модели (`GpsPoint`, `WayPoint`, `DailyTrack`, `CampDebrief`) и сервисы (`DistanceCalculator` с фильтрацией шума и сглаживанием высот, `GpxExporter` для генерации XML GPX 1.1, `CampDebriefCalculator` для динамического пересчета TDEE, закрытия углеводно-жирового окна, гидратации и таяния веса рюкзака).
 - **[2026-08-31 18:01:00]** | `DATA_AND_PRESENTATION` | `lib/features/tracking/data/`, `lib/features/tracking/presentation/`, `lib/features/home/` | Реализован `TrackStorageRepository` (офлайн сохранение треков и путевых точек в SharedPreferences), `TrackingNotifier` (Riverpod управление записью трека в фоне, расчет скорости, высот и времени), `TrackingScreen` (интерактивная офлайн карта `flutter_map`, живой HUD, путевые метки, управление), `CampDebriefSheet` (вечерний экран дебрифинга с графиком профиля высот `fl_chart`, метаболическим анализом и экспортом GPX через `share_plus`), добавлена 5-я вкладка «В пути» в нижнюю навигацию.
 - **[2026-08-31 18:03:55]** | `UNIT_TESTS_AND_QA` | `test/features/tracking/`, `test/widget_test.dart` | Написаны и запущены unit-тесты (`distance_calculator_test.dart`, `camp_debrief_calculator_test.dart`, `gpx_exporter_test.dart`). Все 30/30 тестов пройдены успешно, `dart analyze` — 0 issues.
+- **[2026-08-31 18:07:49]** | `BUILD_RELEASE` | `build/app/outputs/flutter-apk/app-release.apk` | Успешно скомпилирован обновленный релизный APK Android (`app-release.apk`, 71.6 МБ) со встроенным GPS-трекером, картами `flutter_map`, модулем «Вечерний дебрифинг» (`Camp Debrief`), экспортом GPX 1.1 и сканером QR-кодов.
+
 
 
 
