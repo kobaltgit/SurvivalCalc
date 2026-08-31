@@ -96,6 +96,20 @@
   2. В `CachedTileProvider` и `OfflineTileDownloader` внедрен обязательный `User-Agent: SurvivalCalc/1.0.0`, заголовок `Accept` и троттлинг запросов (60 мс) для предотвращения rate-limit.
   3. В `OfflineTileRepository` добавлен валидатор magic-bytes изображений (PNG/JPEG > 500 байт) и автоматическая очистка поврежденных/заблокированных 403 файлов из локального кэша (`purgeCorruptedTiles`).
   4. Все 40/40 unit и widget тестов пройдены успешно, `dart analyze` — 0 issues.
+- **[2026-09-01 00:10:00]** | `DOCS_UPDATE` | `README.md` | Файл `README.md` дополнен и расширен:
+  1. Обновлен бейдж покрытия тестами на 40/40 Passing.
+  2. Добавлены подробные описания модулей «🗺️ Импорт планируемых GPX-маршрутов» (с 3D Haversine геометрией и эталонным треком «Тридцатка») и «📥 Менеджер офлайн-карт и кэширование тайлов (Tile Caching)» (расчет по радиусу и коридору трека, фоновый загрузчик, `CachedTileProvider`, защита от 403 / rate-limit).
+  3. Актуализирована архитектурная схема директорий проекта и таблица используемого технологического стека (`xml`, `file_picker`, `http`).
+- **[2026-09-01 00:25:00]** | `BUG_FIX` | `lib/features/tracking/` | Карты переведены на глобальный сервис **Esri World Topo Map** (BUG-11):
+  1. `CachedTileProvider` и `TrackingScreen` переведены на `https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}` на базе Akamai CDN (высокая скорость, детальный рельеф, изолинии высот, отсутствие водяных знаков и ограничений).
+  2. `OfflineTileDownloader` обновлен с поддержкой ArcGIS REST тайлов и OpenTopoMap.
+  3. В `OfflineTileRepository` активирован автоматический сброс кэша (`purged_watermarked_esri_v5`) для мгновенного удаления заглушек с устройства.
+  4. Скомпилирован финальный релизный APK `build/SurvivalCalc_v1.0.0.apk` (72.2 МБ). Все 40/40 тестов пройдены, `dart analyze` — 0 issues.
+
+
+
+
+
 
 
 

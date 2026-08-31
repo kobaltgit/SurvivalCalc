@@ -288,9 +288,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             children: [
               TileLayer(
                 tileProvider: CachedTileProvider(
-                  fallbackUrlTemplate: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                  fallbackUrlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
                 ),
-                urlTemplate: 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.survivalcalc.app',
               ),
               // Planned GPX Route Layer (Cyan)

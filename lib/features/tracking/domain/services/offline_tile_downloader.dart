@@ -25,16 +25,23 @@ class DownloadProgress {
 
 class OfflineTileDownloader {
   static const List<String> _tileServers = [
-    'https://a.basemaps.cartocdn.com/rastertiles/voyager',
-    'https://tile.openstreetmap.org',
-    'https://a.tile.openstreetmap.fr/osmfr',
-    'https://tile.opentopomap.org',
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile',
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile',
+    'https://a.tile.opentopomap.org',
+    'https://tile.openstreetmap.de',
   ];
   static const int _concurrency = 3;
   static const Map<String, String> _headers = {
-    'User-Agent': 'SurvivalCalc/1.0.0 (https://github.com/kobaltgit/SurvivalCalc; contact@survivalcalc.app)',
+    'User-Agent': 'SurvivalCalc/1.0.0 (Outdoor Expedition App; contact@survivalcalc.app)',
     'Accept': 'image/webp,image/png,image/jpeg,*/*',
   };
+
+  static String _buildTileUrl(String server, int z, int x, int y) {
+    if (server.contains('arcgisonline.com')) {
+      return '$server/$z/$y/$x';
+    }
+    return '$server/$z/$x/$y.png';
+  }
 
   bool _isCancelled = false;
 
@@ -92,7 +99,7 @@ class OfflineTileDownloader {
         for (final server in _tileServers) {
           if (_isCancelled) break;
           try {
-            final url = Uri.parse('$server/${tile.z}/${tile.x}/${tile.y}.png');
+            final url = Uri.parse(_buildTileUrl(server, tile.z, tile.x, tile.y));
             final response = await client.get(url, headers: _headers).timeout(const Duration(seconds: 8));
 
             if (response.statusCode == 200 && response.bodyBytes.length > 500) {

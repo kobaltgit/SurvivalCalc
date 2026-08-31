@@ -8,7 +8,7 @@ class CachedTileProvider extends TileProvider {
   final String fallbackUrlTemplate;
 
   CachedTileProvider({
-    this.fallbackUrlTemplate = 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+    this.fallbackUrlTemplate = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     Map<String, String>? headers,
   }) : super(
           headers: headers != null

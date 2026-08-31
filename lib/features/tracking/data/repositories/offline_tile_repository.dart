@@ -64,6 +64,11 @@ class OfflineTileRepository {
 
   static Future<void> init() async {
     await getTilesBasePath();
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('purged_watermarked_esri_v5') != true) {
+      await clearAllTiles();
+      await prefs.setBool('purged_watermarked_esri_v5', true);
+    }
     // Automatically purge any blocked or corrupted 0-byte or error tiles
     await purgeCorruptedTiles();
   }
