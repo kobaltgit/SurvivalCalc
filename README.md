@@ -25,16 +25,16 @@
 <table>
   <tr>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot01.png" width="100%" alt="Состав группы и роли" /><br />
+      <img src="docs/screenshots/screenshot01.png" width="100%" alt="Состав группы, роли, должности и здоровье" /><br />
       <b>Состав группы, роли и здоровье</b>
     </td>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot02.png" width="100%" alt="Маршрут, рельеф и сезон" /><br />
-      <b>Дни, рельеф, эквивалентная дистанция</b>
+      <img src="docs/screenshots/screenshot02.png" width="100%" alt="Дистанция, рельеф и выбор сезона" /><br />
+      <b>Дистанция, рельеф и сезон</b>
     </td>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot03.png" width="100%" alt="Типы активности" /><br />
-      <b>Выбор активности и расчёт</b>
+      <img src="docs/screenshots/screenshot03.png" width="100%" alt="Тип активности и экспресс-сводка" /><br />
+      <b>Тип активности и экспресс-сводка</b>
     </td>
   </tr>
 </table>
@@ -45,19 +45,19 @@
 <table>
   <tr>
     <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot04.png" width="100%" alt="Сводка энергозатрат" /><br />
-      <b>Нормы БЖУ, вода и калории</b>
+      <img src="docs/screenshots/screenshot04.png" width="100%" alt="Стартовый вес рюкзака и круговая диаграмма" /><br />
+      <b>Стартовый вес рюкзака</b>
     </td>
     <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot05.png" width="100%" alt="График таяния рюкзака" /><br />
-      <b>График таяния веса по дням</b>
+      <img src="docs/screenshots/screenshot05.png" width="100%" alt="График таяния веса и баланс БЖУ" /><br />
+      <b>График таяния и БЖУ</b>
     </td>
     <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot06.png" width="100%" alt="Круговые диаграммы структуры веса" /><br />
-      <b>Круговые диаграммы веса и БЖУ</b>
+      <img src="docs/screenshots/screenshot06.png" width="100%" alt="Вода, электролиты и расход топлива" /><br />
+      <b>Вода, натрий и топливо</b>
     </td>
     <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot07.png" width="100%" alt="Кто что несёт" /><br />
+      <img src="docs/screenshots/screenshot07.png" width="100%" alt="Персональная развесовка Кто что несёт" /><br />
       <b>Развесовка «Кто что несёт»</b>
     </td>
   </tr>
@@ -69,84 +69,84 @@
 <table>
   <tr>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot08.png" width="100%" alt="Офлайн-карта и HUD" /><br />
+      <img src="docs/screenshots/screenshot08.png" width="100%" alt="Офлайн-карта и тактический HUD" /><br />
       <b>Офлайн-карта и тактический HUD</b>
     </td>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot09.png" width="100%" alt="Живая запись трека" /><br />
+      <img src="docs/screenshots/screenshot09.png" width="100%" alt="Запись GPS-трека на карте" /><br />
       <b>Запись трека и скорость</b>
     </td>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot10.png" width="100%" alt="Диалог лагеря и паузы" /><br />
-      <b>Диалог «Лагерь» и «Пауза»</b>
+      <img src="docs/screenshots/screenshot10.png" width="100%" alt="Диалог завершения дня и пауза" /><br />
+      <b>Завершение дня и подсказка «На паузу»</b>
     </td>
   </tr>
 </table>
 
 ---
 
-### 4. Вечерний дебрифинг («Лагерь») и история треков
-<table>
-  <tr>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot11.png" width="100%" alt="Дебрифинг перехода" /><br />
-      <b>Метрики План vs Факт</b>
-    </td>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot12.png" width="100%" alt="Профиль высот дня" /><br />
-      <b>Профиль высот и энергозатраты</b>
-    </td>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot13.png" width="100%" alt="Метаболический баланс и экспорт" /><br />
-      <b>Водно-солевой баланс и GPX</b>
-    </td>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot14.png" width="100%" alt="История треков и песочница" /><br />
-      <b>История и 🧪 Песочница</b>
-    </td>
-  </tr>
-</table>
-
----
-
-### 5. Продуктовая раскладка и меню дежурных
+### 4. Вечерний лагерь (Camp Debrief) и история треков
 <table>
   <tr>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot15.png" width="100%" alt="Список покупок" /><br />
+      <img src="docs/screenshots/screenshot11.png" width="100%" alt="Профиль высот дня и факт vs план" /><br />
+      <b>Профиль высот и факт vs план</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot12.png" width="100%" alt="Водно-солевой баланс и GPX экспорт" /><br />
+      <b>Водно-солевой баланс и GPX экспорт</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot13.png" width="100%" alt="История треков и Песочница" /><br />
+      <b>История треков и 🧪 Песочница</b>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 5. Продуктовая раскладка и чек-лист снаряжения
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot14.png" width="100%" alt="Сводный список покупок" /><br />
       <b>Сводный список покупок</b>
     </td>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot16.png" width="100%" alt="Меню по дням" /><br />
+      <img src="docs/screenshots/screenshot15.png" width="100%" alt="Меню по дням, спецдиеты и дежурные" /><br />
       <b>Меню по дням и дежурные</b>
     </td>
     <td align="center" width="33%">
-      <img src="docs/screenshots/screenshot17.png" width="100%" alt="Добавление своего продукта" /><br />
-      <b>Добавление своих продуктов</b>
+      <img src="docs/screenshots/screenshot16.png" width="100%" alt="Чек-лист снаряжения" /><br />
+      <b>Чек-лист снаряжения</b>
     </td>
   </tr>
 </table>
 
 ---
 
-### 6. Снаряжение, библиотека походов и QR-синхронизация
+### 6. Библиотека походов и офлайн QR-синхронизация
 <table>
   <tr>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot18.png" width="100%" alt="Чек-лист снаряжения" /><br />
-      <b>Чек-лист снаряжения</b>
+    <td align="center" width="20%">
+      <img src="docs/screenshots/screenshot17.png" width="100%" alt="Мои походы" /><br />
+      <b>Сохранение в «Мои походы»</b>
     </td>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot19.png" width="100%" alt="Библиотека походов" /><br />
-      <b>Мои походы и шаблоны</b>
+    <td align="center" width="20%">
+      <img src="docs/screenshots/screenshot18.png" width="100%" alt="Шаблоны походов" /><br />
+      <b>Шаблоны готовых походов</b>
     </td>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot20.png" width="100%" alt="QR-код похода" /><br />
-      <b>Поделиться по QR-коду</b>
+    <td align="center" width="20%">
+      <img src="docs/screenshots/screenshot19.png" width="100%" alt="Меню синхронизации" /><br />
+      <b>Меню синхронизации</b>
     </td>
-    <td align="center" width="25%">
-      <img src="docs/screenshots/screenshot21.png" width="100%" alt="Встроенный сканер камеры" /><br />
-      <b>Встроенный Live QR-сканер</b>
+    <td align="center" width="20%">
+      <img src="docs/screenshots/screenshot20.png" width="100%" alt="Поделиться по QR-коду" /><br />
+      <b>Генерация QR-кода</b>
+    </td>
+    <td align="center" width="20%">
+      <img src="docs/screenshots/screenshot21.png" width="100%" alt="Импорт по QR и ключу" /><br />
+      <b>Импорт и сканер камеры</b>
     </td>
   </tr>
 </table>
