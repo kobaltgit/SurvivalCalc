@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,14 +41,8 @@ class _GpxImportDialogState extends ConsumerState<GpxImportDialog> {
 
       if (files.isNotEmpty) {
         final file = files.first;
-        String content = '';
-
-        if (file.path != null) {
-          final f = File(file.path!);
-          if (await f.exists()) {
-            content = await f.readAsString();
-          }
-        }
+        final bytes = await file.readAsBytes();
+        final content = utf8.decode(bytes);
 
         if (content.isNotEmpty) {
           final route = await ref
