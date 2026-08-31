@@ -105,6 +105,7 @@
   2. `OfflineTileDownloader` обновлен с поддержкой ArcGIS REST тайлов и OpenTopoMap.
   3. В `OfflineTileRepository` активирован автоматический сброс кэша (`purged_watermarked_esri_v5`) для мгновенного удаления заглушек с устройства.
   4. Скомпилирован финальный релизный APK `build/SurvivalCalc_v1.0.0.apk` (72.2 МБ). Все 40/40 тестов пройдены, `dart analyze` — 0 issues.
+- **[2026-09-01 01:50:30]** | `GIT_PUSH` | `origin/feature/gps-tracking-and-camp-debrief` | Изменения успешно закоммичены (`915fe6c`) и отправлены в удаленный репозиторий GitHub.
 
 
 
