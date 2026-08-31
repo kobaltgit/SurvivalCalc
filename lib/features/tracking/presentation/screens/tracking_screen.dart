@@ -90,47 +90,118 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   }
 
   void _finishDay(BuildContext context) async {
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: OutdoorTheme.surfaceCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.cabin, color: OutdoorTheme.signalOrange),
-            SizedBox(width: 10),
-            Text(
-              'Завершить ходовой день?',
-              style: TextStyle(
-                color: OutdoorTheme.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    final String action = await showDialog<String>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: OutdoorTheme.surfaceCard,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Row(
+              children: [
+                Icon(Icons.cabin, color: OutdoorTheme.signalOrange),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Встать на ночевку и завершить день?',
+                    style: TextStyle(
+                      color: OutdoorTheme.textPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Это действие окончательно завершит текущий ходовой день, сохранит трек в историю и сформирует вечерний дебрифинг по питанию и калориям.',
+                  style: TextStyle(
+                      color: OutdoorTheme.textSecondary,
+                      fontSize: 13,
+                      height: 1.4),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: OutdoorTheme.surfaceCardElevated,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color:
+                            OutdoorTheme.signalOrange.withValues(alpha: 0.3)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline,
+                          color: OutdoorTheme.signalOrange, size: 20),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Если вы остановились на обед, привал или радиальный выход — используйте «Паузу», чтобы продолжить запись позже.',
+                          style: TextStyle(
+                              color: OutdoorTheme.textPrimary,
+                              fontSize: 12,
+                              height: 1.3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actions: [
+              OutlinedButton(
+                onPressed: () => Navigator.pop(ctx, 'pause'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.amber,
+                  side: const BorderSide(color: Colors.amber),
+                ),
+                child: const Text('На паузу'),
               ),
-            ),
-          ],
-        ),
-        content: const Text(
-          'Запись трека будет остановлена, данные сохранены в дневник похода и сформирован вечерний метаболический отчет.',
-          style: TextStyle(color: OutdoorTheme.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Отмена', style: TextStyle(color: OutdoorTheme.textSecondary)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, 'cancel'),
+                    child: const Text('Отмена',
+                        style: TextStyle(color: OutdoorTheme.textSecondary)),
+                  ),
+                  const SizedBox(width: 6),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, 'finish'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OutdoorTheme.signalOrange,
+                      foregroundColor: Colors.black,
+                    ),
+                    child: const Text('Завершить',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: OutdoorTheme.signalOrange,
-              foregroundColor: Colors.black,
-            ),
-            child: const Text('Завершить день', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
+        ) ??
+        'cancel';
 
-    if (confirm == true && context.mounted) {
+    if (action == 'pause') {
+      ref.read(trackingProvider.notifier).pauseTracking();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Трек поставлен на паузу. Нажмите «Продолжить», когда возобновите движение.'),
+            backgroundColor: Colors.amber,
+          ),
+        );
+      }
+      return;
+    }
+
+    if (action == 'finish' && context.mounted) {
       final activeTrack = ref.read(trackingProvider).activeTrack;
       final debrief =
           await ref.read(trackingProvider.notifier).stopAndFinishDay();

@@ -2,6 +2,8 @@ import 'package:survival_calc/features/tracking/domain/models/gps_point.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 
 class DailyTrack {
+  static const String sandboxTripId = 'sandbox_test_trip';
+
   final String id;
   final int dayIndex;
   final String? tripId;
@@ -18,6 +20,8 @@ class DailyTrack {
   final double avgMovingSpeedKmh;
   final double maxSpeedKmh;
   final bool isCompleted;
+  final bool isSimulation;
+  final int segmentIndex;
 
   const DailyTrack({
     required this.id,
@@ -36,6 +40,8 @@ class DailyTrack {
     this.avgMovingSpeedKmh = 0.0,
     this.maxSpeedKmh = 0.0,
     this.isCompleted = false,
+    this.isSimulation = false,
+    this.segmentIndex = 1,
   });
 
   DailyTrack copyWith({
@@ -55,6 +61,8 @@ class DailyTrack {
     double? avgMovingSpeedKmh,
     double? maxSpeedKmh,
     bool? isCompleted,
+    bool? isSimulation,
+    int? segmentIndex,
   }) {
     return DailyTrack(
       id: id ?? this.id,
@@ -75,6 +83,8 @@ class DailyTrack {
       avgMovingSpeedKmh: avgMovingSpeedKmh ?? this.avgMovingSpeedKmh,
       maxSpeedKmh: maxSpeedKmh ?? this.maxSpeedKmh,
       isCompleted: isCompleted ?? this.isCompleted,
+      isSimulation: isSimulation ?? this.isSimulation,
+      segmentIndex: segmentIndex ?? this.segmentIndex,
     );
   }
 
@@ -96,6 +106,8 @@ class DailyTrack {
       'avgMovingSpeedKmh': avgMovingSpeedKmh,
       'maxSpeedKmh': maxSpeedKmh,
       'isCompleted': isCompleted,
+      'isSimulation': isSimulation,
+      'segmentIndex': segmentIndex,
     };
   }
 
@@ -128,6 +140,8 @@ class DailyTrack {
           (json['avgMovingSpeedKmh'] as num?)?.toDouble() ?? 0.0,
       maxSpeedKmh: (json['maxSpeedKmh'] as num?)?.toDouble() ?? 0.0,
       isCompleted: json['isCompleted'] as bool? ?? false,
+      isSimulation: json['isSimulation'] as bool? ?? false,
+      segmentIndex: json['segmentIndex'] as int? ?? 1,
     );
   }
 }

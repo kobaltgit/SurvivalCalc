@@ -65,7 +65,10 @@ const String _kLogoSvg = '''
 ''';
 
 class AppLogo extends StatelessWidget {
+  static const String svgRawString = _kLogoSvg;
+
   final double? width;
+
   final double? height;
   final BoxFit fit;
 

@@ -82,4 +82,30 @@ class TrackStorageRepository {
         jsonEncode(list.map((t) => t.toJson()).toList());
     await prefs.setString(_keyCompletedTracks, encoded);
   }
+
+  /// Retrieve completed tracks for a specific trip
+  Future<List<DailyTrack>> getTracksForTrip(String tripId) async {
+    final all = await getCompletedTracks();
+    return all.where((t) => t.tripId == tripId && !t.isSimulation).toList();
+  }
+
+  /// Retrieve sandbox / simulation tracks
+  Future<List<DailyTrack>> getSandboxTracks() async {
+    final all = await getCompletedTracks();
+    return all
+        .where((t) =>
+            t.isSimulation || t.tripId == DailyTrack.sandboxTripId)
+        .toList();
+  }
+
+  /// Clear all sandbox / simulation tracks
+  Future<void> clearSandboxTracks() async {
+    final prefs = await _getPrefs();
+    final List<DailyTrack> list = await getCompletedTracks();
+    list.removeWhere((t) =>
+        t.isSimulation || t.tripId == DailyTrack.sandboxTripId);
+    final String encoded =
+        jsonEncode(list.map((t) => t.toJson()).toList());
+    await prefs.setString(_keyCompletedTracks, encoded);
+  }
 }

@@ -66,9 +66,10 @@
 - **[2026-08-31 18:03:55]** | `UNIT_TESTS_AND_QA` | `test/features/tracking/`, `test/widget_test.dart` | Написаны и запущены unit-тесты (`distance_calculator_test.dart`, `camp_debrief_calculator_test.dart`, `gpx_exporter_test.dart`). Все 30/30 тестов пройдены успешно, `dart analyze` — 0 issues.
 - **[2026-08-31 18:07:49]** | `BUILD_RELEASE` | `build/app/outputs/flutter-apk/app-release.apk` | Успешно скомпилирован обновленный релизный APK Android (`app-release.apk`, 71.6 МБ) со встроенным GPS-трекером, картами `flutter_map`, модулем «Вечерний дебрифинг» (`Camp Debrief`), экспортом GPX 1.1 и сканером QR-кодов.
 - **[2026-08-31 18:13:11]** | `BUILD_RELEASE` | `build/app/outputs/flutter-apk/app-release.apk` | Успешно пересобран релизный APK Android (`app-release.apk`, 71.6 МБ) с актуальными изменениями кодовой базы. 30/30 тестов пройдены, 0 замечаний линтера.
-
-
-
-
-
-
+- **[2026-08-31 18:42:36]** | `FEATURE_UPDATE` | `pubspec.yaml`, `assets/images/app_logo.png`, `android/app/src/main/res/` | Сгенерирован полный набор launcher-иконок приложения под все плотности экранов Android (mipmap mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi, adaptive icons) из векторного `logo.svg` через `flutter_launcher_icons`.
+- **[2026-08-31 18:44:57]** | `BUILD_RELEASE` | `build/SurvivalCalc_v1.0.0.apk` | Успешно скомпилирован релизный APK с красивым именем `SurvivalCalc_v1.0.0.apk` (71.9 МБ), новой иконкой приложения и полным набором модулей.
+- **[2026-08-31 18:52:40]** | `FEATURE_UPDATE` | `assets/images/app_logo.png`, `android/app/src/main/res/`, `web/icons/`, `windows/runner/resources/` | Пересозданы все иконки и логотипы во всех разрешениях (Android mipmap/drawable, Web, Windows) на основе выровненного квадратного исходника 1:1 `app_logo.png`. Сборка приложения отложена по запросу пользователя.
+- **[2026-08-31 19:12:00]** | `FEATURE_ENHANCEMENT` | `lib/features/tracking/domain/models/daily_track.dart`, `lib/features/tracking/data/repositories/track_storage_repository.dart` | В модель `DailyTrack` добавлены поля `tripId`, `isSimulation` и `segmentIndex`. В `TrackStorageRepository` реализована фильтрация по `tripId`, изоляция песочницы (`sandbox_test_trip`), точечное удаление треков и полная очистка тестовых данных.
+- **[2026-08-31 19:12:30]** | `FEATURE_ENHANCEMENT` | `lib/features/tracking/presentation/providers/tracking_providers.dart` | В `TrackingNotifier` реализован умный расчет номеров дней (`calculateNextDayInfo`), календарная группировка переходов, честная скорость симуляции ($4.8\text{ км/ч}$), провайдеры `currentTripTracksProvider` и `sandboxTracksProvider`.
+- **[2026-08-31 19:12:45]** | `UI_UPDATE` | `lib/features/tracking/presentation/widgets/track_history_sheet.dart`, `lib/features/tracking/presentation/screens/tracking_screen.dart` | В «Историю треков» добавлены табы «Текущий поход» и «Песочница», бейджи `[ТЕСТ]`, кнопка очистки песочницы и удаление треков с модальным предупреждением. В диалог кнопки «Лагерь» добавлено явное предупреждение и кнопка «На паузу».
+- **[2026-08-31 19:13:00]** | `TESTS_AND_QA` | `test/features/tracking/track_storage_repository_test.dart` | Написаны unit-тесты изоляции песочницы, фильтрации по походам и удаления треков. Все 35/35 тестов пройдены успешно, `dart analyze` — 0 issues.

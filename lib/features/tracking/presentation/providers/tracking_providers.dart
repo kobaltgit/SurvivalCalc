@@ -29,6 +29,20 @@ final completedTracksProvider =
   return repo.getCompletedTracks();
 });
 
+final currentTripTracksProvider =
+    FutureProvider.autoDispose<List<DailyTrack>>((ref) async {
+  final repo = ref.watch(trackStorageRepositoryProvider);
+  final activeTrip = ref.watch(activeTripProfileProvider);
+  final tripId = activeTrip.id.isNotEmpty ? activeTrip.id : 'current_trip';
+  return repo.getTracksForTrip(tripId);
+});
+
+final sandboxTracksProvider =
+    FutureProvider.autoDispose<List<DailyTrack>>((ref) async {
+  final repo = ref.watch(trackStorageRepositoryProvider);
+  return repo.getSandboxTracks();
+});
+
 // State for Live Tracking
 enum TrackingStatus {
   idle,
@@ -212,17 +226,100 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     }
   }
 
-  Future<void> startTracking({int dayIndex = 1, String? title}) async {
+  Future<({int dayIndex, int segmentIndex, String title})>
+      calculateNextDayInfo({
+    required String tripId,
+    required DateTime startTime,
+    bool isSimulation = false,
+  }) async {
+    if (isSimulation || tripId == DailyTrack.sandboxTripId) {
+      final sandboxTracks = await _repository.getSandboxTracks();
+      final count = sandboxTracks.length + 1;
+      return (
+        dayIndex: count,
+        segmentIndex: 1,
+        title: 'Тестовый переход #$count',
+      );
+    }
+
+    final tracks = await _repository.getTracksForTrip(tripId);
+    if (tracks.isEmpty) {
+      return (
+        dayIndex: 1,
+        segmentIndex: 1,
+        title: 'Ходовой день 1',
+      );
+    }
+
+    // Sort tracks chronologically
+    final sorted = List<DailyTrack>.from(tracks)
+      ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    final firstTrack = sorted.first;
+
+    final firstDate = DateTime(
+      firstTrack.startTime.year,
+      firstTrack.startTime.month,
+      firstTrack.startTime.day,
+    );
+    final today = DateTime(
+      startTime.year,
+      startTime.month,
+      startTime.day,
+    );
+
+    final int dayIndex = today.difference(firstDate).inDays + 1;
+    final int safeDayIndex = dayIndex < 1 ? 1 : dayIndex;
+
+    // Count how many tracks occurred today for this trip
+    final todayTracks = sorted.where((t) {
+      final tDate = DateTime(
+        t.startTime.year,
+        t.startTime.month,
+        t.startTime.day,
+      );
+      return tDate == today;
+    }).toList();
+
+    final int segmentIndex = todayTracks.length + 1;
+    final String title = segmentIndex > 1
+        ? 'День $safeDayIndex (Переход $segmentIndex)'
+        : 'Ходовой день $safeDayIndex';
+
+    return (
+      dayIndex: safeDayIndex,
+      segmentIndex: segmentIndex,
+      title: title,
+    );
+  }
+
+  Future<void> startTracking({
+    int? dayIndex,
+    String? title,
+    String? tripId,
+  }) async {
     final hasPerm = await checkAndRequestPermission();
     if (!hasPerm) return;
 
     _simTimer?.cancel();
     final now = DateTime.now();
+    final activeTrip = ref.read(activeTripProfileProvider);
+    final targetTripId = tripId ??
+        (activeTrip.id.isNotEmpty ? activeTrip.id : 'current_trip');
+
+    final dayInfo = await calculateNextDayInfo(
+      tripId: targetTripId,
+      startTime: now,
+      isSimulation: false,
+    );
+
     final newTrack = DailyTrack(
       id: 'track_${now.millisecondsSinceEpoch}',
-      dayIndex: dayIndex,
-      title: title ?? 'Ходовой день $dayIndex',
+      tripId: targetTripId,
+      dayIndex: dayIndex ?? dayInfo.dayIndex,
+      segmentIndex: dayInfo.segmentIndex,
+      title: title ?? dayInfo.title,
       startTime: now,
+      isSimulation: false,
     );
 
     state = state.copyWith(
@@ -241,17 +338,29 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     await _repository.saveActiveTrack(newTrack);
   }
 
-  /// Start simulated movement (test mode without real GPS)
-  void startSimulation({int dayIndex = 1, String? title}) {
+  /// Start simulated movement (test mode in sandbox with realistic ~4.8 km/h speed)
+  Future<void> startSimulation({
+    int? dayIndex,
+    String? title,
+  }) async {
     _positionSubscription?.cancel();
     _simTimer?.cancel();
 
     final now = DateTime.now();
+    final dayInfo = await calculateNextDayInfo(
+      tripId: DailyTrack.sandboxTripId,
+      startTime: now,
+      isSimulation: true,
+    );
+
     final newTrack = DailyTrack(
       id: 'sim_track_${now.millisecondsSinceEpoch}',
-      dayIndex: dayIndex,
-      title: title ?? 'Тестовый переход (День $dayIndex)',
+      tripId: DailyTrack.sandboxTripId,
+      dayIndex: dayIndex ?? dayInfo.dayIndex,
+      segmentIndex: dayInfo.segmentIndex,
+      title: title ?? dayInfo.title,
       startTime: now,
+      isSimulation: true,
     );
 
     state = state.copyWith(
@@ -260,8 +369,8 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
       totalElapsedSeconds: 0,
       movingSeconds: 0,
       pauseSeconds: 0,
-      liveSpeedKmh: 4.5,
-      maxSpeedKmh: 4.8,
+      liveSpeedKmh: 4.8,
+      maxSpeedKmh: 5.0,
       errorMessage: null,
     );
 
@@ -271,16 +380,18 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     double lng = state.currentPoint?.longitude ?? 37.6173;
     double alt = state.currentPoint?.altitude ?? 150.0;
 
+    // Realistic walking step: ~1.33 m/s (~4.8 km/h) = ~0.000010 deg latitude per second
     _simTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.status != TrackingStatus.tracking || state.activeTrack == null) {
         timer.cancel();
         return;
       }
 
-      lat += 0.00012 + (timer.tick % 3) * 0.00003;
-      lng += 0.00015 + (timer.tick % 2) * 0.00002;
-      alt += 1.2 + (timer.tick % 4) * 0.4;
-      final speed = 4.2 + (timer.tick % 5) * 0.25;
+      // Small realistic step ~1.33 meters per second
+      lat += 0.000010 + (timer.tick % 3) * 0.000002;
+      lng += 0.000012 + (timer.tick % 2) * 0.000002;
+      alt += 0.12 + (timer.tick % 4) * 0.04;
+      final speed = 4.7 + (timer.tick % 5) * 0.10;
 
       final pt = GpsPoint(
         latitude: lat,
@@ -291,9 +402,12 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
         accuracy: 3.0,
       );
 
-      final updatedPoints = List<GpsPoint>.from(state.activeTrack!.points)..add(pt);
-      final double distanceKm = _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
-      final elevation = _distanceCalculator.calculateElevationProfile(updatedPoints);
+      final updatedPoints = List<GpsPoint>.from(state.activeTrack!.points)
+        ..add(pt);
+      final double distanceKm =
+          _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
+      final elevation =
+          _distanceCalculator.calculateElevationProfile(updatedPoints);
       final double avgMovingSpeedKmh = state.movingSeconds > 0
           ? (distanceKm / (state.movingSeconds / 3600.0))
           : speed;
@@ -317,6 +431,19 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
         maxSpeedKmh: maxSpeed,
       );
     });
+  }
+
+  Future<void> deleteTrack(String trackId) async {
+    await _repository.deleteTrack(trackId);
+    ref.invalidate(completedTracksProvider);
+    ref.invalidate(currentTripTracksProvider);
+    ref.invalidate(sandboxTracksProvider);
+  }
+
+  Future<void> clearSandboxTracks() async {
+    await _repository.clearSandboxTracks();
+    ref.invalidate(completedTracksProvider);
+    ref.invalidate(sandboxTracksProvider);
   }
 
   void pauseTracking() {
@@ -500,6 +627,8 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     await _repository.saveCompletedTrack(finalTrack);
     await _repository.saveActiveTrack(null);
     ref.invalidate(completedTracksProvider);
+    ref.invalidate(currentTripTracksProvider);
+    ref.invalidate(sandboxTracksProvider);
 
     // Generate evening debrief
     final profile = ref.read(activeTripProfileProvider);
