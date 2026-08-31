@@ -8,12 +8,18 @@ import 'package:survival_calc/features/home/presentation/screens/main_navigation
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set system navigation and status bar style
+  // Enable immersive sticky fullscreen mode (hides Android navigation bar and status bar)
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.immersiveSticky,
+  );
+
+  // Set system navigation and status bar style to transparent
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: OutdoorTheme.surfaceCard,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.light,
     ),
   );
