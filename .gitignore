@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+raw-sources/PresentationSurvivalCalc.ai
+raw-sources/SurvivalCalc_Tactical_Navigator.pdf
+.kotlin/
+android/.kotlin/

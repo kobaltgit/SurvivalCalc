@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:survival_calc/features/tracking/data/repositories/offline_tile_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize offline tile repository path
+  await OfflineTileRepository.init();
 
   // Enable immersive sticky fullscreen mode (hides Android navigation bar and status bar)
   await SystemChrome.setEnabledSystemUIMode(

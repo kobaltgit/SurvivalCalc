@@ -4,9 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/add_waypoint_dialog.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/cached_tile_provider.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/camp_debrief_sheet.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_dialog.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/offline_maps_sheet.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/track_history_sheet.dart';
 
 class TrackingScreen extends ConsumerStatefulWidget {
@@ -243,6 +247,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     final state = ref.watch(trackingProvider);
     final track = state.activeTrack;
     final curPt = state.currentPoint;
+    final plannedRoute = ref.watch(plannedRouteProvider);
 
     // Center map on live location if following
     if (curPt != null) {
@@ -256,6 +261,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
     final List<LatLng> polylinePoints = track != null
         ? track.points.map((p) => LatLng(p.latitude, p.longitude)).toList()
+        : [];
+
+    final List<LatLng> plannedPoints = plannedRoute != null
+        ? plannedRoute.points.map((p) => LatLng(p.latitude, p.longitude)).toList()
         : [];
 
     return Scaffold(
@@ -278,9 +287,48 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             ),
             children: [
               TileLayer(
+                tileProvider: CachedTileProvider(),
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.survivalcalc.app',
               ),
+              // Planned GPX Route Layer (Cyan)
+              if (plannedPoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: plannedPoints,
+                      strokeWidth: 4.0,
+                      color: Colors.cyanAccent.withValues(alpha: 0.85),
+                    ),
+                  ],
+                ),
+              // Planned Route Waypoints
+              if (plannedRoute != null && plannedRoute.waypoints.isNotEmpty)
+                MarkerLayer(
+                  markers: plannedRoute.waypoints.map((wp) {
+                    return Marker(
+                      point: LatLng(wp.latitude, wp.longitude),
+                      width: 32,
+                      height: 32,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _getWaypointColor(wp.type),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.cyanAccent, width: 2),
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black45, blurRadius: 4),
+                          ],
+                        ),
+                        child: Icon(
+                          _getWaypointIcon(wp.type),
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              // Recorded Track Layer (Orange)
               if (polylinePoints.isNotEmpty)
                 PolylineLayer(
                   polylines: [
@@ -291,7 +339,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                     ),
                   ],
                 ),
-              // Waypoint Markers
+              // Recorded Track Waypoint Markers
               if (track != null && track.waypoints.isNotEmpty)
                 MarkerLayer(
                   markers: track.waypoints.map((wp) {
@@ -363,6 +411,46 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
               child: Column(
                 children: [
                   _buildHudHeader(state),
+                  if (plannedRoute != null) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: OutdoorTheme.surfaceCard.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.alt_route, color: Colors.cyanAccent, size: 16),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'ПЛАН: ${plannedRoute.name} (${plannedRoute.totalDistanceKm} км • +${plannedRoute.totalAscentMeters.toInt()} м)',
+                              style: const TextStyle(
+                                color: OutdoorTheme.textPrimary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              if (plannedRoute.points.isNotEmpty) {
+                                final midPt = plannedRoute.points[plannedRoute.points.length ~/ 2];
+                                _mapController.move(LatLng(midPt.latitude, midPt.longitude), 13.0);
+                              }
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              child: Icon(Icons.center_focus_strong, color: Colors.cyanAccent, size: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   if (state.errorMessage != null) ...[
                     const SizedBox(height: 8),
                     Container(
@@ -403,6 +491,24 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
               _mapController.camera.zoom - 1,
             ),
             onHistory: () => _openTrackHistory(context),
+            onOfflineMaps: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (ctx) => FractionallySizedBox(
+                  heightFactor: 0.80,
+                  child: OfflineMapsSheet(currentCenter: _lastCenter),
+                ),
+              );
+            },
+            onImportGpx: () async {
+              final route = await GpxImportDialog.show(context);
+              if (route != null && route.points.isNotEmpty) {
+                final firstPt = route.points.first;
+                _mapController.move(LatLng(firstPt.latitude, firstPt.longitude), 13.0);
+              }
+            },
           ),
 
           // 4. Bottom Control Bar
@@ -676,6 +782,8 @@ class PositionBar extends StatelessWidget {
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
   final VoidCallback onHistory;
+  final VoidCallback onOfflineMaps;
+  final VoidCallback onImportGpx;
 
   const PositionBar({
     super.key,
@@ -684,6 +792,8 @@ class PositionBar extends StatelessWidget {
     required this.onZoomIn,
     required this.onZoomOut,
     required this.onHistory,
+    required this.onOfflineMaps,
+    required this.onImportGpx,
   });
 
   @override
@@ -700,6 +810,7 @@ class PositionBar extends StatelessWidget {
                 : OutdoorTheme.surfaceCard,
             foregroundColor: isFollowing ? Colors.black : Colors.white,
             onPressed: onCenter,
+            tooltip: 'Мое местоположение',
             child: const Icon(Icons.my_location),
           ),
           const SizedBox(height: 8),
@@ -708,6 +819,7 @@ class PositionBar extends StatelessWidget {
             backgroundColor: OutdoorTheme.surfaceCard,
             foregroundColor: Colors.white,
             onPressed: onZoomIn,
+            tooltip: 'Приблизить',
             child: const Icon(Icons.add),
           ),
           const SizedBox(height: 8),
@@ -716,7 +828,26 @@ class PositionBar extends StatelessWidget {
             backgroundColor: OutdoorTheme.surfaceCard,
             foregroundColor: Colors.white,
             onPressed: onZoomOut,
+            tooltip: 'Отдалить',
             child: const Icon(Icons.remove),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.small(
+            heroTag: 'offline_maps',
+            backgroundColor: OutdoorTheme.surfaceCard,
+            foregroundColor: OutdoorTheme.signalOrange,
+            onPressed: onOfflineMaps,
+            tooltip: 'Скачать офлайн-карту',
+            child: const Icon(Icons.download_for_offline),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.small(
+            heroTag: 'gpx_import',
+            backgroundColor: OutdoorTheme.surfaceCard,
+            foregroundColor: Colors.cyanAccent,
+            onPressed: onImportGpx,
+            tooltip: 'Импорт GPX трека',
+            child: const Icon(Icons.alt_route),
           ),
           const SizedBox(height: 8),
           FloatingActionButton.small(
@@ -724,6 +855,7 @@ class PositionBar extends StatelessWidget {
             backgroundColor: OutdoorTheme.surfaceCard,
             foregroundColor: OutdoorTheme.signalOrange,
             onPressed: onHistory,
+            tooltip: 'История походов',
             child: const Icon(Icons.history),
           ),
         ],

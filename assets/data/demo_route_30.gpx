@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="SurvivalCalc Expedition Planner" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Всесоюзный маршрут №30: Через горы к Чёрному морю</name>
+    <desc>Легендарный Кавказский трек через плато Лагонаки, перевалы Гузерипльский, Армянский, приют Фишт, Белореченский перевал и спуск в Бабук-Аул к Солох-Аулу.</desc>
+    <time>2026-08-31T08:00:00Z</time>
+  </metadata>
+
+  <!-- Путевые точки (Waypoints) -->
+  <wpt lat="44.0760" lon="39.9980">
+    <ele>1750.0</ele>
+    <name>КПП Лагонаки (Старт)</name>
+    <sym>Campground</sym>
+    <type>camp</type>
+  </wpt>
+  <wpt lat="44.0450" lon="39.9820">
+    <ele>1980.0</ele>
+    <name>Инструкторская щель (Родник)</name>
+    <sym>Drinking Water</sym>
+    <type>water</type>
+  </wpt>
+  <wpt lat="44.0210" lon="39.9410">
+    <ele>1965.0</ele>
+    <name>Перевал Гузерипль (1965 м)</name>
+    <sym>Mountain Peak</sym>
+    <type>pass</type>
+  </wpt>
+  <wpt lat="43.9980" lon="39.8820">
+    <ele>1866.0</ele>
+    <name>Перевал Армянский (1866 м)</name>
+    <sym>Mountain Peak</sym>
+    <type>pass</type>
+  </wpt>
+  <wpt lat="43.9780" lon="39.8450">
+    <ele>1580.0</ele>
+    <name>Приют Фишт (Базовый лагерь)</name>
+    <sym>Campground</sym>
+    <type>camp</type>
+  </wpt>
+  <wpt lat="43.9550" lon="39.8250">
+    <ele>1788.0</ele>
+    <name>Перевал Белореченский</name>
+    <sym>Mountain Peak</sym>
+    <type>pass</type>
+  </wpt>
+  <wpt lat="43.9420" lon="39.8050">
+    <ele>1836.0</ele>
+    <name>Перевал Черкесский (Пастуший)</name>
+    <sym>Mountain Peak</sym>
+    <type>pass</type>
+  </wpt>
+  <wpt lat="43.8750" lon="39.7210">
+    <ele>350.0</ele>
+    <name>Кордон Бабук-Аул (Стоянка)</name>
+    <sym>Campground</sym>
+    <type>camp</type>
+  </wpt>
+  <wpt lat="43.8120" lon="39.6800">
+    <ele>220.0</ele>
+    <name>Солох-Аул (Финиш маршрута)</name>
+    <sym>Flag</sym>
+    <type>finish</type>
+  </wpt>
+
+  <!-- Трек маршрута -->
+  <trk>
+    <name>Маршрут №30 (Лагонаки - Фишт - Солох-Аул)</name>
+    <trkseg>
+      <!-- День 1: Плато Лагонаки -> Инструкторская щель -> пер. Гузерипль -->
+      <trkpt lat="44.0760" lon="39.9980"><ele>1750.0</ele><time>2026-08-31T08:00:00Z</time></trkpt>
+      <trkpt lat="44.0720" lon="39.9950"><ele>1765.0</ele><time>2026-08-31T08:15:00Z</time></trkpt>
+      <trkpt lat="44.0680" lon="39.9910"><ele>1790.0</ele><time>2026-08-31T08:30:00Z</time></trkpt>
+      <trkpt lat="44.0620" lon="39.9880"><ele>1830.0</ele><time>2026-08-31T08:50:00Z</time></trkpt>
+      <trkpt lat="44.0550" lon="39.9850"><ele>1910.0</ele><time>2026-08-31T09:20:00Z</time></trkpt>
+      <trkpt lat="44.0450" lon="39.9820"><ele>1980.0</ele><time>2026-08-31T09:55:00Z</time></trkpt>
+      <trkpt lat="44.0390" lon="39.9720"><ele>1995.0</ele><time>2026-08-31T10:20:00Z</time></trkpt>
+      <trkpt lat="44.0320" lon="39.9600"><ele>1970.0</ele><time>2026-08-31T10:50:00Z</time></trkpt>
+      <trkpt lat="44.0250" lon="39.9500"><ele>1955.0</ele><time>2026-08-31T11:20:00Z</time></trkpt>
+      <trkpt lat="44.0210" lon="39.9410"><ele>1965.0</ele><time>2026-08-31T11:45:00Z</time></trkpt>
+
+      <!-- День 2: пер. Гузерипль -> пер. Армянский -> Приют Фишт -->
+      <trkpt lat="44.0150" lon="39.9250"><ele>1940.0</ele><time>2026-08-31T12:20:00Z</time></trkpt>
+      <trkpt lat="44.0090" lon="39.9100"><ele>1910.0</ele><time>2026-08-31T12:50:00Z</time></trkpt>
+      <trkpt lat="44.0040" lon="39.8950"><ele>1890.0</ele><time>2026-08-31T13:20:00Z</time></trkpt>
+      <trkpt lat="43.9980" lon="39.8820"><ele>1866.0</ele><time>2026-08-31T13:45:00Z</time></trkpt>
+      <trkpt lat="43.9920" lon="39.8700"><ele>1780.0</ele><time>2026-08-31T14:15:00Z</time></trkpt>
+      <trkpt lat="43.9850" lon="39.8550"><ele>1650.0</ele><time>2026-08-31T14:45:00Z</time></trkpt>
+      <trkpt lat="43.9780" lon="39.8450"><ele>1580.0</ele><time>2026-08-31T15:15:00Z</time></trkpt>
+
+      <!-- День 3: Приют Фишт -> пер. Белореченский -> пер. Черкесский -->
+      <trkpt lat="43.9700" lon="39.8400"><ele>1620.0</ele><time>2026-08-31T15:40:00Z</time></trkpt>
+      <trkpt lat="43.9620" lon="39.8320"><ele>1710.0</ele><time>2026-08-31T16:10:00Z</time></trkpt>
+      <trkpt lat="43.9550" lon="39.8250"><ele>1788.0</ele><time>2026-08-31T16:40:00Z</time></trkpt>
+      <trkpt lat="43.9480" lon="39.8150"><ele>1815.0</ele><time>2026-08-31T17:10:00Z</time></trkpt>
+      <trkpt lat="43.9420" lon="39.8050"><ele>1836.0</ele><time>2026-08-31T17:35:00Z</time></trkpt>
+
+      <!-- День 4: Весёлый спуск -> Бабук-Аул -> Солох-Аул -->
+      <trkpt lat="43.9350" lon="39.7950"><ele>1750.0</ele><time>2026-08-31T18:00:00Z</time></trkpt>
+      <trkpt lat="43.9210" lon="39.7820"><ele>1650.0</ele><time>2026-08-31T18:30:00Z</time></trkpt>
+      <trkpt lat="43.9100" lon="39.7700"><ele>1420.0</ele><time>2026-08-31T19:00:00Z</time></trkpt>
+      <trkpt lat="43.8950" lon="39.7550"><ele>1100.0</ele><time>2026-08-31T19:35:00Z</time></trkpt>
+      <trkpt lat="43.8850" lon="39.7380"><ele>680.0</ele><time>2026-08-31T20:10:00Z</time></trkpt>
+      <trkpt lat="43.8750" lon="39.7210"><ele>350.0</ele><time>2026-08-31T20:45:00Z</time></trkpt>
+      <trkpt lat="43.8550" lon="39.7050"><ele>290.0</ele><time>2026-08-31T21:20:00Z</time></trkpt>
+      <trkpt lat="43.8350" lon="39.6920"><ele>250.0</ele><time>2026-08-31T21:55:00Z</time></trkpt>
+      <trkpt lat="43.8120" lon="39.6800"><ele>220.0</ele><time>2026-08-31T22:30:00Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

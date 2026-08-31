@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/core/widgets/app_logo.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_dialog.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/offline_maps_sheet.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/save_trip_dialog.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/trip_library_sheet.dart';
@@ -38,13 +43,14 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
   Widget build(BuildContext context) {
     final profile = ref.watch(activeTripProfileProvider);
     final result = ref.watch(calculationResultProvider);
+    final plannedRoute = ref.watch(plannedRouteProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AppLogo(height: 24),
+            AppLogo(height: 26),
             SizedBox(width: 8),
             Flexible(
               child: Text(
@@ -55,6 +61,18 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Импорт GPX трека',
+            icon: const Icon(Icons.alt_route, color: OutdoorTheme.signalOrange),
+            onPressed: () async {
+              final route = await GpxImportDialog.show(context);
+              if (route != null) {
+                setState(() {
+                  _titleController.text = route.name;
+                });
+              }
+            },
+          ),
           IconButton(
             tooltip: 'Сохранить поход / шаблон',
             icon: const Icon(Icons.save_outlined, color: OutdoorTheme.signalOrange),
@@ -136,6 +154,9 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                   },
                 ),
               ),
+
+              // 1.1. Planned GPX Route Banner/Card
+              _buildPlannedRouteCard(context, plannedRoute, ref),
 
               // 2. Group Size, Dietary & Medical Conditions Card
               _buildParticipantsCard(context, profile, ref),
@@ -1059,6 +1080,172 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildPlannedRouteCard(
+    BuildContext context,
+    PlannedRoute? route,
+    WidgetRef ref,
+  ) {
+    if (route == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: InkWell(
+          onTap: () async {
+            final imported = await GpxImportDialog.show(context);
+            if (imported != null) {
+              setState(() {
+                _titleController.text = imported.name;
+              });
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: OutdoorTheme.surfaceCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: OutdoorTheme.signalOrange.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.alt_route, color: OutdoorTheme.signalOrange, size: 20),
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Загрузить GPX трек маршрута',
+                        style: TextStyle(
+                          color: OutdoorTheme.textPrimary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Авто-подстановка длины, высот и скачивание карты',
+                        style: TextStyle(
+                          color: OutdoorTheme.textSecondary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, color: OutdoorTheme.textSecondary, size: 18),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: OutdoorTheme.surfaceCard,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: OutdoorTheme.signalOrange.withValues(alpha: 0.5)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.route, color: OutdoorTheme.signalOrange, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    route.name,
+                    style: const TextStyle(
+                      color: OutdoorTheme.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Сбросить плановый маршрут',
+                  icon: const Icon(Icons.close, size: 18, color: OutdoorTheme.textSecondary),
+                  onPressed: () {
+                    ref.read(plannedRouteProvider.notifier).clearPlannedRoute();
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Text(
+                  '${route.totalDistanceKm} км  •  +${route.totalAscentMeters.toInt()} м набора  •  ${route.points.length} точек',
+                  style: const TextStyle(
+                    color: Colors.cyanAccent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (ctx) => FractionallySizedBox(
+                          heightFactor: 0.80,
+                          child: OfflineMapsSheet(
+                            currentCenter: route.points.isNotEmpty
+                                ? LatLng(route.points.first.latitude, route.points.first.longitude)
+                                : LatLng(44.0760, 39.9980),
+                          ),
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: OutdoorTheme.signalOrange,
+                      side: const BorderSide(color: OutdoorTheme.signalOrange),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    icon: const Icon(Icons.download_for_offline, size: 16),
+                    label: const Text('Скачать карту района', style: TextStyle(fontSize: 12)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: 'Заменить GPX трек',
+                  icon: const Icon(Icons.folder_open, color: OutdoorTheme.textSecondary, size: 20),
+                  onPressed: () async {
+                    final imported = await GpxImportDialog.show(context);
+                    if (imported != null) {
+                      setState(() {
+                        _titleController.text = imported.name;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
