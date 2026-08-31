@@ -19,6 +19,140 @@
 
 ---
 
+## 📸 Галерея экранов приложения
+
+### 1. Настройка похода, группа и профиль маршрута
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot01.png" width="100%" alt="Состав группы и роли" /><br />
+      <b>Состав группы, роли и здоровье</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot02.png" width="100%" alt="Маршрут, рельеф и сезон" /><br />
+      <b>Дни, рельеф, эквивалентная дистанция</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot03.png" width="100%" alt="Типы активности" /><br />
+      <b>Выбор активности и расчёт</b>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 2. Дашборд, графики и развесовка груза
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot04.png" width="100%" alt="Сводка энергозатрат" /><br />
+      <b>Нормы БЖУ, вода и калории</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot05.png" width="100%" alt="График таяния рюкзака" /><br />
+      <b>График таяния веса по дням</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot06.png" width="100%" alt="Круговые диаграммы структуры веса" /><br />
+      <b>Круговые диаграммы веса и БЖУ</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot07.png" width="100%" alt="Кто что несёт" /><br />
+      <b>Развесовка «Кто что несёт»</b>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 3. Полевая GPS-навигация («В пути»)
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot08.png" width="100%" alt="Офлайн-карта и HUD" /><br />
+      <b>Офлайн-карта и тактический HUD</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot09.png" width="100%" alt="Живая запись трека" /><br />
+      <b>Запись трека и скорость</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot10.png" width="100%" alt="Диалог лагеря и паузы" /><br />
+      <b>Диалог «Лагерь» и «Пауза»</b>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 4. Вечерний дебрифинг («Лагерь») и история треков
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot11.png" width="100%" alt="Дебрифинг перехода" /><br />
+      <b>Метрики План vs Факт</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot12.png" width="100%" alt="Профиль высот дня" /><br />
+      <b>Профиль высот и энергозатраты</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot13.png" width="100%" alt="Метаболический баланс и экспорт" /><br />
+      <b>Водно-солевой баланс и GPX</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot14.png" width="100%" alt="История треков и песочница" /><br />
+      <b>История и 🧪 Песочница</b>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 5. Продуктовая раскладка и меню дежурных
+<table>
+  <tr>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot15.png" width="100%" alt="Список покупок" /><br />
+      <b>Сводный список покупок</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot16.png" width="100%" alt="Меню по дням" /><br />
+      <b>Меню по дням и дежурные</b>
+    </td>
+    <td align="center" width="33%">
+      <img src="docs/screenshots/screenshot17.png" width="100%" alt="Добавление своего продукта" /><br />
+      <b>Добавление своих продуктов</b>
+    </td>
+  </tr>
+</table>
+
+---
+
+### 6. Снаряжение, библиотека походов и QR-синхронизация
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot18.png" width="100%" alt="Чек-лист снаряжения" /><br />
+      <b>Чек-лист снаряжения</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot19.png" width="100%" alt="Библиотека походов" /><br />
+      <b>Мои походы и шаблоны</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot20.png" width="100%" alt="QR-код похода" /><br />
+      <b>Поделиться по QR-коду</b>
+    </td>
+    <td align="center" width="25%">
+      <img src="docs/screenshots/screenshot21.png" width="100%" alt="Встроенный сканер камеры" /><br />
+      <b>Встроенный Live QR-сканер</b>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## 📖 О проекте
 
 **SurvivalCalc** — мобильное приложение на Flutter, созданное для работы в условиях **100% автономности (в режиме полёта / без сотовой связи)**. 
