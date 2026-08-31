@@ -4,6 +4,7 @@ import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
+import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
@@ -28,9 +29,10 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final screens = [
       TripSetupScreen(onCalculatePressed: () => _switchTab(1)),
       DashboardScreen(
-        onGoToRation: () => _switchTab(2),
-        onGoToGear: () => _switchTab(3),
+        onGoToRation: () => _switchTab(3),
+        onGoToGear: () => _switchTab(4),
       ),
+      const TrackingScreen(),
       const FoodBreakdownScreen(),
       const GearChecklistScreen(),
     ];
@@ -54,6 +56,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             selectedIcon:
                 Icon(Icons.analytics, color: OutdoorTheme.signalOrange),
             label: 'Дашборд',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon:
+                Icon(Icons.explore, color: OutdoorTheme.signalOrange),
+            label: 'В пути',
           ),
           NavigationDestination(
             icon: Icon(Icons.restaurant_menu),

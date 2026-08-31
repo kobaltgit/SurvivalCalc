@@ -17,6 +17,7 @@ void main() {
     // Verify main navigation bar items
     expect(find.text('Параметры'), findsWidgets);
     expect(find.text('Дашборд'), findsWidgets);
+    expect(find.text('В пути'), findsWidgets);
     expect(find.text('Раскладка'), findsWidgets);
     expect(find.text('Снаряжение'), findsWidgets);
   });
