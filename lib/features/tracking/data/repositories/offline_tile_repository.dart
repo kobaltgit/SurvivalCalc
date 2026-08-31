@@ -64,6 +64,8 @@ class OfflineTileRepository {
 
   static Future<void> init() async {
     await getTilesBasePath();
+    // Automatically purge any blocked or corrupted 0-byte or error tiles
+    await purgeCorruptedTiles();
   }
 
   static String? get tilesBasePathSync => _tilesBasePath;
@@ -91,17 +93,53 @@ class OfflineTileRepository {
   static Future<bool> hasTile(int z, int x, int y) async {
     if (kIsWeb) return false;
     final file = await getTileFile(z, x, y);
-    return file.exists();
+    if (!await file.exists()) return false;
+    final length = await file.length();
+    // Valid tile must be at least 500 bytes and valid image
+    return length > 500;
   }
 
   static Future<void> saveTile(int z, int x, int y, List<int> bytes) async {
     if (kIsWeb) return;
+    // Validate that bytes are a real image and not an error string or tiny placeholder
+    if (bytes.length < 500) return;
+    
+    // Check PNG/JPEG magic bytes
+    final isPng = bytes.length >= 4 &&
+        bytes[0] == 0x89 &&
+        bytes[1] == 0x50 &&
+        bytes[2] == 0x4E &&
+        bytes[3] == 0x47;
+    final isJpg = bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8;
+    if (!isPng && !isJpg) return;
+
     final file = await getTileFile(z, x, y);
     final parentDir = file.parent;
     if (!await parentDir.exists()) {
       await parentDir.create(recursive: true);
     }
     await file.writeAsBytes(bytes, flush: false);
+  }
+
+  static Future<int> purgeCorruptedTiles() async {
+    if (kIsWeb) return 0;
+    int deleted = 0;
+    try {
+      final basePath = await getTilesBasePath();
+      final dir = Directory(basePath);
+      if (!await dir.exists()) return 0;
+
+      await for (final entity in dir.list(recursive: true, followLinks: false)) {
+        if (entity is File) {
+          final len = await entity.length();
+          if (len < 500) {
+            await entity.delete();
+            deleted++;
+          }
+        }
+      }
+    } catch (_) {}
+    return deleted;
   }
 
   static Future<List<OfflineRegion>> getSavedRegions() async {

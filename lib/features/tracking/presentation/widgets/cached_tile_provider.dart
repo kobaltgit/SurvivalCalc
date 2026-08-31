@@ -8,9 +8,16 @@ class CachedTileProvider extends TileProvider {
   final String fallbackUrlTemplate;
 
   CachedTileProvider({
-    this.fallbackUrlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    super.headers,
-  });
+    this.fallbackUrlTemplate = 'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+    Map<String, String>? headers,
+  }) : super(
+          headers: headers != null
+              ? Map<String, String>.from(headers)
+              : <String, String>{
+                  'User-Agent': 'SurvivalCalc/1.0.0 (https://github.com/kobaltgit/SurvivalCalc; contact@survivalcalc.app)',
+                  'Accept': 'image/webp,image/png,image/jpeg,*/*',
+                },
+        );
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
@@ -23,7 +30,14 @@ class CachedTileProvider extends TileProvider {
       if (basePath != null) {
         final localFile = File('$basePath/$z/$x/$y.png');
         if (localFile.existsSync()) {
-          return FileImage(localFile);
+          try {
+            if (localFile.lengthSync() > 500) {
+              return FileImage(localFile);
+            } else {
+              // Delete corrupted / blocked file
+              localFile.deleteSync();
+            }
+          } catch (_) {}
         }
       }
     }

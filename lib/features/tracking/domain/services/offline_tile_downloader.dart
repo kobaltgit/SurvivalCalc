@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:survival_calc/features/tracking/data/repositories/offline_tile_repository.dart';
 import 'package:survival_calc/features/tracking/domain/services/tile_math_utils.dart';
@@ -25,8 +24,17 @@ class DownloadProgress {
 }
 
 class OfflineTileDownloader {
-  static const String _tileServerUrl = 'https://tile.openstreetmap.org';
-  static const int _concurrency = 5;
+  static const List<String> _tileServers = [
+    'https://a.basemaps.cartocdn.com/rastertiles/voyager',
+    'https://tile.openstreetmap.org',
+    'https://a.tile.openstreetmap.fr/osmfr',
+    'https://tile.opentopomap.org',
+  ];
+  static const int _concurrency = 3;
+  static const Map<String, String> _headers = {
+    'User-Agent': 'SurvivalCalc/1.0.0 (https://github.com/kobaltgit/SurvivalCalc; contact@survivalcalc.app)',
+    'Accept': 'image/webp,image/png,image/jpeg,*/*',
+  };
 
   bool _isCancelled = false;
 
@@ -71,28 +79,35 @@ class OfflineTileDownloader {
 
         final tile = tileList[idx];
 
-        // Check if already cached
+        // Check if already cached with valid content
         final alreadyExists = await OfflineTileRepository.hasTile(tile.z, tile.x, tile.y);
         if (alreadyExists) {
           downloaded++;
-          controller.add(DownloadProgress(downloaded: downloaded, total: total, failed: failed));
+          controller.add(DownloadProgress(downloaded: downloaded + failed, total: total, failed: failed));
           continue;
         }
 
-        try {
-          final url = Uri.parse('$_tileServerUrl/${tile.z}/${tile.x}/${tile.y}.png');
-          final response = await client.get(
-            url,
-            headers: {'User-Agent': 'SurvivalCalc/1.0 (offline expedition calculator)'},
-          ).timeout(const Duration(seconds: 10));
+        bool success = false;
+        // Try servers with fallback
+        for (final server in _tileServers) {
+          if (_isCancelled) break;
+          try {
+            final url = Uri.parse('$server/${tile.z}/${tile.x}/${tile.y}.png');
+            final response = await client.get(url, headers: _headers).timeout(const Duration(seconds: 8));
 
-          if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
-            await OfflineTileRepository.saveTile(tile.z, tile.x, tile.y, response.bodyBytes);
-            downloaded++;
-          } else {
-            failed++;
+            if (response.statusCode == 200 && response.bodyBytes.length > 500) {
+              await OfflineTileRepository.saveTile(tile.z, tile.x, tile.y, response.bodyBytes);
+              success = true;
+              break;
+            }
+          } catch (_) {
+            // Try next mirror
           }
-        } catch (e) {
+        }
+
+        if (success) {
+          downloaded++;
+        } else {
           failed++;
         }
 
@@ -104,8 +119,8 @@ class OfflineTileDownloader {
           ));
         }
 
-        // Small throttle delay between requests to be gentle to OSM servers
-        await Future.delayed(const Duration(milliseconds: 25));
+        // Polite throttle delay between tile requests (60ms) to avoid server rate limiting
+        await Future.delayed(const Duration(milliseconds: 60));
       }
     }
 
@@ -139,9 +154,5 @@ class OfflineTileDownloader {
     }));
 
     yield* controller.stream;
-  }
-
-  void synchronized(Object lock, VoidCallback action) {
-    action();
   }
 }

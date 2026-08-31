@@ -91,5 +91,11 @@
   5. Реализован `CachedTileProvider` для бесшовной работы карт `FlutterMap` без подключения к интернету.
   6. Интегрированы элементы управления: карточка планового трека на экране «Параметры», кнопки на карте, модальная шторка `OfflineMapsSheet` и отрисовка планового маршрута (Cyan polyline + маркеры).
   7. Написаны юнит-тесты (все 40/40 тестов успешно пройдены, `dart analyze` — 0 issues).
+- **[2026-09-01 00:05:00]** | `BUG_FIX` | `lib/features/tracking/` | Устранена блокировка тайлов OpenStreetMap 403 (BUG-10):
+  1. Основным источником онлайн- и офлайн-тайлов назначен высокоскоростной сервер CARTO Voyager Basemaps с автоматическим переключением на зеркала (OSM France, OpenTopoMap).
+  2. В `CachedTileProvider` и `OfflineTileDownloader` внедрен обязательный `User-Agent: SurvivalCalc/1.0.0`, заголовок `Accept` и троттлинг запросов (60 мс) для предотвращения rate-limit.
+  3. В `OfflineTileRepository` добавлен валидатор magic-bytes изображений (PNG/JPEG > 500 байт) и автоматическая очистка поврежденных/заблокированных 403 файлов из локального кэша (`purgeCorruptedTiles`).
+  4. Все 40/40 unit и widget тестов пройдены успешно, `dart analyze` — 0 issues.
+
 
 
