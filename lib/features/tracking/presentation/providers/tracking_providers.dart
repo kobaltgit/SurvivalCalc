@@ -380,18 +380,18 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     double lng = state.currentPoint?.longitude ?? 37.6173;
     double alt = state.currentPoint?.altitude ?? 150.0;
 
-    // Realistic walking step: ~1.33 m/s (~4.8 km/h) = ~0.000010 deg latitude per second
+    // Accelerated demo mode: 1 real second = 30 simulated seconds (traveling ~40m at ~4.8 km/h)
     _simTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.status != TrackingStatus.tracking || state.activeTrack == null) {
         timer.cancel();
         return;
       }
 
-      // Small realistic step ~1.33 meters per second
-      lat += 0.000010 + (timer.tick % 3) * 0.000002;
-      lng += 0.000012 + (timer.tick % 2) * 0.000002;
-      alt += 0.12 + (timer.tick % 4) * 0.04;
-      final speed = 4.7 + (timer.tick % 5) * 0.10;
+      // Step ~40 meters per tick in coordinate space
+      lat += 0.00028 + (timer.tick % 3) * 0.00004;
+      lng += 0.00032 + (timer.tick % 2) * 0.00004;
+      alt += 2.5 + (timer.tick % 4) * 0.6; // ~3m ascent per tick
+      final speed = 4.8 + (timer.tick % 5) * 0.15;
 
       final pt = GpsPoint(
         latitude: lat,
@@ -408,8 +408,11 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
           _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
       final elevation =
           _distanceCalculator.calculateElevationProfile(updatedPoints);
-      final double avgMovingSpeedKmh = state.movingSeconds > 0
-          ? (distanceKm / (state.movingSeconds / 3600.0))
+
+      // Advance simulated moving time by 30 seconds per tick
+      final int simulatedMovingSeconds = timer.tick * 30;
+      final double avgMovingSpeedKmh = simulatedMovingSeconds > 0
+          ? (distanceKm / (simulatedMovingSeconds / 3600.0))
           : speed;
       final double maxSpeed = mathMax(state.maxSpeedKmh, speed);
 
@@ -418,7 +421,7 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
         totalDistanceKm: distanceKm,
         elevationGainMeters: elevation.gain,
         elevationLossMeters: elevation.loss,
-        movingDurationSeconds: state.movingSeconds,
+        movingDurationSeconds: simulatedMovingSeconds,
         pauseDurationSeconds: state.pauseSeconds,
         avgMovingSpeedKmh: avgMovingSpeedKmh,
         maxSpeedKmh: maxSpeed,
@@ -427,6 +430,8 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
       state = state.copyWith(
         activeTrack: updatedTrack,
         currentPoint: pt,
+        movingSeconds: simulatedMovingSeconds,
+        totalElapsedSeconds: simulatedMovingSeconds,
         liveSpeedKmh: speed,
         maxSpeedKmh: maxSpeed,
       );

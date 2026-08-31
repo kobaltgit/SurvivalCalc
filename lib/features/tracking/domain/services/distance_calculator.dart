@@ -31,28 +31,29 @@ class DistanceCalculator {
   }
 
   /// Calculates total distance in Kilometers from a list of GpsPoints
-  /// Filters out jitter/noise when movement is smaller than minimum threshold (e.g. 3 meters)
+  /// Uses cumulative dead-band algorithm to filter stationary noise jitter without dropping small genuine steps
   double calculateTotalDistanceKm(
     List<GpsPoint> points, {
-    double minStepMeters = 3.0,
+    double minStepMeters = 2.0,
   }) {
     if (points.length < 2) return 0.0;
 
     double totalMeters = 0.0;
-    for (int i = 1; i < points.length; i++) {
-      final prev = points[i - 1];
-      final curr = points[i];
+    GpsPoint lastAnchor = points.first;
 
+    for (int i = 1; i < points.length; i++) {
+      final curr = points[i];
       final d = distanceBetweenMeters(
-        prev.latitude,
-        prev.longitude,
+        lastAnchor.latitude,
+        lastAnchor.longitude,
         curr.latitude,
         curr.longitude,
       );
 
-      // Filter out stationary noise jitter
+      // When accumulated movement from last anchor exceeds threshold, add it
       if (d >= minStepMeters) {
         totalMeters += d;
+        lastAnchor = curr;
       }
     }
 
@@ -60,22 +61,25 @@ class DistanceCalculator {
   }
 
   /// Calculates elevation gain and loss in meters
-  /// Uses a threshold (e.g. 2 meters) to ignore minor barometric/GPS jitter
+  /// Uses cumulative threshold to filter barometric/GPS jitter while tracking continuous grade
   ({double gain, double loss}) calculateElevationProfile(
     List<GpsPoint> points, {
-    double minElevationStepMeters = 2.0,
+    double minElevationStepMeters = 1.0,
   }) {
     if (points.length < 2) return (gain: 0.0, loss: 0.0);
 
     double totalGain = 0.0;
     double totalLoss = 0.0;
+    double anchorAlt = points.first.altitude;
 
     for (int i = 1; i < points.length; i++) {
-      final double diff = points[i].altitude - points[i - 1].altitude;
+      final double diff = points[i].altitude - anchorAlt;
       if (diff >= minElevationStepMeters) {
         totalGain += diff;
+        anchorAlt = points[i].altitude;
       } else if (diff <= -minElevationStepMeters) {
         totalLoss += diff.abs();
+        anchorAlt = points[i].altitude;
       }
     }
 
