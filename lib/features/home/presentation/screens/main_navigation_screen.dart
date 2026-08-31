@@ -42,40 +42,67 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         index: _currentIndex,
         children: screens,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: _switchTab,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.tune),
-            selectedIcon: Icon(Icons.tune, color: OutdoorTheme.signalOrange),
-            label: 'Параметры',
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+        child: Container(
+          decoration: BoxDecoration(
+            color: OutdoorTheme.surfaceCard,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: OutdoorTheme.borderSubtle.withValues(alpha: 0.7),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.35),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.analytics_outlined),
-            selectedIcon:
-                Icon(Icons.analytics, color: OutdoorTheme.signalOrange),
-            label: 'Дашборд',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: NavigationBar(
+              height: 64,
+              backgroundColor: Colors.transparent,
+              selectedIndex: _currentIndex,
+              onDestinationSelected: _switchTab,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.tune),
+                  selectedIcon: Icon(Icons.tune, color: OutdoorTheme.signalOrange),
+                  label: 'Параметры',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.analytics_outlined),
+                  selectedIcon:
+                      Icon(Icons.analytics, color: OutdoorTheme.signalOrange),
+                  label: 'Дашборд',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.explore_outlined),
+                  selectedIcon:
+                      Icon(Icons.explore, color: OutdoorTheme.signalOrange),
+                  label: 'В пути',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.restaurant_menu),
+                  selectedIcon:
+                      Icon(Icons.restaurant_menu, color: OutdoorTheme.signalOrange),
+                  label: 'Раскладка',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.checklist_rtl),
+                  selectedIcon:
+                      Icon(Icons.checklist_rtl, color: OutdoorTheme.signalOrange),
+                  label: 'Снаряжение',
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon:
-                Icon(Icons.explore, color: OutdoorTheme.signalOrange),
-            label: 'В пути',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.restaurant_menu),
-            selectedIcon:
-                Icon(Icons.restaurant_menu, color: OutdoorTheme.signalOrange),
-            label: 'Раскладка',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.checklist_rtl),
-            selectedIcon:
-                Icon(Icons.checklist_rtl, color: OutdoorTheme.signalOrange),
-            label: 'Снаряжение',
-          ),
-        ],
+        ),
       ),
     );
   }

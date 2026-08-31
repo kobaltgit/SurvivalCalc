@@ -59,29 +59,32 @@ class OutdoorTheme {
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       ),
       navigationBarTheme: NavigationBarThemeData(
+        height: 64,
         backgroundColor: surfaceCard,
-        indicatorColor: signalOrange.withValues(alpha: 0.25),
+        indicatorColor: signalOrange.withValues(alpha: 0.22),
         surfaceTintColor: Colors.transparent,
-        elevation: 8,
+        elevation: 0,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
               color: signalOrange,
+              letterSpacing: -0.2,
             );
           }
           return const TextStyle(
-            fontSize: 12,
+            fontSize: 11,
             fontWeight: FontWeight.w500,
             color: textSecondary,
+            letterSpacing: -0.2,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: signalOrange, size: 24);
+            return const IconThemeData(color: signalOrange, size: 22);
           }
-          return const IconThemeData(color: textSecondary, size: 22);
+          return const IconThemeData(color: textSecondary, size: 20);
         }),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
