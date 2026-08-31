@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,21 +37,35 @@ class CampDebriefSheet extends StatelessWidget {
 
     const exporter = GpxExporter();
     final String gpxContent = exporter.exportTrackToGpx(track!);
+    final String fileName = 'track_day_${track!.dayIndex}.gpx';
 
     try {
+      final xFile = XFile.fromData(
+        utf8.encode(gpxContent),
+        name: fileName,
+        mimeType: 'application/gpx+xml',
+      );
       await SharePlus.instance.share(
         ShareParams(
-          text: gpxContent,
-          subject: 'Трек ${track!.title} (SurvivalCalc GPX)',
+          files: [xFile],
+          subject: 'GPX трек: ${track!.title}',
         ),
       );
     } catch (_) {
-      // Fallback copy to clipboard
-      await Clipboard.setData(ClipboardData(text: gpxContent));
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('GPX XML скопирован в буфер обмена')),
+      try {
+        await SharePlus.instance.share(
+          ShareParams(
+            text: gpxContent,
+            subject: 'GPX трек: ${track!.title}',
+          ),
         );
+      } catch (_) {
+        await Clipboard.setData(ClipboardData(text: gpxContent));
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('GPX XML скопирован в буфер обмена')),
+          );
+        }
       }
     }
   }

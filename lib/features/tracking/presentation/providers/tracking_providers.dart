@@ -102,6 +102,7 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
 
   StreamSubscription<Position>? _positionSubscription;
   Timer? _timer;
+  Timer? _simTimer;
 
   TrackingNotifier(this.ref)
       : _distanceCalculator = ref.read(distanceCalculatorProvider),
@@ -215,6 +216,7 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     final hasPerm = await checkAndRequestPermission();
     if (!hasPerm) return;
 
+    _simTimer?.cancel();
     final now = DateTime.now();
     final newTrack = DailyTrack(
       id: 'track_${now.millisecondsSinceEpoch}',
@@ -239,9 +241,88 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     await _repository.saveActiveTrack(newTrack);
   }
 
+  /// Start simulated movement (test mode without real GPS)
+  void startSimulation({int dayIndex = 1, String? title}) {
+    _positionSubscription?.cancel();
+    _simTimer?.cancel();
+
+    final now = DateTime.now();
+    final newTrack = DailyTrack(
+      id: 'sim_track_${now.millisecondsSinceEpoch}',
+      dayIndex: dayIndex,
+      title: title ?? 'Тестовый переход (День $dayIndex)',
+      startTime: now,
+    );
+
+    state = state.copyWith(
+      status: TrackingStatus.tracking,
+      activeTrack: newTrack,
+      totalElapsedSeconds: 0,
+      movingSeconds: 0,
+      pauseSeconds: 0,
+      liveSpeedKmh: 4.5,
+      maxSpeedKmh: 4.8,
+      errorMessage: null,
+    );
+
+    _startTimer();
+
+    double lat = state.currentPoint?.latitude ?? 55.7558;
+    double lng = state.currentPoint?.longitude ?? 37.6173;
+    double alt = state.currentPoint?.altitude ?? 150.0;
+
+    _simTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (state.status != TrackingStatus.tracking || state.activeTrack == null) {
+        timer.cancel();
+        return;
+      }
+
+      lat += 0.00012 + (timer.tick % 3) * 0.00003;
+      lng += 0.00015 + (timer.tick % 2) * 0.00002;
+      alt += 1.2 + (timer.tick % 4) * 0.4;
+      final speed = 4.2 + (timer.tick % 5) * 0.25;
+
+      final pt = GpsPoint(
+        latitude: lat,
+        longitude: lng,
+        altitude: alt,
+        timestamp: DateTime.now(),
+        speedKmh: speed,
+        accuracy: 3.0,
+      );
+
+      final updatedPoints = List<GpsPoint>.from(state.activeTrack!.points)..add(pt);
+      final double distanceKm = _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
+      final elevation = _distanceCalculator.calculateElevationProfile(updatedPoints);
+      final double avgMovingSpeedKmh = state.movingSeconds > 0
+          ? (distanceKm / (state.movingSeconds / 3600.0))
+          : speed;
+      final double maxSpeed = mathMax(state.maxSpeedKmh, speed);
+
+      final updatedTrack = state.activeTrack!.copyWith(
+        points: updatedPoints,
+        totalDistanceKm: distanceKm,
+        elevationGainMeters: elevation.gain,
+        elevationLossMeters: elevation.loss,
+        movingDurationSeconds: state.movingSeconds,
+        pauseDurationSeconds: state.pauseSeconds,
+        avgMovingSpeedKmh: avgMovingSpeedKmh,
+        maxSpeedKmh: maxSpeed,
+      );
+
+      state = state.copyWith(
+        activeTrack: updatedTrack,
+        currentPoint: pt,
+        liveSpeedKmh: speed,
+        maxSpeedKmh: maxSpeed,
+      );
+    });
+  }
+
   void pauseTracking() {
     if (state.status != TrackingStatus.tracking) return;
     _positionSubscription?.pause();
+    _simTimer?.cancel();
     state = state.copyWith(
       status: TrackingStatus.paused,
       liveSpeedKmh: 0.0,
@@ -401,6 +482,7 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
   Future<CampDebrief?> stopAndFinishDay() async {
     _timer?.cancel();
     _positionSubscription?.cancel();
+    _simTimer?.cancel();
 
     if (state.activeTrack == null) {
       state = const TrackingState();

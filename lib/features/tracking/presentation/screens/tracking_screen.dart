@@ -3,11 +3,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
-import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/add_waypoint_dialog.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/camp_debrief_sheet.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/track_history_sheet.dart';
 
 class TrackingScreen extends ConsumerStatefulWidget {
   const TrackingScreen({super.key});
@@ -160,121 +160,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => FractionallySizedBox(
+      builder: (ctx) => const FractionallySizedBox(
         heightFactor: 0.75,
-        child: _buildHistorySheet(ctx),
-      ),
-    );
-  }
-
-  Widget _buildHistorySheet(BuildContext context) {
-    final tracksAsync = ref.watch(completedTracksProvider);
-
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'История треков похода',
-                  style: TextStyle(
-                    color: OutdoorTheme.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: OutdoorTheme.textSecondary),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const Divider(color: OutdoorTheme.borderSubtle),
-            Expanded(
-              child: tracksAsync.when(
-                data: (tracks) {
-                  if (tracks.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'Нет сохраненных треков.\nНачните запись первого ходового дня!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: OutdoorTheme.textSecondary),
-                      ),
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: tracks.length,
-                    itemBuilder: (ctx, index) {
-                      final t = tracks[index];
-                      return Card(
-                        color: OutdoorTheme.surfaceCardElevated,
-                        margin: const EdgeInsets.only(bottom: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: OutdoorTheme.signalOrange.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.route, color: OutdoorTheme.signalOrange),
-                          ),
-                          title: Text(
-                            t.title,
-                            style: const TextStyle(
-                              color: OutdoorTheme.textPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            '${t.totalDistanceKm.toStringAsFixed(1)} км  •  +${t.elevationGainMeters.toStringAsFixed(0)} м  •  ${_formatDuration(t.movingDurationSeconds)}',
-                            style: const TextStyle(color: OutdoorTheme.textMuted, fontSize: 12),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.analytics, color: OutdoorTheme.signalOrange),
-                            onPressed: () {
-                              final profile = ref.read(activeTripProfileProvider);
-                              final planResult = ref.read(calculationResultProvider);
-                              if (planResult != null) {
-                                final debrief = ref
-                                    .read(campDebriefCalculatorProvider)
-                                    .generateDebrief(
-                                      track: t,
-                                      profile: profile,
-                                      planResult: planResult,
-                                    );
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (c) => FractionallySizedBox(
-                                    heightFactor: 0.90,
-                                    child: CampDebriefSheet(
-                                      debrief: debrief,
-                                      track: t,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator(color: OutdoorTheme.signalOrange)),
-                error: (e, _) => Center(child: Text('Ошибка: $e', style: const TextStyle(color: Colors.red))),
-              ),
-            ),
-          ],
-        ),
+        child: TrackHistorySheet(),
       ),
     );
   }
@@ -561,22 +449,52 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
   Widget _buildBottomControls(TrackingState state, BuildContext context) {
     if (!state.isActive) {
-      return ElevatedButton.icon(
-        onPressed: () {
-          ref.read(trackingProvider.notifier).startTracking();
-        },
-        icon: const Icon(Icons.play_arrow, size: 28),
-        label: const Text(
-          'НАЧАТЬ ХОДОВОЙ ДЕНЬ',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: OutdoorTheme.signalOrange,
-          foregroundColor: Colors.black,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 6,
-        ),
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () {
+              ref.read(trackingProvider.notifier).startTracking();
+            },
+            icon: const Icon(Icons.play_arrow, size: 28),
+            label: const Text(
+              'НАЧАТЬ ХОДОВОЙ ДЕНЬ',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: OutdoorTheme.signalOrange,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () {
+              ref.read(trackingProvider.notifier).startSimulation();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('🧪 Включена симуляция движения по маршруту (5 км/ч)'),
+                  backgroundColor: OutdoorTheme.signalOrange,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            icon: const Icon(Icons.directions_walk, size: 20, color: OutdoorTheme.signalOrange),
+            label: const Text(
+              '🧪 Симуляция похода (Тест)',
+              style: TextStyle(color: OutdoorTheme.textPrimary, fontWeight: FontWeight.w600, fontSize: 13),
+            ),
+            style: OutlinedButton.styleFrom(
+              backgroundColor: OutdoorTheme.surfaceCard.withValues(alpha: 0.9),
+              side: const BorderSide(color: OutdoorTheme.borderSubtle),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
       );
     }
 
