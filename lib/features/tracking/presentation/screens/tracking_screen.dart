@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide DistanceCalculator;
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
+import 'package:survival_calc/features/tracking/domain/services/distance_calculator.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/add_waypoint_dialog.dart';
@@ -380,6 +382,11 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                       ),
                     );
                   }).toList(),
+                ),
+              // Planned Route Start & Finish Markers
+              if (plannedRoute != null && plannedRoute.points.isNotEmpty)
+                MarkerLayer(
+                  markers: _buildStartFinishMarkers(context, plannedRoute),
                 ),
               // Recorded Track Layer (Orange)
               if (polylinePoints.isNotEmpty)
@@ -863,6 +870,223 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       case WayPointType.other:
         return Icons.location_on;
     }
+  }
+
+  List<Marker> _buildStartFinishMarkers(BuildContext context, PlannedRoute route) {
+    if (route.points.isEmpty) return [];
+
+    final firstPt = route.points.first;
+    final lastPt = route.points.last;
+
+    // Check if loop route (start and finish closer than 80 meters)
+    final dMeters = const DistanceCalculator().distanceBetweenMeters(
+      firstPt.latitude,
+      firstPt.longitude,
+      lastPt.latitude,
+      lastPt.longitude,
+    );
+    final isLoop = dMeters < 80.0 && route.points.length > 10;
+
+    if (isLoop) {
+      return [
+        Marker(
+          point: LatLng(firstPt.latitude, firstPt.longitude),
+          width: 80,
+          height: 54,
+          alignment: Alignment.topCenter,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              WaypointDetailsSheet.show(
+                context,
+                WayPoint(
+                  id: 'wp_loop_start_finish',
+                  title: '🔄 СТАРТ / ФИНИШ (Кольцевой)',
+                  note: 'Маршрут: ${route.name}\nДистанция: ${route.totalDistanceKm.toStringAsFixed(1)} км\nНабор высоты: +${route.totalAscentMeters.toInt()} м\nСброс высоты: -${route.totalDescentMeters.toInt()} м',
+                  latitude: firstPt.latitude,
+                  longitude: firstPt.longitude,
+                  altitude: firstPt.altitude,
+                  type: WayPointType.camp,
+                  timestamp: DateTime.now(),
+                ),
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.cyanAccent, width: 1),
+                  ),
+                  child: const Text(
+                    'СТАРТ/ФИНИШ',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2E7D32), Color(0xFFC62828)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2.5),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black54, blurRadius: 6, offset: Offset(0, 2)),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.sync, color: Colors.white, size: 18),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ];
+    }
+
+    return [
+      // 1. Start Marker (Green)
+      Marker(
+        point: LatLng(firstPt.latitude, firstPt.longitude),
+        width: 60,
+        height: 54,
+        alignment: Alignment.topCenter,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            WaypointDetailsSheet.show(
+              context,
+              WayPoint(
+                id: 'wp_start',
+                title: '🟢 СТАРТ МАРШРУТА',
+                note: 'Начало пути: ${route.name}\nОтметка: 0.0 км\nВысота: ${firstPt.altitude.toStringAsFixed(0)} м',
+                latitude: firstPt.latitude,
+                longitude: firstPt.longitude,
+                altitude: firstPt.altitude,
+                type: WayPointType.camp,
+                timestamp: DateTime.now(),
+              ),
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1B5E20),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+                child: const Text(
+                  'СТАРТ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2E7D32),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2.5),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black54, blurRadius: 6, offset: Offset(0, 2)),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(Icons.flag_rounded, color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      // 2. Finish Marker (Red)
+      Marker(
+        point: LatLng(lastPt.latitude, lastPt.longitude),
+        width: 60,
+        height: 54,
+        alignment: Alignment.topCenter,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            WaypointDetailsSheet.show(
+              context,
+              WayPoint(
+                id: 'wp_finish',
+                title: '🏁 ФИНИШ МАРШРУТА',
+                note: 'Конец пути: ${route.name}\nВсего: ${route.totalDistanceKm.toStringAsFixed(1)} км\nНабор высоты: +${route.totalAscentMeters.toInt()} м\nСброс высоты: -${route.totalDescentMeters.toInt()} м',
+                latitude: lastPt.latitude,
+                longitude: lastPt.longitude,
+                altitude: lastPt.altitude,
+                type: WayPointType.other,
+                timestamp: DateTime.now(),
+              ),
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB71C1C),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+                child: const Text(
+                  'ФИНИШ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 8.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFC62828),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2.5),
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black54, blurRadius: 6, offset: Offset(0, 2)),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(Icons.sports_score_rounded, color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
   }
 }
 
