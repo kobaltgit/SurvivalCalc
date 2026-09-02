@@ -8,15 +8,16 @@ class CachedTileProvider extends TileProvider {
   final String fallbackUrlTemplate;
 
   CachedTileProvider({
-    this.fallbackUrlTemplate = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    this.fallbackUrlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     Map<String, String>? headers,
   }) : super(
-          headers: headers != null
-              ? Map<String, String>.from(headers)
-              : <String, String>{
-                  'User-Agent': 'SurvivalCalc/1.0.0 (https://github.com/kobaltgit/SurvivalCalc; contact@survivalcalc.app)',
-                  'Accept': 'image/webp,image/png,image/jpeg,*/*',
-                },
+          headers: headers ??
+              (kIsWeb
+                  ? const <String, String>{}
+                  : const <String, String>{
+                      'User-Agent': 'SurvivalCalc/1.0.0 (https://github.com/kobaltgit/SurvivalCalc; contact@survivalcalc.app)',
+                      'Accept': 'image/webp,image/png,image/jpeg,*/*',
+                    }),
         );
 
   @override
@@ -43,7 +44,10 @@ class CachedTileProvider extends TileProvider {
     }
 
     final url = getTileUrl(coordinates, options);
-    return NetworkImage(url, headers: headers);
+    return NetworkImage(
+      url,
+      headers: kIsWeb ? null : (headers.isEmpty ? null : headers),
+    );
   }
 
   @override

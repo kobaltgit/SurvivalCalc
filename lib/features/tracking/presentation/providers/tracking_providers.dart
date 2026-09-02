@@ -145,6 +145,13 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
   Future<void> _initRestore() async {
     final active = await _repository.getActiveTrack();
     if (active != null && !active.isCompleted) {
+      // Discard invalid or ancient test tracks
+      if (active.totalDistanceKm > 2000 ||
+          active.movingDurationSeconds > 86400 * 30 ||
+          active.points.length < 2) {
+        await _repository.saveActiveTrack(null);
+        return;
+      }
       state = state.copyWith(
         status: TrackingStatus.paused,
         activeTrack: active,
