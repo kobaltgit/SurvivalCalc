@@ -261,11 +261,29 @@ final customFoodProvider =
 
 class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
   final LoadDistributionService _service;
+  final TripRepository _repo;
 
-  GroupParticipantsNotifier(this._service) : super([]);
+  GroupParticipantsNotifier(this._service, this._repo, [List<Participant>? initial])
+      : super(initial ?? []) {
+    if (initial == null) {
+      _init();
+    }
+  }
+
+  Future<void> _init() async {
+    final saved = await _repo.loadActiveParticipants();
+    if (saved.isNotEmpty && mounted) {
+      state = saved;
+    }
+  }
+
+  void _persist() {
+    _repo.saveActiveParticipants(state);
+  }
 
   void setParticipants(List<Participant> participants) {
     state = List.from(participants);
+    _persist();
   }
 
   void syncWithTrip({
@@ -297,22 +315,27 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
     );
 
     state = distributed;
+    _persist();
   }
 
   void updateParticipantName(String id, String newName) {
     state = state.map((p) => p.id == id ? p.copyWith(name: newName) : p).toList();
+    _persist();
   }
 
   void updateParticipantWeight(String id, double weightKg) {
     state = state.map((p) => p.id == id ? p.copyWith(weightKg: weightKg) : p).toList();
+    _persist();
   }
 
   void updateStrengthRatio(String id, double ratio) {
     state = state.map((p) => p.id == id ? p.copyWith(strengthRatio: ratio) : p).toList();
+    _persist();
   }
 
   void updateParticipantRole(String id, TripRole role) {
     state = state.map((p) => p.id == id ? p.copyWith(role: role) : p).toList();
+    _persist();
   }
 
   void toggleDietaryRestriction(String id, DietaryRestriction diet) {
@@ -331,6 +354,7 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       }
       return p.copyWith(dietaryRestrictions: current);
     }).toList();
+    _persist();
   }
 
   void toggleMedicalCondition(String id, MedicalCondition med) {
@@ -349,6 +373,7 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       }
       return p.copyWith(medicalConditions: current);
     }).toList();
+    _persist();
   }
 
   void addParticipant() {
@@ -360,11 +385,13 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       strengthRatio: 1.0,
     );
     state = [...state, newP];
+    _persist();
   }
 
   void removeParticipant(String id) {
     if (state.length <= 1) return;
     state = state.where((p) => p.id != id).toList();
+    _persist();
   }
 
   void rebalance({
@@ -378,6 +405,7 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       shoppingList: shoppingList,
       personalGearWeightKg: personalGearWeightKg,
     );
+    _persist();
   }
 
   void moveGear(String gearId, String targetParticipantId) {
@@ -386,6 +414,7 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       gearId: gearId,
       targetParticipantId: targetParticipantId,
     );
+    _persist();
   }
 
   void moveFood(String foodId, String targetParticipantId) {
@@ -394,6 +423,7 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       foodId: foodId,
       targetParticipantId: targetParticipantId,
     );
+    _persist();
   }
 
   void updateParticipantMkkDetails({
@@ -410,13 +440,15 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
         contactPhone: contactPhone ?? p.contactPhone,
       );
     }).toList();
+    _persist();
   }
 }
 
 final groupParticipantsProvider =
     StateNotifierProvider<GroupParticipantsNotifier, List<Participant>>((ref) {
   final service = ref.watch(loadDistributionServiceProvider);
-  return GroupParticipantsNotifier(service);
+  final repo = ref.watch(tripRepositoryProvider);
+  return GroupParticipantsNotifier(service, repo);
 });
 
 // Aliases for convenience across modules

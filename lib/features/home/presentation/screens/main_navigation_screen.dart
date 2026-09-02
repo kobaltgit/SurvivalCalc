@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
+import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 import 'package:survival_calc/features/web/presentation/screens/web_landing_screen.dart';
 import 'package:survival_calc/features/web/presentation/widgets/topographic_background.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_apk_download_modal.dart';
@@ -31,6 +33,17 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      ref.listen(activeTripProfileProvider, (prev, next) {
+        final participants = ref.read(groupParticipantsProvider);
+        WebUrlService.syncCurrentStateToBrowserUrl(next, participants);
+      });
+      ref.listen(groupParticipantsProvider, (prev, next) {
+        final profile = ref.read(activeTripProfileProvider);
+        WebUrlService.syncCurrentStateToBrowserUrl(profile, next);
+      });
+    }
+
     final screenWidth = MediaQuery.of(context).size.width;
 
     // Wide desktop web layout

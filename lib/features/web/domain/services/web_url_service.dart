@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
+import 'package:survival_calc/features/web/domain/services/browser_history_sync/browser_history_sync.dart';
 
 class TripUrlData {
   final TripProfile profile;
@@ -150,5 +151,17 @@ class WebUrlService {
     final parsedBase = Uri.parse(hostUrl);
     final finalUri = parsedBase.replace(queryParameters: queryParams);
     return finalUri.toString();
+  }
+
+  /// Dynamically updates browser address bar URL without reloading
+  static void syncCurrentStateToBrowserUrl(
+    TripProfile profile, [
+    List<Participant>? participants,
+  ]) {
+    if (!kIsWeb) return;
+    try {
+      final shareUrl = buildShareUrl(profile, participants: participants);
+      syncUrlToBrowserHistory(shareUrl);
+    } catch (_) {}
   }
 }

@@ -51,7 +51,9 @@ void main() async {
             groupParticipantsProvider.overrideWith(
               (ref) => GroupParticipantsNotifier(
                 ref.watch(loadDistributionServiceProvider),
-              )..setParticipants(initialUrlData.participants),
+                ref.watch(tripRepositoryProvider),
+                initialUrlData.participants,
+              ),
             ),
         ],
       ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:survival_calc/features/gear/domain/models/gear_item.dart';
+import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/ration/domain/models/food_item.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 
@@ -15,10 +16,13 @@ abstract class TripRepository {
   Future<void> saveCustomFoods(List<FoodItem> foods);
   Future<List<GearItem>> loadCustomGear();
   Future<void> saveCustomGear(List<GearItem> gear);
+  Future<List<Participant>> loadActiveParticipants([String? tripId]);
+  Future<void> saveActiveParticipants(List<Participant> participants, [String? tripId]);
 }
 
 class LocalStorageTripRepository implements TripRepository {
   static const String _activeTripKey = 'active_trip_profile';
+  static const String _activeParticipantsKey = 'active_trip_participants';
   static const String _tripHistoryKey = 'trip_history_profiles';
   static const String _gearCheckedPrefix = 'gear_checked_';
   static const String _customFoodsKey = 'custom_food_items_list';
@@ -136,5 +140,33 @@ class LocalStorageTripRepository implements TripRepository {
     final prefs = await SharedPreferences.getInstance();
     final list = gear.map((g) => json.encode(g.toMap())).toList();
     await prefs.setStringList(_customGearKey, list);
+  }
+
+  @override
+  Future<List<Participant>> loadActiveParticipants([String? tripId]) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = tripId != null ? 'participants_$tripId' : _activeParticipantsKey;
+    final jsonList = prefs.getStringList(key);
+    if (jsonList == null || jsonList.isEmpty) return [];
+
+    return jsonList
+        .map((str) {
+          try {
+            final map = json.decode(str) as Map<String, dynamic>;
+            return Participant.fromMap(map);
+          } catch (_) {
+            return null;
+          }
+        })
+        .whereType<Participant>()
+        .toList();
+  }
+
+  @override
+  Future<void> saveActiveParticipants(List<Participant> participants, [String? tripId]) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = tripId != null ? 'participants_$tripId' : _activeParticipantsKey;
+    final list = participants.map((p) => json.encode(p.toMap())).toList();
+    await prefs.setStringList(key, list);
   }
 }

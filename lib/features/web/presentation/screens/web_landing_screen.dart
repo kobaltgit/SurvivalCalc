@@ -81,8 +81,11 @@ class _WebLandingScreenState extends ConsumerState<WebLandingScreen>
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton.icon(
-                    onPressed: () =>
-                        WebQrSyncModal.show(context, activeProfile),
+                    onPressed: () => WebQrSyncModal.show(
+                      context,
+                      activeProfile,
+                      participants: ref.read(groupParticipantsProvider),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: OutdoorTheme.signalOrange,
                       foregroundColor: Colors.black,

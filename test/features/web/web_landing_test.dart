@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
+import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/group_distribution/domain/services/load_distribution_service.dart';
 import 'package:survival_calc/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:survival_calc/features/trip_setup/data/repositories/trip_repository.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 import 'package:survival_calc/features/web/presentation/widgets/topographic_background.dart';
@@ -118,6 +122,43 @@ void main() {
       expect(p2.weightKg, equals(58.0));
       expect(p2.dietaryRestrictions, contains(DietaryRestriction.vegetarian));
       expect(p2.medicalConditions, contains(MedicalCondition.asthma));
+    });
+
+    test('GroupParticipantsNotifier persists and restores participants from LocalStorageTripRepository', () async {
+      SharedPreferences.setMockInitialValues({});
+      final repo = LocalStorageTripRepository();
+      const service = LoadDistributionService();
+
+      final notifier1 = GroupParticipantsNotifier(service, repo);
+      notifier1.setParticipants([
+        const Participant(
+          id: 'p_1',
+          name: 'Иван Руководитель',
+          role: TripRole.leader,
+          weightKg: 80.0,
+        ),
+        const Participant(
+          id: 'p_2',
+          name: 'Анна Завхоз',
+          role: TripRole.foodMaster,
+          weightKg: 60.0,
+        ),
+      ]);
+
+      // Allow microtask to complete saving
+      await Future.delayed(Duration.zero);
+
+      final loaded = await repo.loadActiveParticipants();
+      expect(loaded.length, equals(2));
+      expect(loaded[0].name, equals('Иван Руководитель'));
+      expect(loaded[1].name, equals('Анна Завхоз'));
+
+      // Simulate app restart / page refresh: new notifier loads saved participants
+      final notifier2 = GroupParticipantsNotifier(service, repo);
+      await Future.delayed(const Duration(milliseconds: 50));
+      expect(notifier2.state.length, equals(2));
+      expect(notifier2.state[0].name, equals('Иван Руководитель'));
+      expect(notifier2.state[1].role, equals(TripRole.foodMaster));
     });
   });
 
