@@ -274,4 +274,56 @@ class GpxRouteParser {
   }
 
   static double _degreesToRadians(double degrees) => degrees * math.pi / 180.0;
+
+  /// Generates a standard GPX 1.1 XML string from a PlannedRoute
+  static String toGpx(PlannedRoute route) {
+    final builder = XmlBuilder();
+    builder.processing('xml', 'version="1.0" encoding="UTF-8"');
+    builder.element('gpx', attributes: {
+      'version': '1.1',
+      'creator': 'SurvivalCalc',
+      'xmlns': 'http://www.topografix.com/GPX/1/1',
+    }, nest: () {
+      builder.element('metadata', nest: () {
+        builder.element('name', nest: route.name);
+        if (route.description != null && route.description!.isNotEmpty) {
+          builder.element('desc', nest: route.description!);
+        }
+        builder.element('time', nest: DateTime.now().toIso8601String());
+      });
+
+      // Waypoints
+      for (final wp in route.waypoints) {
+        builder.element('wpt', attributes: {
+          'lat': wp.latitude.toStringAsFixed(6),
+          'lon': wp.longitude.toStringAsFixed(6),
+        }, nest: () {
+          builder.element('name', nest: wp.title);
+          if (wp.note != null && wp.note!.isNotEmpty) {
+            builder.element('desc', nest: wp.note!);
+          }
+          builder.element('sym', nest: wp.type.name);
+          builder.element('type', nest: wp.type.name);
+        });
+      }
+
+      // Track
+      builder.element('trk', nest: () {
+        builder.element('name', nest: route.name);
+        builder.element('trkseg', nest: () {
+          for (final pt in route.points) {
+            builder.element('trkpt', attributes: {
+              'lat': pt.latitude.toStringAsFixed(6),
+              'lon': pt.longitude.toStringAsFixed(6),
+            }, nest: () {
+              builder.element('ele', nest: pt.altitude.toStringAsFixed(1));
+              builder.element('time', nest: pt.timestamp.toIso8601String());
+            });
+          }
+        });
+      });
+    });
+
+    return builder.buildDocument().toXmlString(pretty: true);
+  }
 }
