@@ -479,11 +479,11 @@ class WikiMarkdownViewer extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: DataTable(
-              columnSpacing: 24,
+              columnSpacing: 20,
               horizontalMargin: 16,
-              headingRowHeight: 44,
-              dataRowMinHeight: 38,
-              dataRowMaxHeight: 52,
+              headingRowHeight: 46,
+              dataRowMinHeight: 44,
+              dataRowMaxHeight: 120,
               headingRowColor: WidgetStateProperty.all(OutdoorTheme.darkBackground),
               headingTextStyle: const TextStyle(
                 color: OutdoorTheme.signalOrange,
@@ -501,11 +501,30 @@ class WikiMarkdownViewer extends StatelessWidget {
                   .toList(),
               rows: dataRows.map((row) {
                 return DataRow(
-                  cells: row
-                      .map((cell) => DataCell(
-                            Text(cell.replaceAll('**', '')),
-                          ))
-                      .toList(),
+                  cells: row.asMap().entries.map((entry) {
+                    final colIdx = entry.key;
+                    final cell = entry.value;
+                    final isLastCol = colIdx == row.length - 1;
+                    return DataCell(
+                      Container(
+                        constraints: BoxConstraints(
+                          minWidth: 100,
+                          maxWidth: isLastCol ? 340 : 200,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Text(
+                          cell.replaceAll('**', ''),
+                          softWrap: true,
+                          style: TextStyle(
+                            color: colIdx == 0 ? Colors.white : Colors.white70,
+                            fontWeight: colIdx == 0 ? FontWeight.w600 : FontWeight.normal,
+                            fontSize: 12.5,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 );
               }).toList(),
             ),
