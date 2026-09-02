@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/State-Riverpod-blueviolet?style=for-the-badge" alt="Riverpod" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Autonomous-success?style=for-the-badge" alt="100% Offline" />
-  <img src="https://img.shields.io/badge/Tests-59%2F59%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
+  <img src="https://img.shields.io/badge/Tests-65%2F65%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
   <a href="https://keepandroidopen.org/ru/">
     <img src="https://img.shields.io/badge/Keep_Android-Open-E05315?style=for-the-badge&logo=android&logoColor=white" alt="Keep Android Open" />
   </a>
@@ -282,11 +282,31 @@
 ### 10. 📲 Офлайн-синхронизация по QR-коду и библиотека походов
 - **Встроенный Live Camera QR-сканер** на базе `mobile_scanner` с тактическим видоискателем и фонариком.
 - **Компактные Base64 QR-коды** для мгновенной передачи паспорта похода между смартфонами без интернета.
+- **Сквозная синхронизация участников:** полный перенос анкет группы (ФИО, опыт, контакты, роли, веса, диеты и медицинские показания) в один скан.
 - **Библиотека «Мои походы»:** сохранение походов, дублирование, экспорт и готовые системные пресеты (Летний ПВД соло, Осенний Кавказ 4 чел, Зимняя автономка 2 чел).
 
 ---
 
-### 11. 🌙 Тактический интерфейс (Outdoor UI)
+### 11. 📄 Экспорт отчетов по стандартам МКК и экспедиционных архивов
+- **Два официальных формата туристской отчетности:**
+  1. 📕 **Предпоходный паспорт (Маршрутная книжка / Заявка в МКК):**
+     - Титульный лист с категорией сложности, регионом, организацией, МКК и аварийными путями схода.
+     - Состав группы с должностями, туристским опытом, контактами, диетами и здоровьем.
+     - Автоматическая развесовка снаряжения («Кто что несёт») и сбалансированная продуктовая раскладка.
+  2. 📗 **Итоговый технический отчет о походе:**
+     - Сводная аналитика «План vs Факт» (дистанция, набор высоты, дни, ходовое время).
+     - График фактического движения по дням на основе записанных GPS-треков.
+     - Паспорт путевых точек и препятствий (высота, координаты, описание, фото).
+     - Дневник лагеря и метеорологические наблюдения с вечерних дебрифингов.
+- **Мультиформатный экспорт (100% Offline):**
+  - 📑 **Печать / PDF:** типографская A4 верстка с оглавлением, встроенным кириллическим шрифтом Roboto (полная автономность, просмотр в браузере без CORS).
+  - 📝 **Markdown (`.md`):** структурированный текст для баз знаний и репозиториев.
+  - 🌐 **HTML / Word (`.html`):** стилизованный UTF-8 документ для мгновенного копирования или прямого открытия в **Microsoft Word** с сохранением таблиц и стилей.
+  - 📦 **Экспедиционный ZIP-архив:** выгрузка полного комплекта похода (PDF-отчет, Markdown, HTML, все GPX-треки и фотографии путевых меток).
+
+---
+
+### 12. 🌙 Тактический интерфейс (Outdoor UI)
 - **High-Contrast Dark Theme:** глубокий темный фон (`#121417`), сигнальный оранжевый акцент (`#FF6B00`), высокая читаемость на ярком солнце.
 - **Полноэкранный режим (Immersive Sticky):** скрытие системной панели Android и статус-бара для 100% полезного пространства.
 - **Плавающий док (Floating Pill Dock):** нижняя панель навигации парит над экраном с отступами и скруглением $R=20\text{px}$, исключая задевание скруглений дисплея.
@@ -300,8 +320,8 @@
 ```
 lib/
 ├── core/
-│   ├── enums/             # TripEnums (сезоны, активности, роли, категории)
-│   ├── services/          # QrSyncService, ExportService
+│   ├── enums/             # TripEnums (сезоны, активности, роли, категории, диеты, здоровье)
+│   ├── services/          # QrSyncService, FileSaverService (Web & Mobile)
 │   ├── theme/             # OutdoorTheme (Material 3 Dark Palette)
 │   └── widgets/           # AppLogo, QrScannerDialog
 ├── features/
@@ -310,6 +330,9 @@ lib/
 │   ├── gear/              # Чек-лист снаряжения, фильтры, категории
 │   ├── group_distribution/# Развесовка груза, роли, график дежурств
 │   ├── home/              # Главный экран с плавающей навигацией
+│   ├── mkk_reports/       # Генерация отчетов МКК (PDF, Markdown, HTML, ZIP)
+│   │   ├── domain/        # MkkPdfGenerator, MkkMarkdownGenerator, ExpeditionArchiveService
+│   │   └── presentation/  # MkkExportSheet, MkkSettingsDialog
 │   ├── ration/            # Продуктовая раскладка, меню по дням, кастомные продукты
 │   ├── tracking/          # GPS-трекер, карты flutter_map, Camp Debrief, песочница
 │   │   ├── data/          # TrackStorageRepository, OfflineTileRepository, OfflineTileDownloader
@@ -332,6 +355,8 @@ lib/
 | **Графика и чарты** | FL Chart (`fl_chart: ^1.2.0`) |
 | **Картография** | Flutter Map (`flutter_map: ^8.2.2`, `latlong2: ^0.9.1`) |
 | **Геолокация** | Geolocator (`geolocator: ^14.0.2`) |
+| **Генерация PDF** | PDF (`pdf: ^3.11.3`), Printing (`printing: ^5.14.2`) |
+| **Архивация** | Archive (`archive: ^4.0.7`) |
 | **GPX и XML парсинг** | XML (`xml: ^6.5.0`) |
 | **Импорт файлов** | File Picker (`file_picker: ^12.1.2`) |
 | **Сетевой загрузчик** | HTTP (`http: ^1.2.2`) |
