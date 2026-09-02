@@ -139,6 +139,45 @@ class WikiMarkdownViewer extends StatelessWidget {
         continue;
       }
 
+      if (line.startsWith('#### ')) {
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 4),
+            child: Text(
+              line.substring(5).trim(),
+              style: const TextStyle(
+                color: Color(0xFFFFB74D),
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                height: 1.3,
+              ),
+            ),
+          ),
+        );
+        i++;
+        continue;
+      }
+
+      if (line.startsWith('##### ') || line.startsWith('###### ')) {
+        final prefixLen = line.startsWith('##### ') ? 6 : 7;
+        widgets.add(
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 4),
+            child: Text(
+              line.substring(prefixLen).trim(),
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                height: 1.3,
+              ),
+            ),
+          ),
+        );
+        i++;
+        continue;
+      }
+
       // 4. Markdown Tables (| ... |)
       if (line.startsWith('|') && line.endsWith('|')) {
         final tableLines = <String>[];

@@ -78,6 +78,8 @@ void main() {
 # Заголовок H1
 ## Заголовок H2
 ### Заголовок H3
+#### Заголовок H4
+##### Заголовок H5
 ---
 > 💡 **Совет бывалого:** Держите телефон в тепле.
 - Пункт списка 1
@@ -103,6 +105,8 @@ void main() {
       expect(find.text('Заголовок H1'), findsOneWidget);
       expect(find.text('Заголовок H2'), findsOneWidget);
       expect(find.text('Заголовок H3'), findsOneWidget);
+      expect(find.text('Заголовок H4'), findsOneWidget);
+      expect(find.text('Заголовок H5'), findsOneWidget);
       expect(find.text('💡 Совет бывалого'), findsOneWidget);
       expect(find.text('Первый шаг'), findsOneWidget);
       expect(find.text('Сало'), findsOneWidget);
