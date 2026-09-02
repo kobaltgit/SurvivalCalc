@@ -217,6 +217,67 @@ class MkkMarkdownGenerator {
       resultLines.add('</table>');
     }
 
-    return '<div style="font-family: Arial, sans-serif; line-height: 1.5; color: #1a1a1a;">${resultLines.join('\n')}</div>';
+    final bodyContent = resultLines.join('\n');
+    return '''<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Экспедиционная сводка - SurvivalCalc</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background-color: #ffffff;
+      padding: 32px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    h1 { color: #ea580c; border-bottom: 2px solid #ea580c; padding-bottom: 8px; }
+    h2 { color: #1e293b; margin-top: 24px; }
+    h3 { color: #475569; }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #1e293b;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+    blockquote {
+      border-left: 4px solid #ea580c;
+      padding-left: 16px;
+      margin-left: 0;
+      color: #4b5563;
+      background-color: #fff7ed;
+      padding: 8px 16px;
+      border-radius: 0 6px 6px 0;
+    }
+    hr {
+      border: 0;
+      border-top: 1px solid #e2e8f0;
+      margin: 24px 0;
+    }
+    li {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+$bodyContent
+</body>
+</html>''';
   }
 }

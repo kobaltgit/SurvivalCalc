@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
@@ -64,10 +65,10 @@ class ExpeditionArchiveService {
     final fullSummaryMd = '$passportMd\n\n========================================\n\n$reportMd';
     final fullSummaryHtml = MkkMarkdownGenerator.markdownToHtml(fullSummaryMd);
 
-    final mdBytes = Uint8List.fromList(fullSummaryMd.codeUnits);
+    final mdBytes = Uint8List.fromList(utf8.encode(fullSummaryMd));
     archive.addFile(ArchiveFile('Trip_Summary.md', mdBytes.length, mdBytes));
 
-    final htmlBytes = Uint8List.fromList(fullSummaryHtml.codeUnits);
+    final htmlBytes = Uint8List.fromList(utf8.encode(fullSummaryHtml));
     archive.addFile(ArchiveFile('Trip_Summary.html', htmlBytes.length, htmlBytes));
 
     // 3. Export Tracks GPX
@@ -76,7 +77,7 @@ class ExpeditionArchiveService {
       for (int i = 0; i < tracks.length; i++) {
         final track = tracks[i];
         final gpxStr = gpxExporter.exportTrackToGpx(track);
-        final gpxBytes = Uint8List.fromList(gpxStr.codeUnits);
+        final gpxBytes = Uint8List.fromList(utf8.encode(gpxStr));
         final safeName = track.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
         archive.addFile(ArchiveFile('Tracks/Day_${i + 1}_$safeName.gpx', gpxBytes.length, gpxBytes));
       }
