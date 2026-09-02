@@ -641,7 +641,9 @@ class MkkPdfGenerator {
 
   /// Vector Drawing of Route Track on Coordinate Grid with Scale and North Indicator (Section 3.3)
   static pw.Widget _buildRouteVectorMap(PlannedRoute route, pw.Font font, pw.Font fontBold) {
-    final pts = route.points;
+    final pts = route.points
+        .where((p) => p.latitude >= -90.0 && p.latitude <= 90.0 && p.longitude >= -180.0 && p.longitude <= 180.0)
+        .toList();
     if (pts.length < 2) return pw.SizedBox();
 
     double minLat = pts.first.latitude;
@@ -664,20 +666,27 @@ class MkkPdfGenerator {
 
     const mapW = 538.0;
     const mapH = 175.0;
-    const margin = 26.0;
+    const padL = 20.0;
+    const padR = 20.0;
+    const padT = 32.0;
+    const padB = 24.0;
 
-    final availW = mapW - (margin * 2);
-    final availH = mapH - (margin * 2);
+    final availW = mapW - padL - padR;
+    final availH = mapH - padT - padB;
 
     final scale = min(availW / lonSpan, availH / latSpan);
-    final offsetX = margin + (availW - (lonSpan * scale)) / 2.0;
-    final offsetY = margin + (availH - (latSpan * scale)) / 2.0;
+    final offsetX = padL + (availW - (lonSpan * scale)) / 2.0;
+    final offsetY = padB + (availH - (latSpan * scale)) / 2.0;
 
     double toX(double lon) => offsetX + (lon - minLon) * cosLat * scale;
     double toY(double lat) => offsetY + (lat - minLat) * scale;
 
     final coordBounds =
         'Охват WGS-84: [${minLat.toStringAsFixed(4)}°..${maxLat.toStringAsFixed(4)}°N, ${minLon.toStringAsFixed(4)}°..${maxLon.toStringAsFixed(4)}°E]';
+
+    final validWpts = route.waypoints
+        .where((w) => w.latitude >= -90.0 && w.latitude <= 90.0 && w.longitude >= -180.0 && w.longitude <= 180.0)
+        .toList();
 
     return pw.Container(
       width: mapW,
@@ -697,15 +706,15 @@ class MkkPdfGenerator {
               canvas.setLineWidth(0.5);
 
               for (int step = 1; step <= 3; step++) {
-                final gx = margin + (availW * (step / 4));
-                canvas.moveTo(gx, margin);
-                canvas.lineTo(gx, mapH - margin);
+                final gx = padL + (availW * (step / 4));
+                canvas.moveTo(gx, padB);
+                canvas.lineTo(gx, mapH - padT);
                 canvas.strokePath();
               }
               for (int step = 1; step <= 2; step++) {
-                final gy = margin + (availH * (step / 3));
-                canvas.moveTo(margin, gy);
-                canvas.lineTo(mapW - margin, gy);
+                final gy = padB + (availH * (step / 3));
+                canvas.moveTo(padL, gy);
+                canvas.lineTo(mapW - padR, gy);
                 canvas.strokePath();
               }
 
@@ -743,7 +752,7 @@ class MkkPdfGenerator {
               canvas.fillPath();
 
               // 5. Draw Waypoint Markers
-              for (final w in route.waypoints) {
+              for (final w in validWpts) {
                 final wx = toX(w.longitude);
                 final wy = toY(w.latitude);
                 canvas.setColor(const PdfColor.fromInt(0xFF00E5FF));
@@ -823,7 +832,9 @@ class MkkPdfGenerator {
 
   /// Elevation Profile Chart of Planned Route (Section 3.3)
   static pw.Widget _buildElevationProfile(PlannedRoute route, pw.Font font) {
-    final pts = route.points;
+    final pts = route.points
+        .where((p) => !p.altitude.isNaN && !p.altitude.isInfinite && p.altitude >= -500.0 && p.altitude <= 9000.0)
+        .toList();
     if (pts.length < 2) return pw.SizedBox();
 
     double minAlt = pts.first.altitude;

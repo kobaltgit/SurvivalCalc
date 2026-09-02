@@ -48,12 +48,19 @@ class GpxRouteParser {
       final lonAttr = pt.getAttribute('lon');
       if (latAttr == null || lonAttr == null) continue;
 
-      final lat = double.tryParse(latAttr);
-      final lon = double.tryParse(lonAttr);
-      if (lat == null || lon == null) continue;
+      final rawLat = double.tryParse(latAttr);
+      final rawLon = double.tryParse(lonAttr);
+      if (rawLat == null || rawLon == null) continue;
+
+      final sanitizedCoords = sanitizeCoordinates(rawLat, rawLon);
+      if (sanitizedCoords == null) continue;
+
+      final lat = sanitizedCoords.$1;
+      final lon = sanitizedCoords.$2;
 
       final eleText = pt.findElements('ele').firstOrNull?.innerText;
-      final ele = eleText != null ? double.tryParse(eleText) ?? 0.0 : 0.0;
+      final rawEle = eleText != null ? double.tryParse(eleText) ?? 0.0 : 0.0;
+      final ele = sanitizeElevation(rawEle);
 
       final timeText = pt.findElements('time').firstOrNull?.innerText;
       final time = timeText != null ? DateTime.tryParse(timeText) ?? DateTime.now() : DateTime.now();
@@ -80,15 +87,22 @@ class GpxRouteParser {
       final lonAttr = wpt.getAttribute('lon');
       if (latAttr == null || lonAttr == null) continue;
 
-      final lat = double.tryParse(latAttr);
-      final lon = double.tryParse(lonAttr);
-      if (lat == null || lon == null) continue;
+      final rawLat = double.tryParse(latAttr);
+      final rawLon = double.tryParse(lonAttr);
+      if (rawLat == null || rawLon == null) continue;
+
+      final sanitizedCoords = sanitizeCoordinates(rawLat, rawLon);
+      if (sanitizedCoords == null) continue;
+
+      final lat = sanitizedCoords.$1;
+      final lon = sanitizedCoords.$2;
 
       final name = wpt.findElements('name').firstOrNull?.innerText ?? 'Точка';
       final desc = wpt.findElements('desc').firstOrNull?.innerText ?? '';
       final cmt = wpt.findElements('cmt').firstOrNull?.innerText ?? '';
       final eleText = wpt.findElements('ele').firstOrNull?.innerText;
-      final ele = eleText != null ? double.tryParse(eleText) ?? 0.0 : 0.0;
+      final rawEle = eleText != null ? double.tryParse(eleText) ?? 0.0 : 0.0;
+      final ele = sanitizeElevation(rawEle);
       final sym = wpt.findElements('sym').firstOrNull?.innerText.toLowerCase() ?? '';
       final typeStr = wpt.findElements('type').firstOrNull?.innerText.toLowerCase() ?? '';
 
@@ -325,5 +339,37 @@ class GpxRouteParser {
     });
 
     return builder.buildDocument().toXmlString(pretty: true);
+  }
+
+  /// Validates and converts coordinates (supporting EPSG:3857 Web Mercator meters or WGS-84 degrees)
+  static (double, double)? sanitizeCoordinates(double rawLat, double rawLon) {
+    // If already standard valid WGS-84 degrees
+    if (rawLat >= -90.0 && rawLat <= 90.0 && rawLon >= -180.0 && rawLon <= 180.0) {
+      return (rawLat, rawLon);
+    }
+
+    // Check if coordinates were exported in Web Mercator (EPSG:3857 in meters)
+    if (rawLat.abs() <= 20037508.34 &&
+        rawLon.abs() <= 20037508.34 &&
+        (rawLat.abs() > 90.0 || rawLon.abs() > 180.0)) {
+      try {
+        final lonDeg = (rawLon / 20037508.34) * 180.0;
+        final latDeg = (math.atan(math.exp(rawLat / 6378137.0)) * 2.0 - (math.pi / 2.0)) * (180.0 / math.pi);
+        if (latDeg >= -85.05112878 && latDeg <= 85.05112878 && lonDeg >= -180.0 && lonDeg <= 180.0) {
+          return (latDeg, lonDeg);
+        }
+      } catch (_) {}
+    }
+
+    // Corrupted or invalid coordinates
+    return null;
+  }
+
+  /// Filters out unrealistic elevations (e.g. timestamps or corrupt floating point values)
+  static double sanitizeElevation(double rawEle) {
+    if (rawEle.isNaN || rawEle.isInfinite || rawEle < -500.0 || rawEle > 9000.0) {
+      return 0.0;
+    }
+    return rawEle;
   }
 }
