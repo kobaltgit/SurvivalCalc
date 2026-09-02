@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 
 class WebUrlService {
   const WebUrlService();
+
+  static const String defaultProductionUrl = 'https://kobaltgit.github.io/SurvivalCalc/';
 
   /// Parses URL query parameters into a TripProfile if present
   static TripProfile? parseProfileFromUri(Uri uri) {
@@ -58,10 +61,25 @@ class WebUrlService {
     }
   }
 
-  /// Builds query parameters URL for sharing
-  static String buildShareUrl(TripProfile profile, {String baseUrl = ''}) {
-    final uri = Uri(
-      path: baseUrl.isEmpty ? '/' : baseUrl,
+  /// Builds query parameters URL for sharing (always full URL e.g. https://.../?days=...)
+  static String buildShareUrl(TripProfile profile, {String? baseUrl}) {
+    String hostUrl = baseUrl ?? '';
+    if (hostUrl.isEmpty) {
+      if (kIsWeb) {
+        final current = Uri.base;
+        if (current.hasScheme && (current.scheme == 'http' || current.scheme == 'https')) {
+          final path = current.path.endsWith('/') ? current.path : '${current.path}/';
+          hostUrl = '${current.origin}$path';
+        } else {
+          hostUrl = defaultProductionUrl;
+        }
+      } else {
+        hostUrl = defaultProductionUrl;
+      }
+    }
+
+    final parsedBase = Uri.parse(hostUrl);
+    final finalUri = parsedBase.replace(
       queryParameters: {
         'days': profile.durationDays.toString(),
         'group': profile.groupSize.toString(),
@@ -71,9 +89,10 @@ class WebUrlService {
         'season': profile.season.name,
         'activity': profile.activityType.name,
         'weight': profile.avgParticipantWeightKg.toString(),
-        if (profile.title != 'Новый поход') 'title': profile.title,
+        if (profile.title != 'Новый поход' && profile.title.trim().isNotEmpty)
+          'title': profile.title,
       },
     );
-    return uri.toString();
+    return finalUri.toString();
   }
 }

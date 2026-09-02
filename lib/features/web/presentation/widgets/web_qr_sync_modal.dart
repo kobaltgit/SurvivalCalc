@@ -4,6 +4,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/services/qr_sync_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
+import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 class WebQrSyncModal extends StatelessWidget {
   final TripProfile profile;
@@ -20,28 +21,11 @@ class WebQrSyncModal extends StatelessWidget {
     );
   }
 
-  String _buildShareableUrl(TripProfile profile) {
-    final uri = Uri(
-      path: '/',
-      queryParameters: {
-        'days': profile.durationDays.toString(),
-        'group': profile.groupSize.toString(),
-        'active': profile.activeDays.toString(),
-        'dist': profile.totalDistanceKm.toString(),
-        'ascent': profile.totalAscentMeters.toString(),
-        'season': profile.season.name,
-        'activity': profile.activityType.name,
-        'weight': profile.avgParticipantWeightKg.toString(),
-      },
-    );
-    return uri.toString();
-  }
-
   @override
   Widget build(BuildContext context) {
     const qrService = QrSyncService();
     final qrPayload = qrService.encodeTripProfile(profile);
-    final shareUrl = _buildShareableUrl(profile);
+    final shareUrl = WebUrlService.buildShareUrl(profile);
 
     return Dialog(
       backgroundColor: OutdoorTheme.surfaceCard,

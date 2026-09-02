@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survival_calc/features/wiki/data/wiki_repository.dart';
 import 'package:survival_calc/features/wiki/domain/models/wiki_category.dart';
-import 'package:survival_calc/features/wiki/presentation/providers/wiki_providers.dart';
 import 'package:survival_calc/features/wiki/presentation/screens/wiki_article_detail_screen.dart';
 import 'package:survival_calc/features/wiki/presentation/screens/wiki_screen.dart';
 import 'package:survival_calc/features/wiki/presentation/widgets/wiki_markdown_viewer.dart';

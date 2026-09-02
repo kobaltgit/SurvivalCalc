@@ -52,6 +52,7 @@ void main() {
       );
 
       final url = WebUrlService.buildShareUrl(profile);
+      expect(url.startsWith('http'), isTrue);
       expect(url, contains('days=7'));
       expect(url, contains('group=4'));
       expect(url, contains('dist=85.0'));
