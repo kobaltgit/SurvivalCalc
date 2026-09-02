@@ -1,0 +1,19 @@
+# Ignore platform boilerplate and build outputs
+android/
+ios/
+windows/
+linux/
+macos/
+web/
+build/
+.dart_tool/
+.git/
+.system_generated/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.ico
+*.zip
+*.pdf
+*.log

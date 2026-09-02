@@ -1,0 +1,512 @@
+{
+  "assets/data/food_db.json": {
+    "mtime": 1788174394.9173563,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e1ba9023dddc7ed7dd33d9c3e52b6c63",
+    "semantic_hash": "e1ba9023dddc7ed7dd33d9c3e52b6c63"
+  },
+  "assets/data/gear_db.json": {
+    "mtime": 1788174409.4692485,
+    "seen": 1788348468.5199227,
+    "ast_hash": "be78fb716f36f75299e28aefb7adbc6f",
+    "semantic_hash": "be78fb716f36f75299e28aefb7adbc6f"
+  },
+  "lib/core/enums/trip_enums.dart": {
+    "mtime": 1788183713.5346768,
+    "seen": 1788348468.5199227,
+    "ast_hash": "fd46e3bd174bf520111dba645f915c9a",
+    "semantic_hash": "fd46e3bd174bf520111dba645f915c9a"
+  },
+  "lib/core/services/export_service.dart": {
+    "mtime": 1788174810.0994978,
+    "seen": 1788348468.5199227,
+    "ast_hash": "59511d6509276c1919f3cc02506866dc",
+    "semantic_hash": "59511d6509276c1919f3cc02506866dc"
+  },
+  "lib/core/services/file_saver_io.dart": {
+    "mtime": 1788341678.7412062,
+    "seen": 1788348468.5199227,
+    "ast_hash": "12f6bf55922253894bcbd587da30f4f4",
+    "semantic_hash": "12f6bf55922253894bcbd587da30f4f4"
+  },
+  "lib/core/services/file_saver_service.dart": {
+    "mtime": 1788341684.4906,
+    "seen": 1788348468.5199227,
+    "ast_hash": "8b27d479775fbb34b737494161853b90",
+    "semantic_hash": "8b27d479775fbb34b737494161853b90"
+  },
+  "lib/core/services/file_saver_stub.dart": {
+    "mtime": 1788341668.618468,
+    "seen": 1788348468.5199227,
+    "ast_hash": "346ea6059f9d2a71798a627b3eeb97f7",
+    "semantic_hash": "346ea6059f9d2a71798a627b3eeb97f7"
+  },
+  "lib/core/services/file_saver_web.dart": {
+    "mtime": 1788341673.548532,
+    "seen": 1788348468.5199227,
+    "ast_hash": "c17d938b8bbcd23100d3ae39fa3f7d0c",
+    "semantic_hash": "c17d938b8bbcd23100d3ae39fa3f7d0c"
+  },
+  "lib/core/services/media_storage_service.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "bb31f480f84107992a697547bc295674",
+    "semantic_hash": "bb31f480f84107992a697547bc295674"
+  },
+  "lib/core/services/qr_sync_service.dart": {
+    "mtime": 1788343455.4058135,
+    "seen": 1788348468.5199227,
+    "ast_hash": "8de7f05b431c60c8c8cd807b87e16e91",
+    "semantic_hash": "8de7f05b431c60c8c8cd807b87e16e91"
+  },
+  "lib/core/theme/outdoor_theme.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "d32f22a69099f8fc56b93133fb99395f",
+    "semantic_hash": "d32f22a69099f8fc56b93133fb99395f"
+  },
+  "lib/core/widgets/app_logo.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "5ac645b81e39bf35720f96e93671a6ee",
+    "semantic_hash": "5ac645b81e39bf35720f96e93671a6ee"
+  },
+  "lib/core/widgets/qr_scanner_dialog.dart": {
+    "mtime": 1788186600.0078065,
+    "seen": 1788348468.5199227,
+    "ast_hash": "ca30266e66e1bab2c4948d864bc523a1",
+    "semantic_hash": "ca30266e66e1bab2c4948d864bc523a1"
+  },
+  "lib/features/calculator/domain/models/macronutrient_targets.dart": {
+    "mtime": 1788174444.0054457,
+    "seen": 1788348468.5199227,
+    "ast_hash": "65c268810ec29f8df3b5ea42b7b47060",
+    "semantic_hash": "65c268810ec29f8df3b5ea42b7b47060"
+  },
+  "lib/features/calculator/domain/models/trip_calculation_result.dart": {
+    "mtime": 1788178893.1804807,
+    "seen": 1788348468.5199227,
+    "ast_hash": "b38bc4bfed6bee8c1af36267d580b9f8",
+    "semantic_hash": "b38bc4bfed6bee8c1af36267d580b9f8"
+  },
+  "lib/features/calculator/domain/services/metabolic_calculator.dart": {
+    "mtime": 1788175278.0627518,
+    "seen": 1788348468.5199227,
+    "ast_hash": "a2f993637fa2b18b74743a0e85e13da6",
+    "semantic_hash": "a2f993637fa2b18b74743a0e85e13da6"
+  },
+  "lib/features/calculator/domain/services/trip_calculator_engine.dart": {
+    "mtime": 1788183777.974408,
+    "seen": 1788348468.5199227,
+    "ast_hash": "3289b08551c970d064b4b619d091d5b4",
+    "semantic_hash": "3289b08551c970d064b4b619d091d5b4"
+  },
+  "lib/features/calculator/presentation/providers/calculator_providers.dart": {
+    "mtime": 1788340034.838943,
+    "seen": 1788348468.5199227,
+    "ast_hash": "8e13437dd0444693bb72da2850b49341",
+    "semantic_hash": "8e13437dd0444693bb72da2850b49341"
+  },
+  "lib/features/dashboard/presentation/screens/dashboard_screen.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "2be1009b1be0b8c6bda2a0d84847afa1",
+    "semantic_hash": "2be1009b1be0b8c6bda2a0d84847afa1"
+  },
+  "lib/features/gear/data/repositories/gear_repository.dart": {
+    "mtime": 1788174515.253016,
+    "seen": 1788348468.5199227,
+    "ast_hash": "568be532b0b0f28ac6fbe7140a0fbb95",
+    "semantic_hash": "568be532b0b0f28ac6fbe7140a0fbb95"
+  },
+  "lib/features/gear/domain/models/gear_item.dart": {
+    "mtime": 1788174439.18126,
+    "seen": 1788348468.5199227,
+    "ast_hash": "9b155c4315845c1945d7106e0b99fdf8",
+    "semantic_hash": "9b155c4315845c1945d7106e0b99fdf8"
+  },
+  "lib/features/gear/domain/services/gear_calculator_service.dart": {
+    "mtime": 1788178871.3389068,
+    "seen": 1788348468.5199227,
+    "ast_hash": "bb04525ee617a5606e785f97e8931c1d",
+    "semantic_hash": "bb04525ee617a5606e785f97e8931c1d"
+  },
+  "lib/features/gear/presentation/screens/gear_checklist_screen.dart": {
+    "mtime": 1788181230.9638057,
+    "seen": 1788348468.5199227,
+    "ast_hash": "a8cc91377aed8b3eb23911468bf945db",
+    "semantic_hash": "a8cc91377aed8b3eb23911468bf945db"
+  },
+  "lib/features/group_distribution/domain/models/participant.dart": {
+    "mtime": 1788339919.5298064,
+    "seen": 1788348468.5199227,
+    "ast_hash": "1e2978200fdc6973424149cebcf394ee",
+    "semantic_hash": "1e2978200fdc6973424149cebcf394ee"
+  },
+  "lib/features/group_distribution/domain/services/load_distribution_service.dart": {
+    "mtime": 1788183804.2985058,
+    "seen": 1788348468.5199227,
+    "ast_hash": "eece7fe7d190ccb056e4fb69615e8887",
+    "semantic_hash": "eece7fe7d190ccb056e4fb69615e8887"
+  },
+  "lib/features/group_distribution/presentation/screens/load_distribution_screen.dart": {
+    "mtime": 1788183849.936918,
+    "seen": 1788348468.5199227,
+    "ast_hash": "83ab41ab86681a7b9f0c63b1c0a24925",
+    "semantic_hash": "83ab41ab86681a7b9f0c63b1c0a24925"
+  },
+  "lib/features/home/presentation/screens/main_navigation_screen.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "c5e9e26ab515469b292ee62d7f4cd677",
+    "semantic_hash": "c5e9e26ab515469b292ee62d7f4cd677"
+  },
+  "lib/features/mkk_reports/domain/services/expedition_archive_service.dart": {
+    "mtime": 1788342314.4376512,
+    "seen": 1788348468.5199227,
+    "ast_hash": "d5f9e9196562f1ec85652525206c4699",
+    "semantic_hash": "d5f9e9196562f1ec85652525206c4699"
+  },
+  "lib/features/mkk_reports/domain/services/mkk_markdown_generator.dart": {
+    "mtime": 1788342988.1447723,
+    "seen": 1788348468.5199227,
+    "ast_hash": "35c8f96c68abde51f9234d3c02980278",
+    "semantic_hash": "35c8f96c68abde51f9234d3c02980278"
+  },
+  "lib/features/mkk_reports/domain/services/mkk_pdf_generator.dart": {
+    "mtime": 1788343015.776992,
+    "seen": 1788348468.5199227,
+    "ast_hash": "bb10f00bea3ee325672c0b9c486b9f51",
+    "semantic_hash": "bb10f00bea3ee325672c0b9c486b9f51"
+  },
+  "lib/features/mkk_reports/presentation/dialogs/mkk_export_sheet.dart": {
+    "mtime": 1788344864.4199152,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e59fa8f9d81142dd47abad21751b03f7",
+    "semantic_hash": "e59fa8f9d81142dd47abad21751b03f7"
+  },
+  "lib/features/ration/data/repositories/food_repository.dart": {
+    "mtime": 1788174510.3851843,
+    "seen": 1788348468.5199227,
+    "ast_hash": "6fb5ae56d39c2f79e49f67cd2266b3aa",
+    "semantic_hash": "6fb5ae56d39c2f79e49f67cd2266b3aa"
+  },
+  "lib/features/ration/domain/models/daily_ration.dart": {
+    "mtime": 1788183729.506184,
+    "seen": 1788348468.5199227,
+    "ast_hash": "7aab161e4fbc5081d5ea022f32de3c4f",
+    "semantic_hash": "7aab161e4fbc5081d5ea022f32de3c4f"
+  },
+  "lib/features/ration/domain/models/food_item.dart": {
+    "mtime": 1788174434.6336033,
+    "seen": 1788348468.5199227,
+    "ast_hash": "eda91713164748a2174f62e9b4ed247d",
+    "semantic_hash": "eda91713164748a2174f62e9b4ed247d"
+  },
+  "lib/features/ration/domain/services/ration_generator_service.dart": {
+    "mtime": 1788183897.1965282,
+    "seen": 1788348468.5199227,
+    "ast_hash": "b5b57a901da88656688dec0f4816ca16",
+    "semantic_hash": "b5b57a901da88656688dec0f4816ca16"
+  },
+  "lib/features/ration/presentation/screens/food_breakdown_screen.dart": {
+    "mtime": 1788183859.3244605,
+    "seen": 1788348468.5199227,
+    "ast_hash": "d5e32b44852532acdaed4175efc56872",
+    "semantic_hash": "d5e32b44852532acdaed4175efc56872"
+  },
+  "lib/features/tracking/data/repositories/offline_tile_repository.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "76342ca835d2ab7a55d915a342993216",
+    "semantic_hash": "76342ca835d2ab7a55d915a342993216"
+  },
+  "lib/features/tracking/data/repositories/track_storage_repository.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "90d9c2eb3bbd0cdd6c8f3eb6c4d15174",
+    "semantic_hash": "90d9c2eb3bbd0cdd6c8f3eb6c4d15174"
+  },
+  "lib/features/tracking/domain/models/camp_debrief.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e5d560f485204a66a1146b1b01c9133f",
+    "semantic_hash": "e5d560f485204a66a1146b1b01c9133f"
+  },
+  "lib/features/tracking/domain/models/daily_camp_note.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e0f1a6c47d4eabc0368bd108563e755a",
+    "semantic_hash": "e0f1a6c47d4eabc0368bd108563e755a"
+  },
+  "lib/features/tracking/domain/models/daily_track.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "f279337ba408237f327d7a8f5a7330b8",
+    "semantic_hash": "f279337ba408237f327d7a8f5a7330b8"
+  },
+  "lib/features/tracking/domain/models/gps_point.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "32a61fbef74e0133d0c26fd3e95b8bed",
+    "semantic_hash": "32a61fbef74e0133d0c26fd3e95b8bed"
+  },
+  "lib/features/tracking/domain/models/planned_route.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "9e3c6d439fb382cbc8f6ef3e034353ae",
+    "semantic_hash": "9e3c6d439fb382cbc8f6ef3e034353ae"
+  },
+  "lib/features/tracking/domain/models/way_point.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "efba4895c4cf98fc05191460272af704",
+    "semantic_hash": "efba4895c4cf98fc05191460272af704"
+  },
+  "lib/features/tracking/domain/services/camp_debrief_calculator.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "68d656f931d21547bca8d8c7817110e7",
+    "semantic_hash": "68d656f931d21547bca8d8c7817110e7"
+  },
+  "lib/features/tracking/domain/services/distance_calculator.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "76716faf21a022083eab42417d4646fd",
+    "semantic_hash": "76716faf21a022083eab42417d4646fd"
+  },
+  "lib/features/tracking/domain/services/gpx_exporter.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "1d259d4ca7a9f9b1d59b89f8d000105e",
+    "semantic_hash": "1d259d4ca7a9f9b1d59b89f8d000105e"
+  },
+  "lib/features/tracking/domain/services/gpx_route_parser.dart": {
+    "mtime": 1788345341.8823936,
+    "seen": 1788348468.5199227,
+    "ast_hash": "c0fdf6ed4cd2ec9aef23f9a52bee7c73",
+    "semantic_hash": "c0fdf6ed4cd2ec9aef23f9a52bee7c73"
+  },
+  "lib/features/tracking/domain/services/offline_tile_downloader.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "d101d213856a3452dcb7f0d3fe8808d2",
+    "semantic_hash": "d101d213856a3452dcb7f0d3fe8808d2"
+  },
+  "lib/features/tracking/domain/services/tile_math_utils.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "6f75afead6540d7821cc45584dc961b8",
+    "semantic_hash": "6f75afead6540d7821cc45584dc961b8"
+  },
+  "lib/features/tracking/presentation/providers/planned_route_providers.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "9cce336d19744c1fc5c98e6a71ccdbe9",
+    "semantic_hash": "9cce336d19744c1fc5c98e6a71ccdbe9"
+  },
+  "lib/features/tracking/presentation/providers/tracking_providers.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "650d6728d54f23349a063684343ad654",
+    "semantic_hash": "650d6728d54f23349a063684343ad654"
+  },
+  "lib/features/tracking/presentation/screens/tracking_screen.dart": {
+    "mtime": 1788345760.170962,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e5618ff50bc14df2ed0c12aa7932d570",
+    "semantic_hash": "e5618ff50bc14df2ed0c12aa7932d570"
+  },
+  "lib/features/tracking/presentation/widgets/add_waypoint_dialog.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "de6d40c239c8921d42535ef6caff82bd",
+    "semantic_hash": "de6d40c239c8921d42535ef6caff82bd"
+  },
+  "lib/features/tracking/presentation/widgets/cached_tile_provider.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "8642169589a51cf27e3df18c8268e370",
+    "semantic_hash": "8642169589a51cf27e3df18c8268e370"
+  },
+  "lib/features/tracking/presentation/widgets/camp_debrief_sheet.dart": {
+    "mtime": 1788340122.1149504,
+    "seen": 1788348468.5199227,
+    "ast_hash": "440109ca78b5e16c132879ad7b8fb9ee",
+    "semantic_hash": "440109ca78b5e16c132879ad7b8fb9ee"
+  },
+  "lib/features/tracking/presentation/widgets/gpx_import_dialog.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "ce484a98d324bf28455c47d93d633f13",
+    "semantic_hash": "ce484a98d324bf28455c47d93d633f13"
+  },
+  "lib/features/tracking/presentation/widgets/offline_maps_sheet.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "2c87d7e764e9723def710779c09584b9",
+    "semantic_hash": "2c87d7e764e9723def710779c09584b9"
+  },
+  "lib/features/tracking/presentation/widgets/track_history_sheet.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "d5498b1aa8889a6edee189d17aa497f7",
+    "semantic_hash": "d5498b1aa8889a6edee189d17aa497f7"
+  },
+  "lib/features/tracking/presentation/widgets/waypoint_details_sheet.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "db7b623385dd2f3d48533da380d64057",
+    "semantic_hash": "db7b623385dd2f3d48533da380d64057"
+  },
+  "lib/features/trip_setup/data/repositories/trip_repository.dart": {
+    "mtime": 1788177304.4628494,
+    "seen": 1788348468.5199227,
+    "ast_hash": "255daed5475d1b7203c1e6e5f57f4efe",
+    "semantic_hash": "255daed5475d1b7203c1e6e5f57f4efe"
+  },
+  "lib/features/trip_setup/domain/models/trip_profile.dart": {
+    "mtime": 1788339906.3204324,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e588ef5045f84aae9aef4ad1973b18df",
+    "semantic_hash": "e588ef5045f84aae9aef4ad1973b18df"
+  },
+  "lib/features/trip_setup/presentation/screens/trip_setup_screen.dart": {
+    "mtime": 1788340346.552174,
+    "seen": 1788348468.5199227,
+    "ast_hash": "e2cc1a91d710228e824c9cadaa36a6e7",
+    "semantic_hash": "e2cc1a91d710228e824c9cadaa36a6e7"
+  },
+  "lib/features/trip_storage/data/repositories/saved_trips_repository.dart": {
+    "mtime": 1788182253.580283,
+    "seen": 1788348468.5199227,
+    "ast_hash": "83ef367b5f184d58799780172f36e8d8",
+    "semantic_hash": "83ef367b5f184d58799780172f36e8d8"
+  },
+  "lib/features/trip_storage/domain/models/saved_trip_entry.dart": {
+    "mtime": 1788182185.8402226,
+    "seen": 1788348468.5199227,
+    "ast_hash": "10b586853b06fc22c213e5edb059c188",
+    "semantic_hash": "10b586853b06fc22c213e5edb059c188"
+  },
+  "lib/features/trip_storage/presentation/providers/saved_trips_providers.dart": {
+    "mtime": 1788182188.589916,
+    "seen": 1788348468.5199227,
+    "ast_hash": "130b1551e48112346dfefa450c55562e",
+    "semantic_hash": "130b1551e48112346dfefa450c55562e"
+  },
+  "lib/features/trip_storage/presentation/widgets/save_trip_dialog.dart": {
+    "mtime": 1788182229.744003,
+    "seen": 1788348468.5199227,
+    "ast_hash": "356a341bd2f0b7168a19acb110583860",
+    "semantic_hash": "356a341bd2f0b7168a19acb110583860"
+  },
+  "lib/features/trip_storage/presentation/widgets/trip_library_sheet.dart": {
+    "mtime": 1788182256.8215957,
+    "seen": 1788348468.5199227,
+    "ast_hash": "45280a217c93c7a5abfe7fc891352a14",
+    "semantic_hash": "45280a217c93c7a5abfe7fc891352a14"
+  },
+  "lib/main.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788348468.5199227,
+    "ast_hash": "438ed299229138873ae7feb0b8304077",
+    "semantic_hash": "438ed299229138873ae7feb0b8304077"
+  },
+  "test/core/qr_sync_service_test.dart": {
+    "mtime": 1788186567.1991072,
+    "seen": 1788348468.5199227,
+    "ast_hash": "8a2942406d07e8f3d87e6c724268f7c8",
+    "semantic_hash": "8a2942406d07e8f3d87e6c724268f7c8"
+  },
+  "test/features/calculator/metabolic_calculator_test.dart": {
+    "mtime": 1788175308.0189798,
+    "seen": 1788348468.5199227,
+    "ast_hash": "a44f055bed1a65b7f5e1fb062ed38892",
+    "semantic_hash": "a44f055bed1a65b7f5e1fb062ed38892"
+  },
+  "test/features/calculator/participant_health_test.dart": {
+    "mtime": 1788178964.7768438,
+    "seen": 1788348468.5199227,
+    "ast_hash": "f35baf511a685bbf06f83a4346e3bed9",
+    "semantic_hash": "f35baf511a685bbf06f83a4346e3bed9"
+  },
+  "test/features/gear/gear_calculator_test.dart": {
+    "mtime": 1788174608.353576,
+    "seen": 1788348468.5199227,
+    "ast_hash": "a3516c6a4c4f4d595cf4a5834dedb2f1",
+    "semantic_hash": "a3516c6a4c4f4d595cf4a5834dedb2f1"
+  },
+  "test/features/group_distribution/load_distribution_service_test.dart": {
+    "mtime": 1788183866.0820262,
+    "seen": 1788348468.5199227,
+    "ast_hash": "25fd6a446974ecb5705c18d42aef58d9",
+    "semantic_hash": "25fd6a446974ecb5705c18d42aef58d9"
+  },
+  "test/features/mkk_reports/mkk_reports_test.dart": {
+    "mtime": 1788341010.2632785,
+    "seen": 1788348468.5199227,
+    "ast_hash": "159c2a4f17200dc075c98865c1fad69d",
+    "semantic_hash": "159c2a4f17200dc075c98865c1fad69d"
+  },
+  "test/features/ration/ration_generator_test.dart": {
+    "mtime": 1788183905.8271463,
+    "seen": 1788348468.5199227,
+    "ast_hash": "cc50d539aceb6ce253ec810d279d024f",
+    "semantic_hash": "cc50d539aceb6ce253ec810d279d024f"
+  },
+  "test/features/tracking/camp_debrief_calculator_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "1970e1c4235db40fe656079f4bf5c86e",
+    "semantic_hash": "1970e1c4235db40fe656079f4bf5c86e"
+  },
+  "test/features/tracking/distance_calculator_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "8e8de85f4a29f200c91cfeaaf85fa520",
+    "semantic_hash": "8e8de85f4a29f200c91cfeaaf85fa520"
+  },
+  "test/features/tracking/gpx_and_tile_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "f561ab39dcbb5c42c9dd16dbd532f476",
+    "semantic_hash": "f561ab39dcbb5c42c9dd16dbd532f476"
+  },
+  "test/features/tracking/gpx_exporter_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "712b7020a97cd6b4620461d7b61ffed8",
+    "semantic_hash": "712b7020a97cd6b4620461d7b61ffed8"
+  },
+  "test/features/tracking/photo_waypoints_and_notes_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "bfbe9b340fd2e79c678ff9e39f68cc3d",
+    "semantic_hash": "bfbe9b340fd2e79c678ff9e39f68cc3d"
+  },
+  "test/features/tracking/route_simulation_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "a0dc02ee800fecc3f4495ed033fb7bb5",
+    "semantic_hash": "a0dc02ee800fecc3f4495ed033fb7bb5"
+  },
+  "test/features/tracking/track_storage_repository_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788348468.5199227,
+    "ast_hash": "fa6ffaccfec666cfd4fb8325a53308eb",
+    "semantic_hash": "fa6ffaccfec666cfd4fb8325a53308eb"
+  },
+  "test/features/trip_storage/saved_trips_test.dart": {
+    "mtime": 1788182169.5550988,
+    "seen": 1788348468.5199227,
+    "ast_hash": "a65594de79c7058248a98189ce0e040c",
+    "semantic_hash": "a65594de79c7058248a98189ce0e040c"
+  },
+  "test/widget_test.dart": {
+    "mtime": 1788326473.137726,
+    "seen": 1788348468.5199227,
+    "ast_hash": "834f803754dca4d0146de74c8da4af22",
+    "semantic_hash": "834f803754dca4d0146de74c8da4af22"
+  }
+}
