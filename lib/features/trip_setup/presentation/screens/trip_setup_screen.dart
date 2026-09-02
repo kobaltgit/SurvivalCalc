@@ -620,24 +620,42 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                         Row(
                           children: [
                             Expanded(
+                              flex: 3,
                               child: OutlinedButton.icon(
                                 onPressed: () => MkkExportSheet.show(context),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: OutdoorTheme.signalOrange,
                                   side: const BorderSide(color: OutdoorTheme.signalOrange),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                                 ),
-                                icon: const Icon(Icons.picture_as_pdf, size: 18),
-                                label: const Text('МКК / Отчет'),
+                                icon: const Icon(Icons.picture_as_pdf, size: 16),
+                                label: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'МКК / Отчет',
+                                    maxLines: 1,
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              flex: 2,
+                              flex: 4,
                               child: ElevatedButton.icon(
                                 onPressed: widget.onCalculatePressed,
-                                icon: const Icon(Icons.arrow_forward),
-                                label: const Text('К дашборду'),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                                ),
+                                icon: const Icon(Icons.arrow_forward, size: 18),
+                                label: const FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'К дашборду',
+                                    maxLines: 1,
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                ),
                               ),
                             ),
                           ],
