@@ -14,7 +14,17 @@
   <img src="https://img.shields.io/badge/Architecture-Clean%20%2F%20Feature--First-orange?style=for-the-badge" alt="Architecture" />
   <img src="https://img.shields.io/badge/State-Riverpod-blueviolet?style=for-the-badge" alt="Riverpod" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Autonomous-success?style=for-the-badge" alt="100% Offline" />
-  <img src="https://img.shields.io/badge/Tests-40%2F40%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
+  <img src="https://img.shields.io/badge/Tests-59%2F59%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
+</p>
+
+<p align="center">
+  <a href="https://kobaltgit.github.io/SurvivalCalc/">
+    <img src="https://img.shields.io/badge/🌐_Онлайн_Калькулятор-Открыть_Веб_Версию-E05315?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/kobaltgit/SurvivalCalc/releases/latest">
+    <img src="https://img.shields.io/badge/📥_Скачать_APK-Android_v1.0.0-2E7D32?style=for-the-badge&logo=android&logoColor=white" alt="Download APK" />
+  </a>
 </p>
 
 ---
