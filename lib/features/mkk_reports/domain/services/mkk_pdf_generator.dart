@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/features/calculator/domain/models/trip_calculation_result.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/group_distribution/domain/services/load_distribution_service.dart';
@@ -341,6 +342,43 @@ class MkkPdfGenerator {
     );
   }
 
+  static String formatHealthAndDiet(Participant p, {bool forPdf = true}) {
+    final parts = <String>[];
+    final activeDiets = p.dietaryRestrictions.where((d) => d != DietaryRestriction.none).toList();
+    final activeMeds = p.medicalConditions.where((m) => m != MedicalCondition.none).toList();
+
+    if (activeDiets.isNotEmpty) {
+      final dietStr = activeDiets
+          .map((d) => d.displayNameRu.replaceAll(RegExp(r'[^\w\dа-яА-ЯёЁ\s\-]'), '').trim())
+          .join(', ');
+      parts.add('Диета: $dietStr');
+    }
+    if (activeMeds.isNotEmpty) {
+      final medStr = activeMeds.map((m) {
+        switch (m) {
+          case MedicalCondition.asthma:
+            return 'Астма/спазмы';
+          case MedicalCondition.joint_pain:
+            return 'Суставы/колени';
+          case MedicalCondition.insect_allergy:
+            return 'Аллергия на укусы';
+          case MedicalCondition.hypertension:
+            return 'Гипертония/давление';
+          case MedicalCondition.gi_issues:
+            return 'Гастрит/ЖКТ';
+          case MedicalCondition.none:
+            return '';
+        }
+      }).where((s) => s.isNotEmpty).join(', ');
+      parts.add('Здоровье: $medStr');
+    }
+
+    if (parts.isEmpty) {
+      return 'Здоров (без ограничений)';
+    }
+    return parts.join(forPdf ? '\n' : '<br/>');
+  }
+
   static pw.Widget _buildGroupMembersTable(List<Participant> participants) {
     final headers = ['№', 'ФИО / Имя', 'Должность', 'Вес', 'Сила', 'Туристский опыт / Телефон', 'Диеты / Здоровье'];
     final data = participants.asMap().entries.map((e) {
@@ -350,7 +388,7 @@ class MkkPdfGenerator {
       if (p.touristExperience.isNotEmpty) expParts.add('Опыт: ${p.touristExperience}');
       if (p.contactPhone.isNotEmpty) expParts.add('Тел: ${p.contactPhone}');
       final exp = expParts.isNotEmpty ? expParts.join('\n') : '—';
-      final diet = p.dietaryRestrictions.map((d) => d.displayNameRu).join(', ');
+      final dietAndHealth = formatHealthAndDiet(p, forPdf: true);
       return [
         '$idx',
         p.displayName,
@@ -358,7 +396,7 @@ class MkkPdfGenerator {
         '${p.weightKg.toStringAsFixed(0)} кг',
         '${p.strengthRatio}x',
         exp,
-        diet,
+        dietAndHealth,
       ];
     }).toList();
 

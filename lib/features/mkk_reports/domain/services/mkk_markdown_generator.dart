@@ -63,8 +63,8 @@ class MkkMarkdownGenerator {
       if (p.touristExperience.isNotEmpty) expParts.add('Опыт: ${p.touristExperience}');
       if (p.contactPhone.isNotEmpty) expParts.add('Тел: ${p.contactPhone}');
       final exp = expParts.isNotEmpty ? expParts.join('<br/>') : '—';
-      final diet = p.dietaryRestrictions.map((d) => d.displayNameRu).join(', ');
-      sb.writeln('| ${i + 1} | ${p.displayName} | ${p.role.displayNameRu} | ${p.weightKg.toStringAsFixed(0)} | ${p.strengthRatio}x | $exp | $diet |');
+      final dietAndHealth = MkkPdfGenerator.formatHealthAndDiet(p, forPdf: false);
+      sb.writeln('| ${i + 1} | ${p.displayName} | ${p.role.displayNameRu} | ${p.weightKg.toStringAsFixed(0)} | ${p.strengthRatio}x | $exp | $dietAndHealth |');
     }
     sb.writeln();
 
