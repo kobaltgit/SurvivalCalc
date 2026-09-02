@@ -14,6 +14,7 @@ import 'package:survival_calc/features/tracking/presentation/widgets/offline_map
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/save_trip_dialog.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/trip_library_sheet.dart';
+import 'package:survival_calc/features/wiki/presentation/screens/wiki_screen.dart';
 
 class TripSetupScreen extends ConsumerStatefulWidget {
   final VoidCallback? onCalculatePressed;
@@ -62,6 +63,13 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'База знаний & Википедия',
+            icon: const Icon(Icons.menu_book_rounded, color: Colors.cyanAccent),
+            onPressed: () {
+              WikiScreen.navigate(context);
+            },
+          ),
           IconButton(
             tooltip: 'Документы МКК / Отчеты',
             icon: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange),

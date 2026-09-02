@@ -4,6 +4,7 @@ import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_apk_download_modal.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_qr_sync_modal.dart';
+import 'package:survival_calc/features/wiki/presentation/screens/wiki_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WebHeader extends ConsumerWidget {
@@ -112,57 +113,81 @@ class WebHeader extends ConsumerWidget {
             ],
           ),
 
-          const Spacer(),
+          const SizedBox(width: 16),
 
           // Action buttons
-          Wrap(
-            spacing: 12,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              OutlinedButton.icon(
-                onPressed: () => WebQrSyncModal.show(context, activeProfile),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: OutdoorTheme.signalOrange,
-                  side: const BorderSide(color: OutdoorTheme.signalOrange),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 8,
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () => WikiScreen.navigate(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.cyanAccent,
+                      side: const BorderSide(color: Colors.cyanAccent),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.menu_book_rounded, size: 16),
+                    label: const Text(
+                      'База знаний & Вики',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                icon: const Icon(Icons.qr_code_scanner, size: 18),
-                label: const Text(
-                  'Перенести в телефон',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => WebApkDownloadModal.show(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: OutdoorTheme.signalOrange,
-                  foregroundColor: Colors.black,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  OutlinedButton.icon(
+                    onPressed: () => WebQrSyncModal.show(context, activeProfile),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: OutdoorTheme.signalOrange,
+                      side: const BorderSide(color: OutdoorTheme.signalOrange),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.qr_code_scanner, size: 16),
+                    label: const Text(
+                      'Перенести в телефон',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                icon: const Icon(Icons.android, size: 18),
-                label: const Text(
-                  'Скачать APK',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
+                  ElevatedButton.icon(
+                    onPressed: () => WebApkDownloadModal.show(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OutdoorTheme.signalOrange,
+                      foregroundColor: Colors.black,
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.android, size: 16),
+                    label: const Text(
+                      'Скачать APK',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _openGithub,
+                    tooltip: 'Исходный код на GitHub',
+                    icon: const Icon(
+                      Icons.code,
+                      color: OutdoorTheme.textSecondary,
+                      size: 20,
+                    ),
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: _openGithub,
-                tooltip: 'Исходный код на GitHub',
-                icon: const Icon(
-                  Icons.code,
-                  color: OutdoorTheme.textSecondary,
-                  size: 22,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
