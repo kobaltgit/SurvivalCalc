@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
+import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
@@ -59,6 +60,64 @@ void main() {
       expect(url, contains('ascent=3200.0'));
       expect(url, contains('season=spring_autumn'));
       expect(url, contains('activity=mountain'));
+    });
+
+    test('Serializes and parses participants via URL parameters', () {
+      final profile = TripProfile(
+        id: 'trip_123',
+        title: 'Поход с группой',
+        groupSize: 2,
+        durationDays: 5,
+        activeDays: 4,
+        totalDistanceKm: 60.0,
+        totalAscentMeters: 1500.0,
+        season: Season.summer,
+        activityType: ActivityType.hiking,
+        createdAt: DateTime.now(),
+      );
+
+      final participants = [
+        const Participant(
+          id: 'p_1',
+          name: 'Иван',
+          fullName: 'Иванов Иван Иванович',
+          role: TripRole.leader,
+          weightKg: 82.0,
+          touristExperience: '3ЛУ, 2ПУ',
+          contactPhone: '+79991234567',
+        ),
+        const Participant(
+          id: 'p_2',
+          name: 'Анна',
+          fullName: 'Петрова Анна Сергеевна',
+          role: TripRole.medic,
+          weightKg: 58.0,
+          dietaryRestrictions: [DietaryRestriction.vegetarian],
+          medicalConditions: [MedicalCondition.asthma],
+        ),
+      ];
+
+      final shareUrl = WebUrlService.buildShareUrl(profile, participants: participants);
+      expect(shareUrl, contains('parts='));
+
+      final parsedData = WebUrlService.parseDataFromUri(Uri.parse(shareUrl));
+      expect(parsedData, isNotNull);
+      expect(parsedData!.profile.durationDays, equals(5));
+      expect(parsedData.profile.groupSize, equals(2));
+      expect(parsedData.participants.length, equals(2));
+
+      final p1 = parsedData.participants[0];
+      expect(p1.fullName, equals('Иванов Иван Иванович'));
+      expect(p1.role, equals(TripRole.leader));
+      expect(p1.weightKg, equals(82.0));
+      expect(p1.contactPhone, equals('+79991234567'));
+
+      final p2 = parsedData.participants[1];
+      expect(p2.fullName, equals('Петрова Анна Сергеевна'));
+      expect(p2.role, equals(TripRole.medic));
+      expect(p2.weightKg, equals(58.0));
+      expect(p2.dietaryRestrictions, contains(DietaryRestriction.vegetarian));
+      expect(p2.medicalConditions, contains(MedicalCondition.asthma));
     });
   });
 

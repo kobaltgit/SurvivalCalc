@@ -33,20 +33,27 @@ void main() async {
     );
   }
 
-  // Parse initial trip profile from URL if opened with query parameters
-  final initialProfile =
-      kIsWeb ? WebUrlService.parseProfileFromUri(Uri.base) : null;
+  // Parse initial trip profile and participants from URL if opened with query parameters
+  final initialUrlData =
+      kIsWeb ? WebUrlService.parseDataFromUri(Uri.base) : null;
 
   runApp(
     ProviderScope(
       overrides: [
-        if (initialProfile != null)
+        if (initialUrlData != null) ...[
           activeTripProfileProvider.overrideWith(
             (ref) => TripProfileNotifier(
               ref.watch(tripRepositoryProvider),
-              initialProfile,
+              initialUrlData.profile,
             ),
           ),
+          if (initialUrlData.participants.isNotEmpty)
+            groupParticipantsProvider.overrideWith(
+              (ref) => GroupParticipantsNotifier(
+                ref.watch(loadDistributionServiceProvider),
+              )..setParticipants(initialUrlData.participants),
+            ),
+        ],
       ],
       child: const SurvivalCalcApp(),
     ),

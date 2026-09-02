@@ -1,6 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
+import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
+
+class TripUrlData {
+  final TripProfile profile;
+  final List<Participant> participants;
+
+  const TripUrlData({
+    required this.profile,
+    this.participants = const [],
+  });
+}
 
 class WebUrlService {
   const WebUrlService();
@@ -9,6 +21,11 @@ class WebUrlService {
 
   /// Parses URL query parameters into a TripProfile if present
   static TripProfile? parseProfileFromUri(Uri uri) {
+    return parseDataFromUri(uri)?.profile;
+  }
+
+  /// Parses full trip data including participants from URL query parameters
+  static TripUrlData? parseDataFromUri(Uri uri) {
     try {
       final query = uri.queryParameters;
       if (query.isEmpty) return null;
@@ -41,9 +58,30 @@ class WebUrlService {
       }
 
       final d = days ?? 1;
-      final g = group ?? 1;
+      var g = group ?? 1;
 
-      return TripProfile(
+      // Decode participants if present
+      final List<Participant> participants = [];
+      final partsRaw = query['parts'];
+      if (partsRaw != null && partsRaw.trim().isNotEmpty) {
+        try {
+          final normalizedBase64 = base64Url.normalize(partsRaw.trim());
+          final decodedJson = utf8.decode(base64Url.decode(normalizedBase64));
+          final rawList = jsonDecode(decodedJson) as List<dynamic>;
+          for (final item in rawList) {
+            if (item is Map<String, dynamic>) {
+              participants.add(Participant.fromMap(item));
+            }
+          }
+          if (participants.isNotEmpty) {
+            g = participants.length;
+          }
+        } catch (_) {
+          // If corrupted or version mismatch, continue with basic parameters
+        }
+      }
+
+      final profile = TripProfile(
         id: 'shared_trip_${DateTime.now().millisecondsSinceEpoch}',
         title: query['title'] ?? 'Поход из ссылки',
         groupSize: g,
@@ -56,13 +94,22 @@ class WebUrlService {
         avgParticipantWeightKg: weight ?? 75.0,
         createdAt: DateTime.now(),
       );
+
+      return TripUrlData(
+        profile: profile,
+        participants: participants,
+      );
     } catch (_) {
       return null;
     }
   }
 
-  /// Builds query parameters URL for sharing (always full URL e.g. https://.../?days=...)
-  static String buildShareUrl(TripProfile profile, {String? baseUrl}) {
+  /// Builds query parameters URL for sharing (including participants if provided)
+  static String buildShareUrl(
+    TripProfile profile, {
+    List<Participant>? participants,
+    String? baseUrl,
+  }) {
     String hostUrl = baseUrl ?? '';
     if (hostUrl.isEmpty) {
       if (kIsWeb) {
@@ -78,21 +125,30 @@ class WebUrlService {
       }
     }
 
+    final queryParams = <String, String>{
+      'days': profile.durationDays.toString(),
+      'group': profile.groupSize.toString(),
+      'active': profile.activeDays.toString(),
+      'dist': profile.totalDistanceKm.toString(),
+      'ascent': profile.totalAscentMeters.toString(),
+      'season': profile.season.name,
+      'activity': profile.activityType.name,
+      'weight': profile.avgParticipantWeightKg.toString(),
+      if (profile.title != 'Новый поход' && profile.title.trim().isNotEmpty)
+        'title': profile.title,
+    };
+
+    if (participants != null && participants.isNotEmpty) {
+      try {
+        final partsList = participants.map((p) => p.toMap()).toList();
+        final jsonStr = jsonEncode(partsList);
+        final base64Parts = base64Url.encode(utf8.encode(jsonStr));
+        queryParams['parts'] = base64Parts;
+      } catch (_) {}
+    }
+
     final parsedBase = Uri.parse(hostUrl);
-    final finalUri = parsedBase.replace(
-      queryParameters: {
-        'days': profile.durationDays.toString(),
-        'group': profile.groupSize.toString(),
-        'active': profile.activeDays.toString(),
-        'dist': profile.totalDistanceKm.toString(),
-        'ascent': profile.totalAscentMeters.toString(),
-        'season': profile.season.name,
-        'activity': profile.activityType.name,
-        'weight': profile.avgParticipantWeightKg.toString(),
-        if (profile.title != 'Новый поход' && profile.title.trim().isNotEmpty)
-          'title': profile.title,
-      },
-    );
+    final finalUri = parsedBase.replace(queryParameters: queryParams);
     return finalUri.toString();
   }
 }

@@ -3,29 +3,47 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/services/qr_sync_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 class WebQrSyncModal extends StatelessWidget {
   final TripProfile profile;
+  final List<Participant> participants;
 
   const WebQrSyncModal({
     super.key,
     required this.profile,
+    this.participants = const [],
   });
 
-  static void show(BuildContext context, TripProfile profile) {
+  static void show(
+    BuildContext context,
+    TripProfile profile, {
+    List<Participant> participants = const [],
+  }) {
     showDialog(
       context: context,
-      builder: (context) => WebQrSyncModal(profile: profile),
+      builder: (context) => WebQrSyncModal(
+        profile: profile,
+        participants: participants,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     const qrService = QrSyncService();
-    final qrPayload = qrService.encodeTripProfile(profile);
-    final shareUrl = WebUrlService.buildShareUrl(profile);
+    final qrPayload = qrService.encodeTripSnapshot(
+      TripQrSnapshot(
+        profile: profile,
+        participants: participants,
+      ),
+    );
+    final shareUrl = WebUrlService.buildShareUrl(
+      profile,
+      participants: participants,
+    );
 
     return Dialog(
       backgroundColor: OutdoorTheme.surfaceCard,

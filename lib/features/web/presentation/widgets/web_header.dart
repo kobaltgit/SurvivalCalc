@@ -23,6 +23,7 @@ class WebHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activeProfile = ref.watch(activeTripProfileProvider);
+    final participants = ref.watch(groupParticipantsProvider);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -143,7 +144,11 @@ class WebHeader extends ConsumerWidget {
                     ),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => WebQrSyncModal.show(context, activeProfile),
+                    onPressed: () => WebQrSyncModal.show(
+                      context,
+                      activeProfile,
+                      participants: participants,
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: OutdoorTheme.signalOrange,
                       side: const BorderSide(color: OutdoorTheme.signalOrange),
