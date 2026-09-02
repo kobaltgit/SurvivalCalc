@@ -16,6 +16,9 @@
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Autonomous-success?style=for-the-badge" alt="100% Offline" />
   <img src="https://img.shields.io/badge/Tests-59%2F59%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
+  <a href="https://keepandroidopen.org/ru/">
+    <img src="https://img.shields.io/badge/Keep_Android-Open-E05315?style=for-the-badge&logo=android&logoColor=white" alt="Keep Android Open" />
+  </a>
 </p>
 
 <p align="center">
@@ -381,7 +384,7 @@ flutter build apk --release
 
 ## 🧪 Тестирование и качество кода
 
-- **Покрытие тестами:** 40 unit- и widget-тестов покрывают:
+- **Покрытие тестами:** 59 unit- и widget-тестов покрывают:
   - 3 эталонных сценария (летний соло ПВД, осенний горный поход 4 чел, зимняя автономка 2 чел).
   - Алгоритмы расчета BMR, PAL и поправок на холод и рельеф.
   - Персонализированную выдачу медикаментов и спецдиет.
@@ -392,6 +395,8 @@ flutter build apk --release
   - Haversine-дистанцию, кумулятивный dead-band фильтр и экспорт GPX 1.1.
   - Изоляцию песочницы, фильтрацию по походам и удаление данных.
   - QR-кодирование и декодирование профилей походов.
+  - Симуляцию движения по GPX с реальным профилем высот, расчет скорости от уклона и тактические оповещения.
+  - Адаптивный веб-интерфейс, парсинг URL-параметров и пресеты.
 - **Статический анализ:** `dart analyze` — **0 ошибок и 0 предупреждений**.
 
 ---
@@ -402,8 +407,22 @@ flutter build apk --release
 - [`wiki/plan.md`](wiki/plan.md) — Детальный архитектурный план и принятые решения.
 - [`wiki/roadmap.md`](wiki/roadmap.md) — Дорожная карта и майлстоуны.
 - [`wiki/checklist.md`](wiki/checklist.md) — Интерактивный чеклист готовности (DoD).
-- [`wiki/buglist.md`](wiki/buglist.md) — Реестр устраненных проблем (BUG-01 — BUG-10).
+- [`wiki/buglist.md`](wiki/buglist.md) — Реестр устраненных проблем (BUG-01 — BUG-11).
 - [`wiki/activity_log.md`](wiki/activity_log.md) — Хронологический журнал всех действий и коммитов.
+
+---
+
+## 🛡️ Свобода платформы и приватность
+
+Проект **SurvivalCalc** солидарен с принципами цифрового суверенитета и права пользователей на свободное использование приобретенных устройств без корпоративной цензуры и скрытой слежки. Мы поддерживаем глобальную инициативу:
+
+<p align="center">
+  <a href="https://keepandroidopen.org/ru/">
+    <img src="https://img.shields.io/badge/Keep_Android-Open-E05315?style=for-the-badge&logo=android&logoColor=white" alt="Keep Android Open" />
+  </a>
+</p>
+
+> *«В защиту Android как свободной и открытой платформы, на которой каждый может создавать, свободно устанавливать и распространять приложения без ограничений.»* — **[KeepAndroidOpen.org](https://keepandroidopen.org/ru/)**
 
 ---
 
