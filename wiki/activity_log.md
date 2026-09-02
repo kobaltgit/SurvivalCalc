@@ -128,3 +128,4 @@
 - **[2026-09-02 08:47:45]** | `DOCS_LICENSE` | `LICENSE`, `README.md` | Создан официальный файл открытой лицензии MIT License (2026 kobaltgit) и добавлен бейдж лицензии в `README.md` для дистрибуции в F-Droid и открытого сообщества.
 - **[2026-09-02 08:57:30]** | `DISTRIBUTION_F_DROID` | `fdroiddata (GitLab RFP)` | Подана официальная заявка на включение SurvivalCalc в глобальный каталог свободного ПО F-Droid (RFP Issue #v1.0.0).
 - **[2026-09-02 11:15:00]** | `DOCS_FASTLANE` | `fastlane/metadata/android/` | Создана полная структура Fastlane-метаданных для каталога F-Droid на двух языках (`en-US` и `ru-RU`): названия, краткие и полные описания, официальная иконка и скриншоты экранов приложения.
+- **[2026-09-02 11:22:00]** | `SECURITY_CHECK` | `android/gradle/wrapper/gradle-wrapper.properties` | Добавлена контрольная сумма `distributionSha256Sum` для прохождения автоматического аудита безопасности Gradle Wrapper в F-Droid CI.
