@@ -128,13 +128,23 @@ class QrSyncService {
     final waypoints = activeTrack?.waypoints ?? [];
     final campNotes = activeTrack?.debrief?.notes ?? [];
 
-    final participants = ref.read(groupParticipantsProvider);
+    var participants = ref.read(groupParticipantsProvider);
+    if (participants.isEmpty) {
+      participants = List.generate(
+        profile.groupSize,
+        (i) => Participant(
+          id: 'p_${i + 1}',
+          name: 'Участник ${i + 1}',
+          weightKg: profile.avgParticipantWeightKg,
+          role: i == 0 ? TripRole.leader : TripRole.member,
+        ),
+      );
+    }
+
     final isLeader = participants.any((p) => p.role == TripRole.leader);
     final leaderMember = participants.firstWhere(
       (p) => p.role == TripRole.leader,
-      orElse: () => participants.isNotEmpty
-          ? participants.first
-          : const Participant(id: 'p_leader', name: 'Руководитель', weightKg: 75),
+      orElse: () => participants.first,
     );
 
     final snapshot = TripQrSnapshot(
@@ -488,16 +498,28 @@ class QrSyncService {
                             final currentIsLeader = currentParticipants
                                 .any((p) => p.role == TripRole.leader);
 
-                            // 1. Update Profile (if receiver is not leader or code is from leader)
-                            if (!currentIsLeader || snapshot.isLeader) {
+                            // 1. Update Profile & Participants from QR snapshot
+                            ref
+                                .read(activeTripProfileProvider.notifier)
+                                .updateProfile(snapshot.profile);
+
+                            if (snapshot.participants.isNotEmpty) {
                               ref
-                                  .read(activeTripProfileProvider.notifier)
-                                  .updateProfile(snapshot.profile);
-                              if (snapshot.participants.isNotEmpty) {
-                                ref
-                                    .read(groupParticipantsProvider.notifier)
-                                    .setParticipants(snapshot.participants);
-                              }
+                                  .read(groupParticipantsProvider.notifier)
+                                  .setParticipants(snapshot.participants);
+                            } else {
+                              final defaultList = List.generate(
+                                snapshot.profile.groupSize,
+                                (i) => Participant(
+                                  id: 'p_${i + 1}',
+                                  name: 'Участник ${i + 1}',
+                                  weightKg: snapshot.profile.avgParticipantWeightKg,
+                                  role: i == 0 ? TripRole.leader : TripRole.member,
+                                ),
+                              );
+                              ref
+                                  .read(groupParticipantsProvider.notifier)
+                                  .setParticipants(defaultList);
                             }
 
                             // 2. Merge Waypoints (non-destructive)
