@@ -300,7 +300,7 @@ class _WikiScreenState extends ConsumerState<WikiScreen> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      mainAxisExtent: 190,
+                      mainAxisExtent: 220,
                     ),
                     itemCount: articles.length,
                     itemBuilder: (context, index) {

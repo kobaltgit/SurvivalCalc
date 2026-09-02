@@ -44,15 +44,17 @@ class WikiMarkdownViewer extends StatelessWidget {
           quoteLines.add(lines[i].trim().substring(1).trim());
           i++;
         }
-        final quoteText = quoteLines.join('\n');
-        
+        var quoteText = quoteLines.join('\n');
+
         CalloutType type = CalloutType.tip;
         String title = 'Совет эксперта';
 
         if (quoteText.contains('💡') || quoteText.toLowerCase().contains('совет')) {
           type = CalloutType.tip;
           title = '💡 Совет бывалого';
-        } else if (quoteText.contains('⚠️') || quoteText.toLowerCase().contains('важно') || quoteText.toLowerCase().contains('внимание')) {
+        } else if (quoteText.contains('⚠️') ||
+            quoteText.toLowerCase().contains('важно') ||
+            quoteText.toLowerCase().contains('внимание')) {
           type = CalloutType.warning;
           title = '⚠️ Важно для безопасности';
         } else if (quoteText.contains('📐') || quoteText.toLowerCase().contains('формул')) {
@@ -63,10 +65,15 @@ class WikiMarkdownViewer extends StatelessWidget {
           title = '🧪 Физиология и метаболизм';
         }
 
+        // Clean redundant leading bold prefix (e.g. "> 💡 **Совет бывалого:** Текст")
+        quoteText = quoteText
+            .replaceFirst(RegExp(r'^(💡|⚠️|📐|🧪)?\s*\*\*[^*]+\*\*:\s*'), '')
+            .replaceAll('**', '');
+
         widgets.add(
           WikiCalloutBox(
             title: title,
-            content: quoteText.replaceAll('**', ''),
+            content: quoteText,
             type: type,
           ),
         );
@@ -77,7 +84,7 @@ class WikiMarkdownViewer extends StatelessWidget {
       if (line.startsWith('# ')) {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.only(top: 18, bottom: 8),
+            padding: const EdgeInsets.only(top: 20, bottom: 8),
             child: Text(
               line.substring(2).trim(),
               style: const TextStyle(
@@ -97,7 +104,7 @@ class WikiMarkdownViewer extends StatelessWidget {
       if (line.startsWith('## ')) {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 8),
+            padding: const EdgeInsets.only(top: 18, bottom: 8),
             child: Text(
               line.substring(3).trim(),
               style: const TextStyle(
@@ -143,7 +150,7 @@ class WikiMarkdownViewer extends StatelessWidget {
         continue;
       }
 
-      // 5. List items (- or 1.)
+      // 5. List items (- or * )
       if (line.startsWith('- ') || line.startsWith('* ')) {
         widgets.add(
           Padding(
@@ -152,7 +159,7 @@ class WikiMarkdownViewer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(top: 6, right: 8),
+                  padding: EdgeInsets.only(top: 7, right: 10),
                   child: Icon(Icons.circle, size: 6, color: OutdoorTheme.signalOrange),
                 ),
                 Expanded(
@@ -167,30 +174,33 @@ class WikiMarkdownViewer extends StatelessWidget {
       }
 
       // 6. Numbered list items (1. 2. 3.)
-      final numMatch = RegExp(r'^(\d+)\.\s+(.*)$').firstMatch(line);
+      final numMatch = RegExp(r'^(\d+)[\.\)]\s+(.*)$').firstMatch(line);
       if (numMatch != null) {
         final numStr = numMatch.group(1)!;
         final textStr = numMatch.group(2)!;
         widgets.add(
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 6),
+            padding: const EdgeInsets.only(left: 4, bottom: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: const EdgeInsets.only(right: 8, top: 2),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  width: 22,
+                  height: 22,
+                  margin: const EdgeInsets.only(right: 10, top: 1),
                   decoration: BoxDecoration(
                     color: Colors.cyanAccent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.4)),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.6)),
                   ),
-                  child: Text(
-                    numStr,
-                    style: const TextStyle(
-                      color: Colors.cyanAccent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: Text(
+                      numStr,
+                      style: const TextStyle(
+                        color: Colors.cyanAccent,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -208,23 +218,40 @@ class WikiMarkdownViewer extends StatelessWidget {
       // 7. Math formula block ($$...$$)
       if (line.startsWith(r'$$') && line.endsWith(r'$$')) {
         final formula = line.substring(2, line.length - 2).trim();
+        final cleanFormula = formula
+            .replaceAll(r'\times', ' × ')
+            .replaceAll(r'\approx', ' ≈ ')
+            .replaceAll(r'\rightarrow', ' ➔ ')
+            .replaceAll(r'\sum', '∑')
+            .replaceAll(r'\frac', '')
+            .replaceAll(r'\left', '')
+            .replaceAll(r'\right', '')
+            .replaceAll(r'\mathbf', '')
+            .replaceAll(r'\text', '')
+            .replaceAll('{', '')
+            .replaceAll('}', '')
+            .replaceAll(r'\', '')
+            .replaceAll(RegExp(r'\s+'), ' ')
+            .trim();
+
         widgets.add(
           Container(
             width: double.infinity,
             margin: const EdgeInsets.symmetric(vertical: 8),
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: OutdoorTheme.surfaceCard,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.3)),
+              border: Border.all(color: Colors.cyanAccent.withValues(alpha: 0.4)),
             ),
             child: Text(
-              formula.replaceAll(r'\times', '×').replaceAll(r'\approx', '≈').replaceAll(r'\text', '').replaceAll('{', '').replaceAll('}', '').replaceAll(r'\left', '').replaceAll(r'\right', '').replaceAll(r'\frac', '').replaceAll(r'\mathbf', ''),
+              cleanFormula,
               style: const TextStyle(
                 color: Colors.cyanAccent,
                 fontFamily: 'monospace',
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+                fontSize: 13.5,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
               ),
               textAlign: TextAlign.center,
             ),
@@ -237,7 +264,7 @@ class WikiMarkdownViewer extends StatelessWidget {
       // 8. Standard paragraph
       widgets.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 6),
+          padding: const EdgeInsets.only(bottom: 8),
           child: _buildRichText(line),
         ),
       );
@@ -250,78 +277,124 @@ class WikiMarkdownViewer extends StatelessWidget {
     );
   }
 
-  Widget _buildRichText(String text) {
+  Widget _buildRichText(String text, {double fontSize = 14, Color? color, double height = 1.5}) {
     final spans = <InlineSpan>[];
-    final parts = text.split(RegExp(r'(\*\*.*?\*\*|\*.*?\*|\`.*?\`|\$.*?\$)'));
 
-    for (final part in parts) {
-      if (part.isEmpty) continue;
+    // Pattern matches:
+    // 1. Bold: **text**
+    // 2. Italic: *text* (excluding lone stars)
+    // 3. Inline code: `text`
+    // 4. Inline math: $text$
+    final pattern = RegExp(r'(\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\$([^$]+)\$)');
 
-      if (part.startsWith('**') && part.endsWith('**')) {
+    int lastMatchEnd = 0;
+    for (final match in pattern.allMatches(text)) {
+      // Add plain text before match
+      if (match.start > lastMatchEnd) {
         spans.add(
           TextSpan(
-            text: part.substring(2, part.length - 2),
-            style: const TextStyle(
+            text: text.substring(lastMatchEnd, match.start),
+            style: TextStyle(
+              color: color ?? Colors.white70,
+              fontSize: fontSize,
+              height: height,
+            ),
+          ),
+        );
+      }
+
+      final fullMatch = match.group(0)!;
+      if (fullMatch.startsWith('**') && fullMatch.endsWith('**')) {
+        final content = fullMatch.substring(2, fullMatch.length - 2);
+        spans.add(
+          TextSpan(
+            text: content,
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+              height: height,
             ),
           ),
         );
-      } else if (part.startsWith('*') && part.endsWith('*')) {
+      } else if (fullMatch.startsWith('*') && fullMatch.endsWith('*')) {
+        final content = fullMatch.substring(1, fullMatch.length - 1);
         spans.add(
           TextSpan(
-            text: part.substring(1, part.length - 1),
-            style: const TextStyle(
-              color: Colors.white70,
+            text: content,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.9),
               fontStyle: FontStyle.italic,
+              fontSize: fontSize,
+              height: height,
             ),
           ),
         );
-      } else if (part.startsWith('`') && part.endsWith('`')) {
+      } else if (fullMatch.startsWith('`') && fullMatch.endsWith('`')) {
+        final content = fullMatch.substring(1, fullMatch.length - 1);
         spans.add(
           WidgetSpan(
             alignment: PlaceholderAlignment.middle,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
               decoration: BoxDecoration(
-                color: Colors.black45,
+                color: Colors.black54,
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: Colors.white24, width: 0.5),
               ),
               child: Text(
-                part.substring(1, part.length - 1),
+                content,
                 style: const TextStyle(
                   color: Colors.cyanAccent,
                   fontFamily: 'monospace',
                   fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
           ),
         );
-      } else if (part.startsWith(r'$') && part.endsWith(r'$')) {
+      } else if (fullMatch.startsWith(r'$') && fullMatch.endsWith(r'$')) {
+        final content = fullMatch
+            .substring(1, fullMatch.length - 1)
+            .replaceAll(r'\times', ' × ')
+            .replaceAll(r'\approx', ' ≈ ')
+            .replaceAll(r'\rightarrow', ' ➔ ')
+            .replaceAll(r'\mathbf', '')
+            .replaceAll(r'\text', '')
+            .replaceAll('{', '')
+            .replaceAll('}', '')
+            .replaceAll(r'\', '')
+            .trim();
         spans.add(
           TextSpan(
-            text: part.substring(1, part.length - 1).replaceAll(r'\times', '×').replaceAll(r'\text', '').replaceAll('{', '').replaceAll('}', '').replaceAll(r'\rightarrow', '➔'),
-            style: const TextStyle(
+            text: content,
+            style: TextStyle(
               color: Colors.cyanAccent,
               fontFamily: 'monospace',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        );
-      } else {
-        spans.add(
-          TextSpan(
-            text: part,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-              height: 1.5,
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+              height: height,
             ),
           ),
         );
       }
+
+      lastMatchEnd = match.end;
+    }
+
+    // Add remaining plain text
+    if (lastMatchEnd < text.length) {
+      spans.add(
+        TextSpan(
+          text: text.substring(lastMatchEnd),
+          style: TextStyle(
+            color: color ?? Colors.white70,
+            fontSize: fontSize,
+            height: height,
+          ),
+        ),
+      );
     }
 
     return SelectableText.rich(
@@ -352,6 +425,7 @@ class WikiMarkdownViewer extends StatelessWidget {
     }
 
     return Container(
+      width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: OutdoorTheme.surfaceCard,
@@ -362,23 +436,40 @@ class WikiMarkdownViewer extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor: WidgetStateProperty.all(OutdoorTheme.darkBackground),
-            headingTextStyle: const TextStyle(
-              color: OutdoorTheme.signalOrange,
-              fontWeight: FontWeight.bold,
-              fontSize: 12.5,
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: DataTable(
+              columnSpacing: 24,
+              horizontalMargin: 16,
+              headingRowHeight: 44,
+              dataRowMinHeight: 38,
+              dataRowMaxHeight: 52,
+              headingRowColor: WidgetStateProperty.all(OutdoorTheme.darkBackground),
+              headingTextStyle: const TextStyle(
+                color: OutdoorTheme.signalOrange,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+              dataTextStyle: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12.5,
+              ),
+              columns: headerCols
+                  .map((h) => DataColumn(
+                        label: Text(h.replaceAll('**', '')),
+                      ))
+                  .toList(),
+              rows: dataRows.map((row) {
+                return DataRow(
+                  cells: row
+                      .map((cell) => DataCell(
+                            Text(cell.replaceAll('**', '')),
+                          ))
+                      .toList(),
+                );
+              }).toList(),
             ),
-            dataTextStyle: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
-            columns: headerCols.map((h) => DataColumn(label: Text(h.replaceAll('**', '')))).toList(),
-            rows: dataRows.map((row) {
-              return DataRow(
-                cells: row.map((cell) => DataCell(Text(cell.replaceAll('**', '')))).toList(),
-              );
-            }).toList(),
           ),
         ),
       ),
