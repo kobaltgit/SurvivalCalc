@@ -78,6 +78,9 @@ class GpxRouteParser {
       ));
     }
 
+    // Apply median outlier filter to clean corrupted spike coordinates
+    final cleanPoints = filterOutliers(points);
+
     // 3. Extract Waypoints (<wpt>)
     final List<WayPoint> waypoints = [];
     final wpts = gpxElement.findAllElements('wpt');
@@ -210,11 +213,11 @@ class GpxRouteParser {
     double totalAscentMeters = 0.0;
     double totalDescentMeters = 0.0;
 
-    if (points.isNotEmpty) {
-      double lastEle = points.first.altitude;
-      for (int i = 1; i < points.length; i++) {
-        final p1 = points[i - 1];
-        final p2 = points[i];
+    if (cleanPoints.isNotEmpty) {
+      double lastEle = cleanPoints.first.altitude;
+      for (int i = 1; i < cleanPoints.length; i++) {
+        final p1 = cleanPoints[i - 1];
+        final p2 = cleanPoints[i];
 
         final distFlatKm = _calculateHaversineDistance(
           p1.latitude,
@@ -241,9 +244,12 @@ class GpxRouteParser {
           lastEle = p2.altitude;
         }
       }
-    }
 
-    if (minLat > maxLat) {
+      minLat = cleanPoints.map((p) => p.latitude).reduce(math.min);
+      maxLat = cleanPoints.map((p) => p.latitude).reduce(math.max);
+      minLon = cleanPoints.map((p) => p.longitude).reduce(math.min);
+      maxLon = cleanPoints.map((p) => p.longitude).reduce(math.max);
+    } else {
       minLat = 0.0;
       maxLat = 0.0;
       minLon = 0.0;
@@ -257,7 +263,7 @@ class GpxRouteParser {
       totalDistanceKm: double.parse(totalDistanceKm.toStringAsFixed(1)),
       totalAscentMeters: totalAscentMeters.roundToDouble(),
       totalDescentMeters: totalDescentMeters.roundToDouble(),
-      points: points,
+      points: cleanPoints,
       waypoints: waypoints,
       minLat: minLat,
       maxLat: maxLat,
@@ -371,5 +377,24 @@ class GpxRouteParser {
       return 0.0;
     }
     return rawEle;
+  }
+
+  /// Removes spatial outlier points (spikes/glitches located far away from the track cluster)
+  static List<GpsPoint> filterOutliers(List<GpsPoint> list) {
+    if (list.length < 4) return list;
+
+    final lats = list.map((p) => p.latitude).toList()..sort();
+    final lons = list.map((p) => p.longitude).toList()..sort();
+    final medianLat = lats[lats.length ~/ 2];
+    final medianLon = lons[lons.length ~/ 2];
+
+    // Reject points located > 2.0 degrees (~220 km) away from the track median
+    final filtered = list.where((p) {
+      final dLat = (p.latitude - medianLat).abs();
+      final dLon = (p.longitude - medianLon).abs();
+      return dLat <= 2.0 && dLon <= 2.0;
+    }).toList();
+
+    return filtered.isNotEmpty ? filtered : list;
   }
 }

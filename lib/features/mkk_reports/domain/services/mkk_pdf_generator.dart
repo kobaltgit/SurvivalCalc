@@ -11,8 +11,10 @@ import 'package:survival_calc/features/group_distribution/domain/models/particip
 import 'package:survival_calc/features/group_distribution/domain/services/load_distribution_service.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
+import 'package:survival_calc/features/tracking/domain/models/gps_point.dart';
 import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
+import 'package:survival_calc/features/tracking/domain/services/gpx_route_parser.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 
@@ -639,11 +641,29 @@ class MkkPdfGenerator {
     );
   }
 
+  /// Extracts and sanitizes GPS track points with outlier filtering
+  static List<GpsPoint> _extractCleanPoints(PlannedRoute route) {
+    if (route.points.isEmpty) return [];
+
+    final List<GpsPoint> raw = [];
+    for (final p in route.points) {
+      final sanitized = GpxRouteParser.sanitizeCoordinates(p.latitude, p.longitude);
+      if (sanitized != null) {
+        raw.add(GpsPoint(
+          latitude: sanitized.$1,
+          longitude: sanitized.$2,
+          altitude: GpxRouteParser.sanitizeElevation(p.altitude),
+          timestamp: p.timestamp,
+        ));
+      }
+    }
+
+    return GpxRouteParser.filterOutliers(raw);
+  }
+
   /// Vector Drawing of Route Track on Coordinate Grid with Scale and North Indicator (Section 3.3)
   static pw.Widget _buildRouteVectorMap(PlannedRoute route, pw.Font font, pw.Font fontBold) {
-    final pts = route.points
-        .where((p) => p.latitude >= -90.0 && p.latitude <= 90.0 && p.longitude >= -180.0 && p.longitude <= 180.0)
-        .toList();
+    final pts = _extractCleanPoints(route);
     if (pts.length < 2) return pw.SizedBox();
 
     double minLat = pts.first.latitude;
@@ -665,11 +685,11 @@ class MkkPdfGenerator {
     final lonSpan = ((maxLon - minLon) * cosLat).clamp(0.0001, 360.0);
 
     const mapW = 538.0;
-    const mapH = 175.0;
-    const padL = 20.0;
-    const padR = 20.0;
-    const padT = 32.0;
-    const padB = 24.0;
+    const mapH = 145.0;
+    const padL = 18.0;
+    const padR = 18.0;
+    const padT = 28.0;
+    const padB = 22.0;
 
     final availW = mapW - padL - padR;
     final availH = mapH - padT - padB;
@@ -767,61 +787,61 @@ class MkkPdfGenerator {
           // Map Title Header
           pw.Positioned(
             left: 10,
-            top: 8,
+            top: 6,
             child: pw.Text(
               'СХЕМА ТРЕКА: ${route.name.toUpperCase()}',
-              style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+              style: pw.TextStyle(fontSize: 8.0, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
             ),
           ),
           // North indicator
           pw.Positioned(
             right: 14,
-            top: 6,
+            top: 5,
             child: pw.Column(
               children: [
-                pw.Text('N', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                pw.Text('↑', style: pw.TextStyle(fontSize: 8, color: primaryOrange, fontWeight: pw.FontWeight.bold)),
+                pw.Text('N', style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                pw.Text('↑', style: pw.TextStyle(fontSize: 7.5, color: primaryOrange, fontWeight: pw.FontWeight.bold)),
               ],
             ),
           ),
           // Coordinate Bounds Bottom Left
           pw.Positioned(
             left: 10,
-            bottom: 6,
+            bottom: 5,
             child: pw.Text(
               coordBounds,
-              style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey400),
+              style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey400),
             ),
           ),
           // Legend Bottom Right
           pw.Positioned(
             right: 12,
-            bottom: 6,
+            bottom: 5,
             child: pw.Row(
               children: [
                 pw.Container(
-                  width: 6,
-                  height: 6,
+                  width: 5,
+                  height: 5,
                   decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF2E7D32), shape: pw.BoxShape.circle),
                 ),
                 pw.SizedBox(width: 3),
-                pw.Text('Старт', style: const pw.TextStyle(fontSize: 7, color: PdfColors.white)),
-                pw.SizedBox(width: 8),
+                pw.Text('Старт', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.white)),
+                pw.SizedBox(width: 6),
                 pw.Container(
-                  width: 6,
-                  height: 6,
+                  width: 5,
+                  height: 5,
                   decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFFC62828), shape: pw.BoxShape.circle),
                 ),
                 pw.SizedBox(width: 3),
-                pw.Text('Финиш', style: const pw.TextStyle(fontSize: 7, color: PdfColors.white)),
-                pw.SizedBox(width: 8),
+                pw.Text('Финиш', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.white)),
+                pw.SizedBox(width: 6),
                 pw.Container(
-                  width: 6,
-                  height: 6,
+                  width: 5,
+                  height: 5,
                   decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF00E5FF), shape: pw.BoxShape.circle),
                 ),
                 pw.SizedBox(width: 3),
-                pw.Text('Точки', style: const pw.TextStyle(fontSize: 7, color: PdfColors.white)),
+                pw.Text('Точки', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.white)),
               ],
             ),
           ),
@@ -832,36 +852,40 @@ class MkkPdfGenerator {
 
   /// Elevation Profile Chart of Planned Route (Section 3.3)
   static pw.Widget _buildElevationProfile(PlannedRoute route, pw.Font font) {
-    final pts = route.points
-        .where((p) => !p.altitude.isNaN && !p.altitude.isInfinite && p.altitude >= -500.0 && p.altitude <= 9000.0)
-        .toList();
+    final pts = _extractCleanPoints(route);
     if (pts.length < 2) return pw.SizedBox();
 
-    double minAlt = pts.first.altitude;
-    double maxAlt = pts.first.altitude;
+    final List<double> validAlts = pts
+        .map((p) => p.altitude)
+        .where((a) => !a.isNaN && !a.isInfinite && a >= -500.0 && a <= 9000.0)
+        .toList();
+    if (validAlts.length < 2) return pw.SizedBox();
 
-    for (final p in pts) {
-      if (p.altitude < minAlt) minAlt = p.altitude;
-      if (p.altitude > maxAlt) maxAlt = p.altitude;
-    }
+    double minAlt = validAlts.reduce((a, b) => min(a, b));
+    double maxAlt = validAlts.reduce((a, b) => max(a, b));
 
-    if ((maxAlt - minAlt) < 10) {
-      minAlt = max(0, minAlt - 20);
-      maxAlt = maxAlt + 20;
-    }
+    // Dynamic vertical expansion: gives expressive shape even for flat water routes (e.g. 40m delta over 56km)
+    final altDelta = maxAlt - minAlt;
+    final padY = max(8.0, altDelta * 0.15);
+    final plotMinAlt = max(0.0, minAlt - padY);
+    final plotMaxAlt = maxAlt + padY;
+    final plotSpan = max(1.0, plotMaxAlt - plotMinAlt);
 
     const chartW = 538.0;
-    const chartH = 85.0;
-    const padL = 36.0;
+    const chartH = 80.0;
+    const padL = 38.0;
     const padR = 14.0;
-    const padB = 16.0;
-    const padT = 12.0;
+    const padB = 18.0;
+    const padT = 14.0;
 
     final availW = chartW - padL - padR;
     final availH = chartH - padB - padT;
 
     double toX(int index) => padL + (index / (pts.length - 1)) * availW;
-    double toY(double alt) => padB + ((alt - minAlt) / (maxAlt - minAlt)) * availH;
+    double toY(double alt) => padB + (((alt.clamp(plotMinAlt, plotMaxAlt) - plotMinAlt) / plotSpan) * availH);
+
+    final maxAltY = toY(maxAlt);
+    final minAltY = toY(minAlt);
 
     return pw.Container(
       width: chartW,
@@ -883,8 +907,13 @@ class MkkPdfGenerator {
               canvas.lineTo(chartW - padR, padB);
               canvas.strokePath();
 
-              canvas.moveTo(padL, chartH - padT);
-              canvas.lineTo(chartW - padR, chartH - padT);
+              // Dashed reference lines at maxAlt and minAlt
+              canvas.moveTo(padL, maxAltY);
+              canvas.lineTo(chartW - padR, maxAltY);
+              canvas.strokePath();
+
+              canvas.moveTo(padL, minAltY);
+              canvas.lineTo(chartW - padR, minAltY);
               canvas.strokePath();
 
               // 2. Draw Filled Polygon Under Curve
@@ -900,7 +929,7 @@ class MkkPdfGenerator {
 
               // 3. Draw Stroke Line
               canvas.setColor(primaryOrange);
-              canvas.setLineWidth(1.6);
+              canvas.setLineWidth(1.8);
               canvas.moveTo(toX(0), toY(pts.first.altitude));
 
               for (int i = 1; i < pts.length; i++) {
@@ -912,7 +941,7 @@ class MkkPdfGenerator {
           // Chart Header
           pw.Positioned(
             left: padL + 4,
-            top: 4,
+            top: 3,
             child: pw.Text(
               'Высотный профиль (+${route.totalAscentMeters.round()}м / -${route.totalDescentMeters.round()}м)',
               style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: darkHeader),
@@ -921,30 +950,36 @@ class MkkPdfGenerator {
           // Max elevation label
           pw.Positioned(
             left: 4,
-            top: padT - 2,
-            child: pw.Text('${maxAlt.round()} м', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+            top: chartH - maxAltY - 5,
+            child: pw.Text('${maxAlt.round()} м', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey800)),
           ),
           // Min elevation label
           pw.Positioned(
             left: 4,
-            bottom: padB - 2,
-            child: pw.Text('${minAlt.round()} м', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+            top: chartH - minAltY - 5,
+            child: pw.Text('${minAlt.round()} м', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey800)),
           ),
-          // Distance X-Axis labels
+          // Mileage Markers Bottom
           pw.Positioned(
             left: padL,
-            bottom: 2,
-            child: pw.Text('0 км', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+            bottom: 3,
+            child: pw.Text('0 км', style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey600)),
           ),
           pw.Positioned(
-            left: padL + (availW / 2) - 12,
-            bottom: 2,
-            child: pw.Text('${(route.totalDistanceKm / 2).toStringAsFixed(1)} км', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+            left: padL + (availW / 2) - 15,
+            bottom: 3,
+            child: pw.Text(
+              '${(route.totalDistanceKm / 2).toStringAsFixed(1)} км',
+              style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey600),
+            ),
           ),
           pw.Positioned(
             right: padR,
-            bottom: 2,
-            child: pw.Text('${route.totalDistanceKm.toStringAsFixed(1)} км', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+            bottom: 3,
+            child: pw.Text(
+              '${route.totalDistanceKm.toStringAsFixed(1)} км',
+              style: const pw.TextStyle(fontSize: 6.5, color: PdfColors.grey600),
+            ),
           ),
         ],
       ),
