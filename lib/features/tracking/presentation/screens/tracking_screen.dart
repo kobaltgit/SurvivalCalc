@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' hide DistanceCalculator;
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/features/tracking/domain/models/map_layer_type.dart';
 import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/tracking/domain/services/distance_calculator.dart';
@@ -12,6 +13,7 @@ import 'package:survival_calc/features/tracking/presentation/widgets/add_waypoin
 import 'package:survival_calc/features/tracking/presentation/widgets/cached_tile_provider.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/camp_debrief_sheet.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_dialog.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/map_layer_selector_sheet.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/offline_maps_sheet.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/track_history_sheet.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/waypoint_details_sheet.dart';
@@ -26,6 +28,7 @@ class TrackingScreen extends ConsumerStatefulWidget {
 class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   final MapController _mapController = MapController();
   bool _followUser = true;
+  MapLayerType _selectedLayer = MapLayerType.osm;
 
   // Default initial center (generic coordinate before GPS fix)
   LatLng _lastCenter = const LatLng(43.3550, 42.4392);
@@ -348,7 +351,12 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _lastCenter,
-              initialZoom: 15.0,
+              initialZoom: 14.0,
+              minZoom: _selectedLayer.minZoom,
+              maxZoom: _selectedLayer.maxZoom,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              ),
               onPositionChanged: (pos, hasGesture) {
                 if (hasGesture && _followUser) {
                   setState(() {
@@ -359,10 +367,19 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             ),
             children: [
               TileLayer(
+                key: ValueKey(_selectedLayer.id),
                 tileProvider: CachedTileProvider(
-                  fallbackUrlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                  fallbackUrlTemplate: _selectedLayer.urlTemplate,
                 ),
-                urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                urlTemplate: _selectedLayer.urlTemplate,
+                maxNativeZoom: _selectedLayer.maxNativeZoom,
+                maxZoom: _selectedLayer.maxZoom,
+                minZoom: _selectedLayer.minZoom,
+                keepBuffer: 2,
+                panBuffer: 1,
+                tileDisplay: const TileDisplay.fadeIn(
+                  duration: Duration(milliseconds: 150),
+                ),
                 userAgentPackageName: 'com.survivalcalc.app',
               ),
               // Planned GPX Route Layer (Cyan)
@@ -598,12 +615,23 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             isFollowing: _followUser,
             onZoomIn: () => _mapController.move(
               _mapController.camera.center,
-              _mapController.camera.zoom + 1,
+              (_mapController.camera.zoom + 1).clamp(_selectedLayer.minZoom, _selectedLayer.maxZoom),
             ),
             onZoomOut: () => _mapController.move(
               _mapController.camera.center,
-              _mapController.camera.zoom - 1,
+              (_mapController.camera.zoom - 1).clamp(_selectedLayer.minZoom, _selectedLayer.maxZoom),
             ),
+            onLayers: () {
+              MapLayerSelectorSheet.show(
+                context,
+                currentLayer: _selectedLayer,
+                onSelected: (layer) {
+                  setState(() {
+                    _selectedLayer = layer;
+                  });
+                },
+              );
+            },
             onHistory: () => _openTrackHistory(context),
             onOfflineMaps: () {
               showModalBottomSheet(
@@ -1118,6 +1146,7 @@ class PositionBar extends StatelessWidget {
   final bool isFollowing;
   final VoidCallback onZoomIn;
   final VoidCallback onZoomOut;
+  final VoidCallback onLayers;
   final VoidCallback onHistory;
   final VoidCallback onOfflineMaps;
   final VoidCallback onImportGpx;
@@ -1128,6 +1157,7 @@ class PositionBar extends StatelessWidget {
     required this.isFollowing,
     required this.onZoomIn,
     required this.onZoomOut,
+    required this.onLayers,
     required this.onHistory,
     required this.onOfflineMaps,
     required this.onImportGpx,
@@ -1149,6 +1179,15 @@ class PositionBar extends StatelessWidget {
             onPressed: onCenter,
             tooltip: 'Мое местоположение',
             child: const Icon(Icons.my_location),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.small(
+            heroTag: 'map_layers',
+            backgroundColor: OutdoorTheme.surfaceCard,
+            foregroundColor: Colors.white,
+            onPressed: onLayers,
+            tooltip: 'Слои карты (OSM, Топо, Спутник)',
+            child: const Icon(Icons.layers),
           ),
           const SizedBox(height: 8),
           FloatingActionButton.small(
