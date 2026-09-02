@@ -11,7 +11,6 @@ import 'package:survival_calc/core/widgets/qr_scanner_dialog.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
-import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/tracking/domain/services/gpx_route_parser.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
@@ -620,9 +619,6 @@ class QrSyncService {
                         ? null
                         : () async {
                             final snapshot = previewSnapshot!;
-                            final currentParticipants = ref.read(groupParticipantsProvider);
-                            final currentIsLeader = currentParticipants
-                                .any((p) => p.role == TripRole.leader);
 
                             // 1. Update Profile & Participants from QR snapshot
                             ref

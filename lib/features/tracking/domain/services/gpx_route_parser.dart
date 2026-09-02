@@ -286,8 +286,8 @@ class GpxRouteParser {
     }, nest: () {
       builder.element('metadata', nest: () {
         builder.element('name', nest: route.name);
-        if (route.description != null && route.description!.isNotEmpty) {
-          builder.element('desc', nest: route.description!);
+        if (route.description.isNotEmpty) {
+          builder.element('desc', nest: route.description);
         }
         builder.element('time', nest: DateTime.now().toIso8601String());
       });
