@@ -199,7 +199,7 @@ class MkkPdfGenerator {
           // 3.3. Route Map & Elevation Profile (if GPX route points exist)
           if (plannedRoute != null && plannedRoute.points.length >= 2) ...[
             _buildSectionHeader('3.3. ОБЗОРНАЯ СХЕМА НИТКИ МАРШРУТА И ВЫСОТНЫЙ ПРОФИЛЬ'),
-            _buildRouteVectorMap(plannedRoute, font, fontBold),
+            _buildRouteVectorMap(plannedRoute, font, fontBold, waypoints: allWaypoints),
             pw.SizedBox(height: 8),
             _buildElevationProfile(plannedRoute, font),
             pw.SizedBox(height: 14),
@@ -662,7 +662,12 @@ class MkkPdfGenerator {
   }
 
   /// Vector Drawing of Route Track on Coordinate Grid with Scale and North Indicator (Section 3.3)
-  static pw.Widget _buildRouteVectorMap(PlannedRoute route, pw.Font font, pw.Font fontBold) {
+  static pw.Widget _buildRouteVectorMap(
+    PlannedRoute route,
+    pw.Font font,
+    pw.Font fontBold, {
+    List<WayPoint> waypoints = const [],
+  }) {
     final pts = _extractCleanPoints(route);
     if (pts.length < 2) return pw.SizedBox();
 
@@ -704,7 +709,17 @@ class MkkPdfGenerator {
     final coordBounds =
         'Охват WGS-84: [${minLat.toStringAsFixed(4)}°..${maxLat.toStringAsFixed(4)}°N, ${minLon.toStringAsFixed(4)}°..${maxLon.toStringAsFixed(4)}°E]';
 
-    final validWpts = route.waypoints
+    final Set<String> seenCoords = {};
+    final List<WayPoint> mergedWaypoints = [];
+    for (final w in [...route.waypoints, ...waypoints]) {
+      final key = '${w.latitude.toStringAsFixed(4)}_${w.longitude.toStringAsFixed(4)}';
+      if (!seenCoords.contains(key)) {
+        seenCoords.add(key);
+        mergedWaypoints.add(w);
+      }
+    }
+
+    final validWpts = mergedWaypoints
         .where((w) => w.latitude >= -90.0 && w.latitude <= 90.0 && w.longitude >= -180.0 && w.longitude <= 180.0)
         .toList();
 
@@ -782,6 +797,26 @@ class MkkPdfGenerator {
                 canvas.drawEllipse(wx, wy, 1.2, 1.2);
                 canvas.fillPath();
               }
+
+              // 6. Draw North Compass Needle (Top Right Vector)
+              const nx = mapW - 18.0;
+              const ny = mapH - 26.0;
+
+              // Orange left facet
+              canvas.setColor(primaryOrange);
+              canvas.moveTo(nx, ny + 9.0);
+              canvas.lineTo(nx - 3.2, ny);
+              canvas.lineTo(nx, ny + 2.5);
+              canvas.closePath();
+              canvas.fillPath();
+
+              // Silver right facet
+              canvas.setColor(const PdfColor.fromInt(0xFFB0BEC5));
+              canvas.moveTo(nx, ny + 9.0);
+              canvas.lineTo(nx + 3.2, ny);
+              canvas.lineTo(nx, ny + 2.5);
+              canvas.closePath();
+              canvas.fillPath();
             },
           ),
           // Map Title Header
@@ -793,15 +828,13 @@ class MkkPdfGenerator {
               style: pw.TextStyle(fontSize: 8.0, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
             ),
           ),
-          // North indicator
+          // North indicator 'N' label
           pw.Positioned(
-            right: 14,
-            top: 5,
-            child: pw.Column(
-              children: [
-                pw.Text('N', style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
-                pw.Text('↑', style: pw.TextStyle(fontSize: 7.5, color: primaryOrange, fontWeight: pw.FontWeight.bold)),
-              ],
+            right: 15,
+            top: 4,
+            child: pw.Text(
+              'N',
+              style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
             ),
           ),
           // Coordinate Bounds Bottom Left

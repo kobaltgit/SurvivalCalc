@@ -123,6 +123,15 @@ class WebUrlService {
         } catch (_) {}
       }
 
+      DateTime? startDate;
+      if (query['start'] != null) {
+        startDate = DateTime.tryParse(query['start']!);
+      }
+      DateTime? endDate;
+      if (query['end'] != null) {
+        endDate = DateTime.tryParse(query['end']!);
+      }
+
       final profile = TripProfile(
         id: 'shared_trip_${DateTime.now().millisecondsSinceEpoch}',
         title: query['title'] ?? 'Поход из ссылки',
@@ -134,6 +143,22 @@ class WebUrlService {
         season: season,
         activityType: activity,
         avgParticipantWeightKg: weight ?? 75.0,
+        clubOrCity: query['club'] ?? '',
+        difficultyCategory: query['cat'] ?? 'н/к',
+        geographicalRegion: query['region'] ?? '',
+        emergencyExitRoutes: query['exit'] ?? '',
+        mkkName: query['mkk'] ?? '',
+        routeBookNumber: query['rb'] ?? '',
+        startDate: startDate,
+        endDate: endDate,
+        mchsRegNumber: query['mchs'] ?? '',
+        coordinatorName: query['coord'] ?? '',
+        coordinatorPhone: query['cphone'] ?? '',
+        coordinatorEmail: query['cemail'] ?? '',
+        satellitePhone: query['sat'] ?? '',
+        communicationSchedule: query['csched'] ?? '',
+        deputyLeaderName: query['dep'] ?? '',
+        deputyLeaderPhone: query['dphone'] ?? '',
         createdAt: DateTime.now(),
       );
 
@@ -183,6 +208,22 @@ class WebUrlService {
       'weight': profile.avgParticipantWeightKg.toString(),
       if (profile.title != 'Новый поход' && profile.title.trim().isNotEmpty)
         'title': profile.title,
+      if (profile.clubOrCity.isNotEmpty) 'club': profile.clubOrCity,
+      if (profile.difficultyCategory != 'н/к') 'cat': profile.difficultyCategory,
+      if (profile.geographicalRegion.isNotEmpty) 'region': profile.geographicalRegion,
+      if (profile.emergencyExitRoutes.isNotEmpty) 'exit': profile.emergencyExitRoutes,
+      if (profile.mkkName.isNotEmpty) 'mkk': profile.mkkName,
+      if (profile.routeBookNumber.isNotEmpty) 'rb': profile.routeBookNumber,
+      if (profile.mchsRegNumber.isNotEmpty) 'mchs': profile.mchsRegNumber,
+      if (profile.coordinatorName.isNotEmpty) 'coord': profile.coordinatorName,
+      if (profile.coordinatorPhone.isNotEmpty) 'cphone': profile.coordinatorPhone,
+      if (profile.coordinatorEmail.isNotEmpty) 'cemail': profile.coordinatorEmail,
+      if (profile.satellitePhone.isNotEmpty) 'sat': profile.satellitePhone,
+      if (profile.communicationSchedule.isNotEmpty) 'csched': profile.communicationSchedule,
+      if (profile.deputyLeaderName.isNotEmpty) 'dep': profile.deputyLeaderName,
+      if (profile.deputyLeaderPhone.isNotEmpty) 'dphone': profile.deputyLeaderPhone,
+      if (profile.startDate != null) 'start': profile.startDate!.toIso8601String(),
+      if (profile.endDate != null) 'end': profile.endDate!.toIso8601String(),
     };
 
     if (participants != null && participants.isNotEmpty) {

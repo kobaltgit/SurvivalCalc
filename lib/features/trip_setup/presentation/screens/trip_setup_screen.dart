@@ -680,6 +680,7 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
         : 'Указать точные даты похода';
 
     return Card(
+      key: ValueKey('mkk_sec_${profile.id}'),
       child: ExpansionTile(
         initiallyExpanded: profile.clubOrCity.isNotEmpty ||
             profile.difficultyCategory != 'н/к' ||

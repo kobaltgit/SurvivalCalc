@@ -37,6 +37,9 @@ void main() async {
   // Parse initial trip profile and participants from URL if opened with query parameters
   final initialUrlData =
       kIsWeb ? WebUrlService.parseDataFromUri(Uri.base) : null;
+  final isExplicitShareImport = kIsWeb &&
+      (Uri.base.queryParameters.containsKey('share') ||
+          Uri.base.queryParameters.containsKey('import'));
 
   runApp(
     ProviderScope(
@@ -56,7 +59,7 @@ void main() async {
                 initialUrlData.participants,
               ),
             ),
-          if (initialUrlData.plannedRoute != null)
+          if (isExplicitShareImport && initialUrlData.plannedRoute != null)
             plannedRouteProvider.overrideWith(
               (ref) => PlannedRouteNotifier(initialUrlData.plannedRoute),
             ),
