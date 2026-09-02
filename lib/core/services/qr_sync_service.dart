@@ -15,6 +15,7 @@ import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dar
 
 class TripQrSnapshot {
   final TripProfile profile;
+  final List<Participant> participants;
   final List<WayPoint> waypoints;
   final List<DailyCampNote> campNotes;
   final bool isLeader;
@@ -22,6 +23,7 @@ class TripQrSnapshot {
 
   const TripQrSnapshot({
     required this.profile,
+    this.participants = const [],
     this.waypoints = const [],
     this.campNotes = const [],
     this.isLeader = true,
@@ -32,6 +34,8 @@ class TripQrSnapshot {
     return {
       'v': 2,
       'profile': jsonDecode(profile.toJson()),
+      if (participants.isNotEmpty)
+        'participants': participants.map((p) => p.toMap()).toList(),
       'waypoints': waypoints.map((w) => w.toJson()).toList(),
       'campNotes': campNotes.map((n) => n.toJson()).toList(),
       'isLeader': isLeader,
@@ -43,6 +47,10 @@ class TripQrSnapshot {
     if (json['v'] == 2) {
       final profMap = json['profile'] as Map<String, dynamic>;
       final profile = TripProfile.fromJson(jsonEncode(profMap));
+      final participantsList = (json['participants'] as List<dynamic>?)
+              ?.map((e) => Participant.fromMap(e as Map<String, dynamic>))
+              .toList() ??
+          [];
       final wpList = (json['waypoints'] as List<dynamic>?)
               ?.map((e) => WayPoint.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -53,6 +61,7 @@ class TripQrSnapshot {
           [];
       return TripQrSnapshot(
         profile: profile,
+        participants: participantsList,
         waypoints: wpList,
         campNotes: notesList,
         isLeader: json['isLeader'] as bool? ?? true,
@@ -130,6 +139,7 @@ class QrSyncService {
 
     final snapshot = TripQrSnapshot(
       profile: profile,
+      participants: participants,
       waypoints: waypoints,
       campNotes: campNotes,
       isLeader: isLeader,
@@ -483,6 +493,11 @@ class QrSyncService {
                               ref
                                   .read(activeTripProfileProvider.notifier)
                                   .updateProfile(snapshot.profile);
+                              if (snapshot.participants.isNotEmpty) {
+                                ref
+                                    .read(groupParticipantsProvider.notifier)
+                                    .setParticipants(snapshot.participants);
+                              }
                             }
 
                             // 2. Merge Waypoints (non-destructive)
