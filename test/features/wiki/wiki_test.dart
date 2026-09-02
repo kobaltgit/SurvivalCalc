@@ -101,7 +101,7 @@ void main() {
         ),
       );
 
-      expect(find.text('База знаний & Википедия'), findsOneWidget);
+      expect(find.text('База знаний'), findsWidgets);
       expect(find.text('Все разделы'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('100% OFFLINE'), findsOneWidget);

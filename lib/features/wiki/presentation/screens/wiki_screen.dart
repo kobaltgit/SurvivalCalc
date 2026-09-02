@@ -51,40 +51,45 @@ class _WikiScreenState extends ConsumerState<WikiScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.menu_book_rounded, color: OutdoorTheme.signalOrange, size: 22),
+            Icon(Icons.menu_book_rounded, color: OutdoorTheme.signalOrange, size: 20),
             SizedBox(width: 8),
-            Text(
-              'База знаний & Википедия',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            Flexible(
+              child: Text(
+                'База знаний',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
               ),
             ),
           ],
         ),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: OutdoorTheme.tacticalGreen.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: OutdoorTheme.tacticalGreen),
-            ),
-            child: const Center(
-              child: Text(
-                '100% OFFLINE',
-                style: TextStyle(
-                  color: OutdoorTheme.tacticalGreen,
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+          if (MediaQuery.of(context).size.width >= 420)
+            Container(
+              margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: OutdoorTheme.tacticalGreen.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: OutdoorTheme.tacticalGreen),
+              ),
+              child: const Center(
+                child: Text(
+                  '100% OFFLINE',
+                  style: TextStyle(
+                    color: OutdoorTheme.tacticalGreen,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
       body: SingleChildScrollView(

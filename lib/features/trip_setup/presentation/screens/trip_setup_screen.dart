@@ -47,6 +47,8 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
     final result = ref.watch(calculationResultProvider);
     final plannedRoute = ref.watch(plannedRouteProvider);
 
+    final isWide = MediaQuery.of(context).size.width >= 650;
+
     return Scaffold(
       appBar: AppBar(
         title: const Row(
@@ -70,45 +72,60 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
               WikiScreen.navigate(context);
             },
           ),
-          IconButton(
-            tooltip: 'Документы МКК / Отчеты',
-            icon: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange),
-            onPressed: () {
-              MkkExportSheet.show(context);
-            },
-          ),
-          IconButton(
-            tooltip: 'Импорт GPX трека',
-            icon: const Icon(Icons.alt_route, color: OutdoorTheme.signalOrange),
-            onPressed: () async {
-              final route = await GpxImportDialog.show(context);
-              if (route != null) {
-                setState(() {
-                  _titleController.text = route.name;
-                });
-              }
-            },
-          ),
-          IconButton(
-            tooltip: 'Сохранить поход / шаблон',
-            icon: const Icon(Icons.save_outlined, color: OutdoorTheme.signalOrange),
-            onPressed: () {
-              SaveTripDialog.show(context);
-            },
-          ),
-          IconButton(
-            tooltip: 'Мои походы и шаблоны',
-            icon: const Icon(Icons.folder_special_outlined, color: OutdoorTheme.signalOrange),
-            onPressed: () {
-              TripLibrarySheet.show(context);
-            },
-          ),
-          PopupMenuButton<String>(
-            tooltip: 'Инструменты и обмен',
-            icon: const Icon(Icons.more_vert, color: OutdoorTheme.signalOrange),
-            onSelected: (val) {
-              if (val == 'mkk_export') {
+          if (isWide) ...[
+            IconButton(
+              tooltip: 'Документы МКК / Отчеты',
+              icon: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange),
+              onPressed: () {
                 MkkExportSheet.show(context);
+              },
+            ),
+            IconButton(
+              tooltip: 'Импорт GPX трека',
+              icon: const Icon(Icons.alt_route, color: OutdoorTheme.signalOrange),
+              onPressed: () async {
+                final route = await GpxImportDialog.show(context);
+                if (route != null) {
+                  setState(() {
+                    _titleController.text = route.name;
+                  });
+                }
+              },
+            ),
+            IconButton(
+              tooltip: 'Сохранить поход / шаблон',
+              icon: const Icon(Icons.save_outlined, color: OutdoorTheme.signalOrange),
+              onPressed: () {
+                SaveTripDialog.show(context);
+              },
+            ),
+            IconButton(
+              tooltip: 'Мои походы и шаблоны',
+              icon: const Icon(Icons.folder_special_outlined, color: OutdoorTheme.signalOrange),
+              onPressed: () {
+                TripLibrarySheet.show(context);
+              },
+            ),
+          ],
+          PopupMenuButton<String>(
+            tooltip: 'Меню и инструменты',
+            icon: const Icon(Icons.more_vert, color: OutdoorTheme.signalOrange),
+            onSelected: (val) async {
+              if (val == 'wiki') {
+                WikiScreen.navigate(context);
+              } else if (val == 'mkk_export') {
+                MkkExportSheet.show(context);
+              } else if (val == 'gpx_import') {
+                final route = await GpxImportDialog.show(context);
+                if (route != null) {
+                  setState(() {
+                    _titleController.text = route.name;
+                  });
+                }
+              } else if (val == 'save_trip') {
+                SaveTripDialog.show(context);
+              } else if (val == 'library') {
+                TripLibrarySheet.show(context);
               } else if (val == 'share_qr') {
                 ref.read(qrSyncServiceProvider).showQrShareModal(context, ref);
               } else if (val == 'import_qr') {
@@ -118,16 +135,49 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
               }
             },
             itemBuilder: (ctx) => [
-              const PopupMenuItem(
-                value: 'mkk_export',
-                child: Row(
-                  children: [
-                    Icon(Icons.picture_as_pdf, size: 18, color: OutdoorTheme.signalOrange),
-                    SizedBox(width: 8),
-                    Text('Документы МКК / Отчет'),
-                  ],
+              if (!isWide) ...[
+                const PopupMenuItem(
+                  value: 'save_trip',
+                  child: Row(
+                    children: [
+                      Icon(Icons.save_outlined, size: 18, color: OutdoorTheme.signalOrange),
+                      SizedBox(width: 8),
+                      Text('Сохранить поход'),
+                    ],
+                  ),
                 ),
-              ),
+                const PopupMenuItem(
+                  value: 'library',
+                  child: Row(
+                    children: [
+                      Icon(Icons.folder_special_outlined, size: 18, color: OutdoorTheme.signalOrange),
+                      SizedBox(width: 8),
+                      Text('Мои походы'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'gpx_import',
+                  child: Row(
+                    children: [
+                      Icon(Icons.alt_route, size: 18, color: OutdoorTheme.signalOrange),
+                      SizedBox(width: 8),
+                      Text('Импорт GPX трека'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'mkk_export',
+                  child: Row(
+                    children: [
+                      Icon(Icons.picture_as_pdf, size: 18, color: OutdoorTheme.signalOrange),
+                      SizedBox(width: 8),
+                      Text('Документы МКК / Отчет'),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+              ],
               const PopupMenuItem(
                 value: 'share_qr',
                 child: Row(
@@ -144,7 +194,7 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                   children: [
                     Icon(Icons.download_outlined, size: 18, color: OutdoorTheme.signalOrange),
                     SizedBox(width: 8),
-                    Text('Импортировать поход'),
+                    Text('Импортировать по QR'),
                   ],
                 ),
               ),
@@ -154,7 +204,7 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                   children: [
                     Icon(Icons.content_copy, size: 18, color: OutdoorTheme.signalOrange),
                     SizedBox(width: 8),
-                    Text('Открыть шаблоны'),
+                    Text('Готовые шаблоны походов'),
                   ],
                 ),
               ),
