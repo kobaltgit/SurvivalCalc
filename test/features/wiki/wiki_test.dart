@@ -48,11 +48,27 @@ void main() {
 
       final gasMatches = repo.searchArticles('газ');
       expect(gasMatches, isNotEmpty);
+
+      final firstAidMatches = repo.searchArticles('гипогликемия');
+      expect(firstAidMatches, isNotEmpty);
+      expect(firstAidMatches.any((a) => a.id == 'first_aid_acute'), isTrue);
+
+      final tourstileMatches = repo.searchArticles('турникет');
+      expect(tourstileMatches, isNotEmpty);
+      expect(tourstileMatches.any((a) => a.id == 'first_aid_trauma'), isTrue);
+
+      final snakeMatches = repo.searchArticles('гадюка');
+      expect(snakeMatches, isNotEmpty);
+      expect(snakeMatches.any((a) => a.id == 'first_aid_bites'), isTrue);
     });
 
     test('searchArticles filters by category when specified', () {
       final foodMatches = repo.searchArticles('', category: WikiCategory.food);
       expect(foodMatches.every((a) => a.category == WikiCategory.food), isTrue);
+
+      final firstAidCategoryMatches = repo.searchArticles('', category: WikiCategory.firstAid);
+      expect(firstAidCategoryMatches.length, equals(5));
+      expect(firstAidCategoryMatches.every((a) => a.category == WikiCategory.firstAid), isTrue);
     });
   });
 
@@ -129,9 +145,28 @@ void main() {
       expect(find.textContaining('Крупы и супы'), findsWidgets);
     });
 
-    testWidgets('All 11 Wiki articles render without exceptions in WikiMarkdownViewer', (tester) async {
+    testWidgets('First Aid article detail screen renders medical protocols', (tester) async {
       const repo = WikiRepository();
-      for (final article in repo.getAllArticles()) {
+      final article = repo.getArticleById('first_aid_acute')!;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: WikiArticleDetailScreen(article: article),
+        ),
+      );
+
+      expect(find.text(article.title), findsWidgets);
+      expect(find.textContaining('Правило 15'), findsWidgets);
+      expect(find.textContaining('Анафилактический шок'), findsWidgets);
+      expect(find.textContaining('Острого живота'), findsWidgets);
+    });
+
+    testWidgets('All 15 Wiki articles render without exceptions in WikiMarkdownViewer', (tester) async {
+      const repo = WikiRepository();
+      final allArticles = repo.getAllArticles();
+      expect(allArticles.length, equals(15));
+
+      for (final article in allArticles) {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(

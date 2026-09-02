@@ -43,6 +43,13 @@ enum WikiCategory {
     color: Color(0xFF9C27B0),
     description: 'Маршрутная книжка, техническое описание ФСТР и архивы',
   ),
+  firstAid(
+    id: 'first_aid',
+    title: 'Первая помощь и медицина',
+    icon: Icons.medical_services_rounded,
+    color: Color(0xFFF44336),
+    description: 'Неотложные состояния, травмы, горная болезнь, укусы и аптечка',
+  ),
   faq(
     id: 'faq',
     title: 'FAQ и решение проблем',
