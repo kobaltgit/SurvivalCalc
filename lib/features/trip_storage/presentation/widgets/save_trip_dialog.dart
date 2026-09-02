@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/trip_storage/presentation/providers/saved_trips_providers.dart';
+import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 class SaveTripDialog extends ConsumerStatefulWidget {
   final bool initialIsTemplate;
@@ -207,6 +212,122 @@ class _SaveTripDialogState extends ConsumerState<SaveTripDialog> {
                 prefixIcon: Icon(Icons.notes, color: OutdoorTheme.signalOrange),
               ),
             ),
+
+            // Web-only backup warning and Key exporter
+            if (kIsWeb) ...[
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: OutdoorTheme.darkBackground,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: OutdoorTheme.signalOrange.withValues(alpha: 0.4),
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.info_outline, color: OutdoorTheme.signalOrange, size: 16),
+                        SizedBox(width: 6),
+                        Text(
+                          'Хранение на ПК (в браузере):',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: OutdoorTheme.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Данные сохраняются во временном хранилище браузера. При очистке кэша они могут удалиться. Сохраните Ключ похода, чтобы открыть его в любой момент:',
+                      style: TextStyle(fontSize: 11, color: OutdoorTheme.textSecondary),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: OutdoorTheme.signalOrange,
+                              side: const BorderSide(color: OutdoorTheme.signalOrange),
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                            ),
+                            onPressed: () {
+                              final title = _titleController.text.trim().isNotEmpty
+                                  ? _titleController.text.trim()
+                                  : activeProfile.title;
+                              final shareUrl = WebUrlService.buildShareUrl(
+                                activeProfile.copyWith(title: title),
+                                participants: participants,
+                                plannedRoute: plannedRoute,
+                              );
+                              Clipboard.setData(ClipboardData(text: shareUrl));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('📋 Ключ-ссылка похода скопирована в буфер обмена!'),
+                                  backgroundColor: OutdoorTheme.tacticalGreen,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.copy, size: 14),
+                            label: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('Скопировать ключ', style: TextStyle(fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white38),
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                            ),
+                            onPressed: () {
+                              final title = _titleController.text.trim().isNotEmpty
+                                  ? _titleController.text.trim()
+                                  : activeProfile.title;
+                              final shareUrl = WebUrlService.buildShareUrl(
+                                activeProfile.copyWith(title: title),
+                                participants: participants,
+                                plannedRoute: plannedRoute,
+                              );
+                              final content = 'SURVIVALCALC — КЛЮЧ ПОХОДА\n'
+                                  'Название: $title\n'
+                                  'Дней: ${activeProfile.durationDays}, Участников: ${activeProfile.groupSize}\n'
+                                  'Дистанция: ${activeProfile.totalDistanceKm} км, Набор: +${activeProfile.totalAscentMeters.toInt()} м\n'
+                                  'Дата сохранения: ${DateTime.now().toLocal()}\n\n'
+                                  'ССЫЛКА ДЛЯ ВОССТАНОВЛЕНИЯ ПОХОДА:\n'
+                                  '$shareUrl\n';
+                              final safeName = title.replaceAll(RegExp(r'[^\w\sа-яА-ЯёЁ-]'), '_').replaceAll(' ', '_');
+                              FileSaverService.saveAndShareFile(
+                                bytes: utf8.encode(content),
+                                filename: '${safeName}_ключ.txt',
+                                mimeType: 'text/plain',
+                                subject: 'Ключ похода $title',
+                              );
+                            },
+                            icon: const Icon(Icons.download, size: 14),
+                            label: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text('Скачать в .txt', style: TextStyle(fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

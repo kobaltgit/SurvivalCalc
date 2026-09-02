@@ -1,11 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
+import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_storage/domain/models/saved_trip_entry.dart';
 import 'package:survival_calc/features/trip_storage/presentation/providers/saved_trips_providers.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/save_trip_dialog.dart';
+import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 class TripLibrarySheet extends ConsumerStatefulWidget {
   final int initialTabIndex;
@@ -353,7 +357,42 @@ class _TripLibrarySheetState extends ConsumerState<TripLibrarySheet>
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert, size: 20, color: OutdoorTheme.textMuted),
                 onSelected: (val) async {
-                  if (val == 'duplicate') {
+                  if (val == 'copy_key') {
+                    final shareUrl = WebUrlService.buildShareUrl(
+                      entry.profile,
+                      participants: entry.participants,
+                      plannedRoute: entry.plannedRoute,
+                    );
+                    Clipboard.setData(ClipboardData(text: shareUrl));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('📋 Ключ-ссылка похода скопирована в буфер обмена!'),
+                          backgroundColor: OutdoorTheme.tacticalGreen,
+                        ),
+                      );
+                    }
+                  } else if (val == 'download_txt') {
+                    final shareUrl = WebUrlService.buildShareUrl(
+                      entry.profile,
+                      participants: entry.participants,
+                      plannedRoute: entry.plannedRoute,
+                    );
+                    final content = 'SURVIVALCALC — КЛЮЧ ПОХОДА\n'
+                        'Название: ${entry.title}\n'
+                        'Дней: ${entry.profile.durationDays}, Участников: ${entry.profile.groupSize}\n'
+                        'Дистанция: ${entry.profile.totalDistanceKm} км, Набор: +${entry.profile.totalAscentMeters.toInt()} м\n'
+                        'Дата сохранения: ${entry.updatedAt.toLocal()}\n\n'
+                        'ССЫЛКА ДЛЯ ВОССТАНОВЛЕНИЯ ПОХОДА:\n'
+                        '$shareUrl\n';
+                    final safeName = entry.title.replaceAll(RegExp(r'[^\w\sа-яА-ЯёЁ-]'), '_').replaceAll(' ', '_');
+                    FileSaverService.saveAndShareFile(
+                      bytes: utf8.encode(content),
+                      filename: '${safeName}_ключ.txt',
+                      mimeType: 'text/plain',
+                      subject: 'Ключ похода ${entry.title}',
+                    );
+                  } else if (val == 'duplicate') {
                     await ref.read(savedTripsProvider.notifier).duplicateEntry(entry.id);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -369,10 +408,30 @@ class _TripLibrarySheetState extends ConsumerState<TripLibrarySheet>
                 },
                 itemBuilder: (ctx) => [
                   const PopupMenuItem(
+                    value: 'copy_key',
+                    child: Row(
+                      children: [
+                        Icon(Icons.link, size: 16, color: OutdoorTheme.signalOrange),
+                        SizedBox(width: 8),
+                        Text('Скопировать ключ'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'download_txt',
+                    child: Row(
+                      children: [
+                        Icon(Icons.description_outlined, size: 16, color: Colors.cyanAccent),
+                        SizedBox(width: 8),
+                        Text('Скачать ключ в .txt'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
                     value: 'duplicate',
                     child: Row(
                       children: [
-                        Icon(Icons.content_copy, size: 16, color: OutdoorTheme.signalOrange),
+                        Icon(Icons.content_copy, size: 16, color: Colors.white70),
                         SizedBox(width: 8),
                         Text('Сделать копию'),
                       ],
