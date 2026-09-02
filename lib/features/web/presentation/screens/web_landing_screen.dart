@@ -5,6 +5,7 @@ import 'package:survival_calc/features/calculator/presentation/providers/calcula
 import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
@@ -89,6 +90,7 @@ class _WebLandingScreenState extends ConsumerState<WebLandingScreen>
                       context,
                       activeProfile,
                       participants: ref.read(groupParticipantsProvider),
+                      plannedRoute: ref.read(plannedRouteProvider),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: OutdoorTheme.signalOrange,

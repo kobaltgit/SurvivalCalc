@@ -7,6 +7,8 @@ import 'package:survival_calc/features/calculator/presentation/providers/calcula
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/group_distribution/domain/services/load_distribution_service.dart';
 import 'package:survival_calc/features/home/presentation/screens/main_navigation_screen.dart';
+import 'package:survival_calc/features/tracking/domain/models/gps_point.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/trip_setup/data/repositories/trip_repository.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
@@ -122,6 +124,73 @@ void main() {
       expect(p2.weightKg, equals(58.0));
       expect(p2.dietaryRestrictions, contains(DietaryRestriction.vegetarian));
       expect(p2.medicalConditions, contains(MedicalCondition.asthma));
+    });
+
+    test('Serializes and parses planned GPX route via URL parameters', () {
+      final profile = TripProfile(
+        id: 'trip_gpx_1',
+        title: 'Поход по хребту',
+        groupSize: 3,
+        durationDays: 4,
+        activeDays: 3,
+        totalDistanceKm: 42.0,
+        totalAscentMeters: 1800.0,
+        season: Season.summer,
+        activityType: ActivityType.hiking,
+        createdAt: DateTime.now(),
+      );
+
+      final route = PlannedRoute(
+        id: 'route_123',
+        name: 'Хребет Азиш-Тау',
+        totalDistanceKm: 42.0,
+        totalAscentMeters: 1800.0,
+        totalDescentMeters: 1200.0,
+        points: [
+          GpsPoint(
+            latitude: 44.12345,
+            longitude: 40.54321,
+            altitude: 1650.0,
+            timestamp: DateTime(2026, 9, 2, 10, 0),
+          ),
+          GpsPoint(
+            latitude: 44.13500,
+            longitude: 40.55000,
+            altitude: 1820.0,
+            timestamp: DateTime(2026, 9, 2, 12, 0),
+          ),
+          GpsPoint(
+            latitude: 44.15000,
+            longitude: 40.57000,
+            altitude: 2100.0,
+            timestamp: DateTime(2026, 9, 2, 15, 0),
+          ),
+        ],
+        waypoints: const [],
+        minLat: 44.12345,
+        maxLat: 44.15000,
+        minLon: 40.54321,
+        maxLon: 40.57000,
+        importedAt: DateTime.now(),
+      );
+
+      final shareUrl = WebUrlService.buildShareUrl(
+        profile,
+        plannedRoute: route,
+      );
+
+      expect(shareUrl, contains('&trk='));
+      expect(shareUrl, contains('&trkname='));
+
+      final parsedData = WebUrlService.parseDataFromUri(Uri.parse(shareUrl));
+      expect(parsedData, isNotNull);
+      expect(parsedData!.plannedRoute, isNotNull);
+      expect(parsedData.plannedRoute!.name, equals('Хребет Азиш-Тау'));
+      expect(parsedData.plannedRoute!.points.length, equals(3));
+      expect(parsedData.plannedRoute!.points.first.latitude, closeTo(44.12345, 0.0001));
+      expect(parsedData.plannedRoute!.points.first.longitude, closeTo(40.54321, 0.0001));
+      expect(parsedData.plannedRoute!.points.first.altitude, closeTo(1650.0, 1.0));
+      expect(parsedData.plannedRoute!.points.last.altitude, closeTo(2100.0, 1.0));
     });
 
     test('GroupParticipantsNotifier persists and restores participants from LocalStorageTripRepository', () async {

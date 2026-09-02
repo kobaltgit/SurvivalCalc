@@ -6,6 +6,7 @@ import 'package:survival_calc/features/calculator/presentation/providers/calcula
 import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
 import 'package:survival_calc/features/web/domain/services/browser_history_sync/browser_history_sync.dart';
@@ -47,11 +48,18 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     if (kIsWeb) {
       ref.listen(activeTripProfileProvider, (prev, next) {
         final participants = ref.read(groupParticipantsProvider);
-        WebUrlService.syncCurrentStateToBrowserUrl(next, participants);
+        final route = ref.read(plannedRouteProvider);
+        WebUrlService.syncCurrentStateToBrowserUrl(next, participants, route);
       });
       ref.listen(groupParticipantsProvider, (prev, next) {
         final profile = ref.read(activeTripProfileProvider);
-        WebUrlService.syncCurrentStateToBrowserUrl(profile, next);
+        final route = ref.read(plannedRouteProvider);
+        WebUrlService.syncCurrentStateToBrowserUrl(profile, next, route);
+      });
+      ref.listen(plannedRouteProvider, (prev, next) {
+        final profile = ref.read(activeTripProfileProvider);
+        final participants = ref.read(groupParticipantsProvider);
+        WebUrlService.syncCurrentStateToBrowserUrl(profile, participants, next);
       });
     }
 

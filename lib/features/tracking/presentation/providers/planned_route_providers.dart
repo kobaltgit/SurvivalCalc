@@ -7,8 +7,12 @@ import 'package:survival_calc/features/tracking/domain/services/gpx_route_parser
 class PlannedRouteNotifier extends StateNotifier<PlannedRoute?> {
   static const String _plannedRoutePrefKey = 'planned_route_current_v1';
 
-  PlannedRouteNotifier() : super(null) {
-    _loadSaved();
+  PlannedRouteNotifier([PlannedRoute? initialRoute]) : super(initialRoute) {
+    if (initialRoute != null) {
+      setPlannedRoute(initialRoute);
+    } else {
+      _loadSaved();
+    }
   }
 
   Future<void> _loadSaved() async {

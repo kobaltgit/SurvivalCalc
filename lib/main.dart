@@ -7,6 +7,7 @@ import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/home/presentation/screens/main_navigation_screen.dart';
 import 'package:survival_calc/features/tracking/data/repositories/offline_tile_repository.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 void main() async {
@@ -54,6 +55,10 @@ void main() async {
                 ref.watch(tripRepositoryProvider),
                 initialUrlData.participants,
               ),
+            ),
+          if (initialUrlData.plannedRoute != null)
+            plannedRouteProvider.overrideWith(
+              (ref) => PlannedRouteNotifier(initialUrlData.plannedRoute),
             ),
         ],
       ],

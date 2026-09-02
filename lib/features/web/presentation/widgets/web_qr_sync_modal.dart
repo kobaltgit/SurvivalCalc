@@ -4,29 +4,34 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/services/qr_sync_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 class WebQrSyncModal extends StatelessWidget {
   final TripProfile profile;
   final List<Participant> participants;
+  final PlannedRoute? plannedRoute;
 
   const WebQrSyncModal({
     super.key,
     required this.profile,
     this.participants = const [],
+    this.plannedRoute,
   });
 
   static void show(
     BuildContext context,
     TripProfile profile, {
     List<Participant> participants = const [],
+    PlannedRoute? plannedRoute,
   }) {
     showDialog(
       context: context,
       builder: (context) => WebQrSyncModal(
         profile: profile,
         participants: participants,
+        plannedRoute: plannedRoute,
       ),
     );
   }
@@ -43,6 +48,7 @@ class WebQrSyncModal extends StatelessWidget {
     final shareUrl = WebUrlService.buildShareUrl(
       profile,
       participants: participants,
+      plannedRoute: plannedRoute,
     );
 
     return Dialog(

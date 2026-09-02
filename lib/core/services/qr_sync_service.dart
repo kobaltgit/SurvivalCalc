@@ -5,13 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/utils/polyline_utils.dart';
 import 'package:survival_calc/core/widgets/qr_scanner_dialog.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
+import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 
 class TripQrSnapshot {
   final TripProfile profile;
@@ -20,6 +24,8 @@ class TripQrSnapshot {
   final List<DailyCampNote> campNotes;
   final bool isLeader;
   final String? senderName;
+  final String? polyline;
+  final String? trackName;
 
   const TripQrSnapshot({
     required this.profile,
@@ -28,6 +34,8 @@ class TripQrSnapshot {
     this.campNotes = const [],
     this.isLeader = true,
     this.senderName,
+    this.polyline,
+    this.trackName,
   });
 
   Map<String, dynamic> toJson() {
@@ -40,6 +48,8 @@ class TripQrSnapshot {
       'campNotes': campNotes.map((n) => n.toJson()).toList(),
       'isLeader': isLeader,
       if (senderName != null) 'senderName': senderName,
+      if (polyline != null) 'trk': polyline,
+      if (trackName != null) 'trkname': trackName,
     };
   }
 
@@ -66,6 +76,8 @@ class TripQrSnapshot {
         campNotes: notesList,
         isLeader: json['isLeader'] as bool? ?? true,
         senderName: json['senderName'] as String?,
+        polyline: json['trk'] as String?,
+        trackName: json['trkname'] as String?,
       );
     } else {
       final profile = TripProfile.fromJson(jsonEncode(json));
@@ -147,6 +159,11 @@ class QrSyncService {
       orElse: () => participants.first,
     );
 
+    final plannedRoute = ref.read(plannedRouteProvider);
+    final polyline = (plannedRoute != null && plannedRoute.points.isNotEmpty)
+        ? PolylineUtils.encode(plannedRoute.points, maxPoints: 120)
+        : null;
+
     final snapshot = TripQrSnapshot(
       profile: profile,
       participants: participants,
@@ -154,9 +171,16 @@ class QrSyncService {
       campNotes: campNotes,
       isLeader: isLeader,
       senderName: leaderMember.name,
+      polyline: polyline,
+      trackName: plannedRoute?.name,
     );
 
     final payload = encodeTripSnapshot(snapshot);
+    final shareUrl = WebUrlService.buildShareUrl(
+      profile,
+      participants: participants,
+      plannedRoute: plannedRoute,
+    );
 
     showDialog(
       context: context,
@@ -252,7 +276,7 @@ class QrSyncService {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${profile.groupSize} чел. • ${profile.durationDays} дн. • ${profile.totalDistanceKm.toStringAsFixed(0)} км • ${waypoints.length} меток • ${campNotes.length} заметок',
+                        '${profile.groupSize} чел. • ${profile.durationDays} дн. • ${profile.totalDistanceKm.toStringAsFixed(0)} км ${plannedRoute != null ? '• 🗺️ с треком GPX ' : ''}• ${waypoints.length} меток',
                         style: const TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
                         textAlign: TextAlign.center,
                       ),
@@ -261,8 +285,33 @@ class QrSyncService {
                 ),
                 const SizedBox(height: 16),
 
-                // Copy Raw Sync Key Button
+                // Copy Web Link Button
                 ElevatedButton.icon(
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: shareUrl));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('🔗 Ссылка на поход с треком и составом группы скопирована!'),
+                          backgroundColor: OutdoorTheme.tacticalGreen,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: OutdoorTheme.signalOrange,
+                    foregroundColor: Colors.black,
+                  ),
+                  icon: const Icon(Icons.link),
+                  label: const Text(
+                    'Скопировать ссылку',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Copy Raw Sync Key Button
+                OutlinedButton.icon(
                   onPressed: () async {
                     await Clipboard.setData(ClipboardData(text: payload));
                     if (context.mounted) {
@@ -274,8 +323,8 @@ class QrSyncService {
                       );
                     }
                   },
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Скопировать ключ похода'),
+                  icon: const Icon(Icons.copy, size: 18),
+                  label: const Text('Скопировать офлайн-ключ'),
                 ),
               ],
             ),
@@ -554,12 +603,46 @@ class QrSyncService {
                               }
                             }
 
+                            // 4. Restore Planned Route from QR
+                            if (snapshot.polyline != null && snapshot.polyline!.isNotEmpty) {
+                              try {
+                                final points = PolylineUtils.decode(snapshot.polyline!);
+                                if (points.isNotEmpty) {
+                                  double minLat = points.first.latitude;
+                                  double maxLat = points.first.latitude;
+                                  double minLon = points.first.longitude;
+                                  double maxLon = points.first.longitude;
+                                  for (final p in points) {
+                                    if (p.latitude < minLat) minLat = p.latitude;
+                                    if (p.latitude > maxLat) maxLat = p.latitude;
+                                    if (p.longitude < minLon) minLon = p.longitude;
+                                    if (p.longitude > maxLon) maxLon = p.longitude;
+                                  }
+                                  final route = PlannedRoute(
+                                    id: 'qr_route_${DateTime.now().millisecondsSinceEpoch}',
+                                    name: snapshot.trackName ?? snapshot.profile.title,
+                                    totalDistanceKm: snapshot.profile.totalDistanceKm,
+                                    totalAscentMeters: snapshot.profile.totalAscentMeters,
+                                    totalDescentMeters: 0.0,
+                                    points: points,
+                                    waypoints: snapshot.waypoints,
+                                    minLat: minLat,
+                                    maxLat: maxLat,
+                                    minLon: minLon,
+                                    maxLon: maxLon,
+                                    importedAt: DateTime.now(),
+                                  );
+                                  await ref.read(plannedRouteProvider.notifier).setPlannedRoute(route);
+                                }
+                              } catch (_) {}
+                            }
+
                             if (context.mounted) {
                               Navigator.pop(ctx);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      '✅ Данные похода "${snapshot.profile.title}" успешно объединены! (+${snapshot.waypoints.length} меток, +${snapshot.campNotes.length} заметок)'),
+                                      '✅ Данные похода "${snapshot.profile.title}" успешно сохранены! (+${snapshot.waypoints.length} меток, ${snapshot.polyline != null ? '🗺️ трек передан, ' : ''}+${snapshot.campNotes.length} заметок)'),
                                   backgroundColor: OutdoorTheme.tacticalGreen,
                                 ),
                               );

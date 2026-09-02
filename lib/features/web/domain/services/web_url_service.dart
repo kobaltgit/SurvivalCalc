@@ -1,17 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
+import 'package:survival_calc/core/utils/polyline_utils.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/web/domain/services/browser_history_sync/browser_history_sync.dart';
 
 class TripUrlData {
   final TripProfile profile;
   final List<Participant> participants;
+  final PlannedRoute? plannedRoute;
 
   const TripUrlData({
     required this.profile,
     this.participants = const [],
+    this.plannedRoute,
   });
 }
 
@@ -25,7 +29,7 @@ class WebUrlService {
     return parseDataFromUri(uri)?.profile;
   }
 
-  /// Parses full trip data including participants from URL query parameters
+  /// Parses full trip data including participants and GPX track from URL query parameters
   static TripUrlData? parseDataFromUri(Uri uri) {
     try {
       final query = uri.queryParameters;
@@ -82,14 +86,51 @@ class WebUrlService {
         }
       }
 
+      // Decode track geometry if present
+      PlannedRoute? plannedRoute;
+      final trkRaw = query['trk'] ?? query['track'];
+      if (trkRaw != null && trkRaw.trim().isNotEmpty) {
+        try {
+          final points = PolylineUtils.decode(trkRaw.trim());
+          if (points.isNotEmpty) {
+            double minLat = points.first.latitude;
+            double maxLat = points.first.latitude;
+            double minLon = points.first.longitude;
+            double maxLon = points.first.longitude;
+            for (final p in points) {
+              if (p.latitude < minLat) minLat = p.latitude;
+              if (p.latitude > maxLat) maxLat = p.latitude;
+              if (p.longitude < minLon) minLon = p.longitude;
+              if (p.longitude > maxLon) maxLon = p.longitude;
+            }
+
+            final trackName = query['trkname'] ?? query['title'] ?? 'Импортированный трек';
+            plannedRoute = PlannedRoute(
+              id: 'url_route_${DateTime.now().millisecondsSinceEpoch}',
+              name: trackName,
+              totalDistanceKm: dist ?? 15.0,
+              totalAscentMeters: ascent ?? 200.0,
+              totalDescentMeters: 0.0,
+              points: points,
+              waypoints: [],
+              minLat: minLat,
+              maxLat: maxLat,
+              minLon: minLon,
+              maxLon: maxLon,
+              importedAt: DateTime.now(),
+            );
+          }
+        } catch (_) {}
+      }
+
       final profile = TripProfile(
         id: 'shared_trip_${DateTime.now().millisecondsSinceEpoch}',
         title: query['title'] ?? 'Поход из ссылки',
         groupSize: g,
         durationDays: d,
         activeDays: active ?? d,
-        totalDistanceKm: dist ?? 15.0,
-        totalAscentMeters: ascent ?? 200.0,
+        totalDistanceKm: dist ?? (plannedRoute != null ? plannedRoute.totalDistanceKm : 15.0),
+        totalAscentMeters: ascent ?? (plannedRoute != null ? plannedRoute.totalAscentMeters : 200.0),
         season: season,
         activityType: activity,
         avgParticipantWeightKg: weight ?? 75.0,
@@ -99,16 +140,18 @@ class WebUrlService {
       return TripUrlData(
         profile: profile,
         participants: participants,
+        plannedRoute: plannedRoute,
       );
     } catch (_) {
       return null;
     }
   }
 
-  /// Builds query parameters URL for sharing (including participants if provided)
+  /// Builds query parameters URL for sharing (including participants and track if provided)
   static String buildShareUrl(
     TripProfile profile, {
     List<Participant>? participants,
+    PlannedRoute? plannedRoute,
     String? baseUrl,
   }) {
     String hostUrl = baseUrl ?? '';
@@ -124,6 +167,9 @@ class WebUrlService {
       } else {
         hostUrl = defaultProductionUrl;
       }
+    } else if (baseUrl == 'https://kobaltgit.github.io/SurvivalCalc/') {
+      // Force canonical format with trailing slash
+      hostUrl = 'https://kobaltgit.github.io/SurvivalCalc/';
     }
 
     final queryParams = <String, String>{
@@ -148,6 +194,18 @@ class WebUrlService {
       } catch (_) {}
     }
 
+    if (plannedRoute != null && plannedRoute.points.isNotEmpty) {
+      try {
+        final encodedTrk = PolylineUtils.encode(plannedRoute.points);
+        if (encodedTrk.isNotEmpty) {
+          queryParams['trk'] = encodedTrk;
+          if (plannedRoute.name.isNotEmpty) {
+            queryParams['trkname'] = plannedRoute.name;
+          }
+        }
+      } catch (_) {}
+    }
+
     final parsedBase = Uri.parse(hostUrl);
     final finalUri = parsedBase.replace(queryParameters: queryParams);
     return finalUri.toString();
@@ -157,10 +215,15 @@ class WebUrlService {
   static void syncCurrentStateToBrowserUrl(
     TripProfile profile, [
     List<Participant>? participants,
+    PlannedRoute? plannedRoute,
   ]) {
     if (!kIsWeb) return;
     try {
-      final shareUrl = buildShareUrl(profile, participants: participants);
+      final shareUrl = buildShareUrl(
+        profile,
+        participants: participants,
+        plannedRoute: plannedRoute,
+      );
       syncUrlToBrowserHistory(shareUrl);
     } catch (_) {}
   }
