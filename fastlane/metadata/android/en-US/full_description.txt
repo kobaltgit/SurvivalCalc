@@ -1,0 +1,13 @@
+SurvivalCalc is an offline-first expedition calculator and tactical field assistant designed for hikers, mountaineers, survivalists, and outdoor enthusiasts.
+
+Features:
+• Scientific Metabolic Engine: Precise calculation of Basal Metabolic Rate (BMR, Mifflin-St Jeor), Physical Activity Level (PAL), total daily energy expenditure (TDEE), and temperature/elevation corrections.
+• Smart Food Rationing: 4-slot daily menu generation with balanced macro- and micronutrients (protein, fat, carbs, sodium, minerals) and shopping list calculation.
+• Modular Gear Checklist: Categorized gear weights, personal vs. group equipment allocation based on group member strength factors (0.8x / 1.0x / 1.2x).
+• Health & Dietary Specialization: Participant-specific dietary filters (vegan, gluten-free, lactose-free, etc.) and health kits (asthma, joint support, first-aid).
+• Tactical Roles & Duty Roster: Automatic allocation of specialized gear (First-aid to Medic, Repair kit to Toolmaster) and daily rotating camp duties.
+• Offline Topographic GPS & Track Logging: Live outdoor HUD, speed/elevation analytics, and offline caching of high-resolution topographic maps along the route.
+• Photo Waypoints & Evening Camp Debrief: Geotagged field photos with zoom preview, camp diary with weather conditions, and metabolic recovery analysis.
+• Zero-Permission QR Sync: Offline sharing of expedition plans, tracks, and camp notes between group members via compressed QR codes.
+
+100% Free, Open Source, and completely functional without internet access.
