@@ -139,3 +139,7 @@
   5. Разработан сервис `ExpeditionArchiveService` (упаковка в единый ZIP-архив: Маршрутная книжка PDF, Итоговый отчет PDF, сводка MD/HTML, треки GPX по дням и оригиналы фото-меток).
   6. Создана модальная шторка `MkkExportSheet` с кнопками «Печать/PDF», «Отправить», «Скопировать (Word)» и скачивания ZIP-архива; интегрированы кнопки вызова в `TripSetupScreen` и `CampDebriefSheet`.
   7. Написаны и успешно пройдены 6 новых unit-тестов (`mkk_reports_test.dart`). Все 65/65 тестов пройдены успешно, `dart analyze` — 0 issues.
+- **[2026-09-02 12:33:00]** | `BUG_FIX` | `assets/fonts/Roboto-Regular.ttf`, `lib/core/services/file_saver_*.dart`, `lib/features/mkk_reports/` | Устранена неработоспособность кнопок экспорта в веб-браузере (BUG-13):
+  1. В проект встроен локальный кириллический шрифт `assets/fonts/Roboto-Regular.ttf` с загрузкой через `rootBundle`, устранивший блокировку Google Fonts по сети/CORS и сбои PDF-генерации кириллицы.
+  2. Разработан кроссплатформенный `FileSaverService` с поддержкой браузерного Blob-скачивания (Web) и системного сохранения/шаринга (Android/Desktop), устранивший сбои `path_provider` на веб-платформе.
+  3. В `MkkExportSheet` добавлены спиннеры загрузки, прямая кнопка «Скачать PDF» для Web и перехват исключений с информативными SnackBar-уведомлениями.
