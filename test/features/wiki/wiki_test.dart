@@ -107,7 +107,7 @@ void main() {
       expect(find.text('100% OFFLINE'), findsOneWidget);
     });
 
-    testWidgets('WikiArticleDetailScreen renders article content', (tester) async {
+    testWidgets('WikiArticleDetailScreen renders article content without missing words or tags', (tester) async {
       const repo = WikiRepository();
       final article = repo.getArticleById('manual_pre_trip')!;
 
@@ -120,6 +120,29 @@ void main() {
       expect(find.text(article.title), findsWidgets);
       expect(find.text(article.subtitle), findsOneWidget);
       expect(find.text('Назад ко всем статьям'), findsOneWidget);
+
+      // Verify that italic, bold and code terms are rendered properly
+      expect(find.textContaining('Вегетарианство'), findsWidgets);
+      expect(find.textContaining('Астма'), findsWidgets);
+      expect(find.textContaining('nakarte.me'), findsWidgets);
+      expect(find.textContaining('Shopping List'), findsWidgets);
+      expect(find.textContaining('Крупы и супы'), findsWidgets);
+    });
+
+    testWidgets('All 11 Wiki articles render without exceptions in WikiMarkdownViewer', (tester) async {
+      const repo = WikiRepository();
+      for (final article in repo.getAllArticles()) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: WikiMarkdownViewer(markdown: article.markdownContent),
+              ),
+            ),
+          ),
+        );
+        expect(find.byType(WikiMarkdownViewer), findsOneWidget);
+      }
     });
   });
 }
