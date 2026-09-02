@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' hide DistanceCalculator;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/tracking/domain/models/map_layer_type.dart';
 import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
@@ -27,11 +28,11 @@ class TrackingScreen extends ConsumerStatefulWidget {
 
 class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   final MapController _mapController = MapController();
-  bool _followUser = true;
+  bool _followUser = false;
   MapLayerType _selectedLayer = MapLayerType.osm;
 
-  // Default initial center (generic coordinate before GPS fix)
-  LatLng _lastCenter = const LatLng(43.3550, 42.4392);
+  // Default initial center (fallback if no route, no GPS, and no saved view)
+  LatLng _lastCenter = const LatLng(56.8389, 60.6057); // Екатеринбург / Урал
 
   @override
   void initState() {
@@ -41,7 +42,47 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     });
   }
 
+  void _fitRoute(PlannedRoute route) {
+    if (route.points.length < 2 || !mounted) return;
+    final bounds = LatLngBounds(
+      LatLng(route.minLat, route.minLon),
+      LatLng(route.maxLat, route.maxLon),
+    );
+    try {
+      _mapController.fitCamera(
+        CameraFit.bounds(
+          bounds: bounds,
+          padding: const EdgeInsets.all(40),
+        ),
+      );
+    } catch (_) {
+      final midPt = route.points[route.points.length ~/ 2];
+      _mapController.move(LatLng(midPt.latitude, midPt.longitude), 13.0);
+    }
+    setState(() {
+      _lastCenter = bounds.center;
+      _followUser = false;
+    });
+  }
+
+  Future<void> _saveLastMapPosition(LatLng center, double zoom) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('map_last_lat', center.latitude);
+      await prefs.setDouble('map_last_lng', center.longitude);
+      await prefs.setDouble('map_last_zoom', zoom);
+    } catch (_) {}
+  }
+
   Future<void> _requestInitialLocation() async {
+    // 1. If a planned GPX route is available, prioritize fitting the route
+    final planned = ref.read(plannedRouteProvider);
+    if (planned != null && planned.points.length >= 2 && mounted) {
+      _fitRoute(planned);
+      return;
+    }
+
+    // 2. If no planned route, attempt to get GPS location
     final pt =
         await ref.read(trackingProvider.notifier).fetchInitialLocation();
     if (pt != null && mounted) {
@@ -51,16 +92,27 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
         _followUser = true;
       });
       _mapController.move(target, 15.0);
+      return;
+    }
+
+    // 3. If no GPS and no route, restore last viewed position from storage
+    final prefs = await SharedPreferences.getInstance();
+    final savedLat = prefs.getDouble('map_last_lat');
+    final savedLng = prefs.getDouble('map_last_lng');
+    final savedZoom = prefs.getDouble('map_last_zoom') ?? 13.0;
+
+    if (savedLat != null && savedLng != null && mounted) {
+      final target = LatLng(savedLat, savedLng);
+      setState(() {
+        _lastCenter = target;
+        _followUser = false;
+      });
+      _mapController.move(target, savedZoom);
     } else {
-      final planned = ref.read(plannedRouteProvider);
-      if (planned != null && planned.points.isNotEmpty && mounted) {
-        final midPt = planned.points[planned.points.length ~/ 2];
-        final target = LatLng(midPt.latitude, midPt.longitude);
+      if (mounted) {
         setState(() {
-          _lastCenter = target;
           _followUser = false;
         });
-        _mapController.move(target, 13.0);
       }
     }
   }
@@ -74,8 +126,45 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
         _followUser = true;
       });
       _mapController.move(target, 16.0);
-    } else {
-      await _requestInitialLocation();
+      return;
+    }
+
+    final pt = await ref.read(trackingProvider.notifier).fetchInitialLocation();
+    if (pt != null && mounted) {
+      final target = LatLng(pt.latitude, pt.longitude);
+      setState(() {
+        _lastCenter = target;
+        _followUser = true;
+      });
+      _mapController.move(target, 16.0);
+      return;
+    }
+
+    // If no GPS, but planned route exists -> center on route
+    final planned = ref.read(plannedRouteProvider);
+    if (planned != null && planned.points.length >= 2) {
+      _fitRoute(planned);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('📍 GPS недоступен. Карта отцентрирована по маршруту.'),
+            backgroundColor: OutdoorTheme.signalOrange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    // If neither GPS nor route -> inform user
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('📍 Геолокация отключена. Вы можете импортировать GPX-трек или перемещаться по карте вручную.'),
+          backgroundColor: OutdoorTheme.surfaceCardElevated,
+          duration: Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -308,14 +397,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     });
 
     ref.listen<PlannedRoute?>(plannedRouteProvider, (prev, next) {
-      if (next != null && next.points.isNotEmpty && mounted) {
-        final midPt = next.points[next.points.length ~/ 2];
-        final target = LatLng(midPt.latitude, midPt.longitude);
-        setState(() {
-          _lastCenter = target;
-          _followUser = false;
-        });
-        _mapController.move(target, 13.0);
+      if (next != null && next.points.length >= 2 && mounted) {
+        _fitRoute(next);
       }
     });
 
@@ -358,10 +441,14 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               ),
               onPositionChanged: (pos, hasGesture) {
-                if (hasGesture && _followUser) {
-                  setState(() {
-                    _followUser = false;
-                  });
+                if (hasGesture) {
+                  if (_followUser) {
+                    setState(() {
+                      _followUser = false;
+                    });
+                  }
+                  _lastCenter = pos.center;
+                  _saveLastMapPosition(pos.center, pos.zoom);
                 }
               },
             ),
