@@ -13,6 +13,7 @@
   <img src="https://img.shields.io/badge/Dart-3.0%2B-0175C2?style=for-the-badge&logo=dart&logoColor=white" alt="Dart" />
   <img src="https://img.shields.io/badge/Architecture-Clean%20%2F%20Feature--First-orange?style=for-the-badge" alt="Architecture" />
   <img src="https://img.shields.io/badge/State-Riverpod-blueviolet?style=for-the-badge" alt="Riverpod" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Autonomous-success?style=for-the-badge" alt="100% Offline" />
   <img src="https://img.shields.io/badge/Tests-59%2F59%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
 </p>
