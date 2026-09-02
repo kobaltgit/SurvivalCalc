@@ -5,6 +5,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/services/qr_sync_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/widgets/fullscreen_qr_dialog.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/services/gpx_route_parser.dart';
@@ -116,32 +117,85 @@ class WebQrSyncModal extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Crisp QR Code
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              // Crisp QR Code with Click-to-Zoom
+              Tooltip(
+                message: 'Нажмите, чтобы развернуть QR-код на весь экран',
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () => FullscreenQrDialog.show(
+                      context,
+                      payload: qrPayload,
+                      title: profile.title,
+                      subtitle:
+                          '${profile.durationDays} дн. • ${profile.groupSize} чел. • ${profile.totalDistanceKm.toStringAsFixed(0)} км',
                     ),
-                  ],
-                ),
-                child: QrImageView(
-                  data: qrPayload,
-                  version: QrVersions.auto,
-                  size: 200,
-                  backgroundColor: Colors.white,
-                  eyeStyle: const QrEyeStyle(
-                    eyeShape: QrEyeShape.square,
-                    color: Color(0xFF0F1216),
-                  ),
-                  dataModuleStyle: const QrDataModuleStyle(
-                    dataModuleShape: QrDataModuleShape.square,
-                    color: Color(0xFF0F1216),
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: QrImageView(
+                            data: qrPayload,
+                            version: QrVersions.auto,
+                            size: 200,
+                            backgroundColor: Colors.white,
+                            eyeStyle: const QrEyeStyle(
+                              eyeShape: QrEyeShape.square,
+                              color: Color(0xFF0F1216),
+                            ),
+                            dataModuleStyle: const QrDataModuleStyle(
+                              dataModuleShape: QrDataModuleShape.square,
+                              color: Color(0xFF0F1216),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: OutdoorTheme.signalOrange.withValues(alpha: 0.6),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.fullscreen,
+                                size: 14,
+                                color: OutdoorTheme.signalOrange,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Нажмите для увеличения',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -270,11 +324,15 @@ class WebQrSyncModal extends StatelessWidget {
                     const SizedBox(height: 8),
                     _buildStepRow(
                       '1',
-                      'Наведите камеру смартфона из SurvivalCalc на этот QR-код — состав группы и раскладка загрузятся мгновенно.',
+                      'Нажмите на QR-код, чтобы развернуть его на весь экран для удобного и безошибочного сканирования.',
+                    ),
+                    _buildStepRow(
+                      '2',
+                      'В приложении SurvivalCalc нажмите «QR-синхронизация» — состав группы и раскладка загрузятся мгновенно.',
                     ),
                     if (plannedRoute != null)
                       _buildStepRow(
-                        '2',
+                        '3',
                         'Файл GPX скачайте кнопкой выше и отправьте участникам (через Telegram/Bluetooth) для открытия в приложении или навигаторе.',
                       ),
                   ],

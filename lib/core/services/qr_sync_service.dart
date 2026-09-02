@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/widgets/fullscreen_qr_dialog.dart';
 import 'package:survival_calc/core/widgets/qr_scanner_dialog.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
@@ -206,37 +207,90 @@ class QrSyncService {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Быстрая передача состава группы, раскладки и снаряжения (100% без интернета).',
+                  'Быстрая передача состава группы, раскладки и снаряжения (100% без интернета). Нажмите на QR-код для увеличения.',
                   style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
                 ),
                 const SizedBox(height: 16),
 
-                // QR Code Container with High-Contrast White Background
+                // QR Code Container with High-Contrast White Background & Click-to-Zoom
                 Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: OutdoorTheme.signalOrange.withValues(alpha: 0.3),
-                          blurRadius: 16,
-                          spreadRadius: 2,
+                  child: Tooltip(
+                    message: 'Нажмите, чтобы развернуть QR-код на весь экран',
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => FullscreenQrDialog.show(
+                          context,
+                          payload: payload,
+                          title: profile.title,
+                          subtitle:
+                              '${profile.durationDays} дн. • ${profile.groupSize} чел. • ${profile.totalDistanceKm.toStringAsFixed(0)} км',
                         ),
-                      ],
-                    ),
-                    child: QrImageView(
-                      data: payload,
-                      version: QrVersions.auto,
-                      size: 200.0,
-                      eyeStyle: const QrEyeStyle(
-                        eyeShape: QrEyeShape.square,
-                        color: Color(0xFF0F1216),
-                      ),
-                      dataModuleStyle: const QrDataModuleStyle(
-                        dataModuleShape: QrDataModuleShape.square,
-                        color: Color(0xFF0F1216),
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: OutdoorTheme.signalOrange.withValues(alpha: 0.3),
+                                    blurRadius: 16,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: QrImageView(
+                                data: payload,
+                                version: QrVersions.auto,
+                                size: 200.0,
+                                eyeStyle: const QrEyeStyle(
+                                  eyeShape: QrEyeShape.square,
+                                  color: Color(0xFF0F1216),
+                                ),
+                                dataModuleStyle: const QrDataModuleStyle(
+                                  dataModuleShape: QrDataModuleShape.square,
+                                  color: Color(0xFF0F1216),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: OutdoorTheme.signalOrange.withValues(alpha: 0.6),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.fullscreen,
+                                    size: 14,
+                                    color: OutdoorTheme.signalOrange,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Нажмите для увеличения',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
