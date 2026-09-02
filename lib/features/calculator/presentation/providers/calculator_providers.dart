@@ -61,8 +61,11 @@ final allGearProvider = FutureProvider<List<GearItem>>((ref) async {
 class TripProfileNotifier extends StateNotifier<TripProfile> {
   final TripRepository _repo;
 
-  TripProfileNotifier(this._repo) : super(TripProfile.createDefault()) {
-    _init();
+  TripProfileNotifier(this._repo, [TripProfile? initialProfile])
+      : super(initialProfile ?? TripProfile.createDefault()) {
+    if (initialProfile == null) {
+      _init();
+    }
   }
 
   Future<void> _init() async {
@@ -130,7 +133,9 @@ class GearCheckedNotifier extends StateNotifier<Map<String, bool>> {
 
   Future<void> _loadState() async {
     final map = await _repo.loadGearCheckedState(_currentTripId);
-    state = map;
+    if (mounted) {
+      state = map;
+    }
   }
 
   void updateTripId(String tripId) {

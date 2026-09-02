@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
@@ -6,6 +7,9 @@ import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
+import 'package:survival_calc/features/web/presentation/screens/web_landing_screen.dart';
+import 'package:survival_calc/features/web/presentation/widgets/topographic_background.dart';
+import 'package:survival_calc/features/web/presentation/widgets/web_apk_download_modal.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
@@ -17,6 +21,7 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _currentIndex = 0;
+  bool _hideWebBanner = false;
 
   void _switchTab(int index) {
     setState(() {
@@ -26,6 +31,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Wide desktop web layout
+    if (screenWidth >= 900) {
+      return const WebLandingScreen();
+    }
+
     final screens = [
       TripSetupScreen(onCalculatePressed: () => _switchTab(1)),
       DashboardScreen(
@@ -38,9 +50,73 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
+      body: TopographicBackground(
+        opacity: 0.15,
+        child: Column(
+          children: [
+            // Mobile Web promotion banner (only on Web when banner not dismissed)
+            if (kIsWeb && !_hideWebBanner)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: OutdoorTheme.surfaceCardElevated,
+                  border: const Border(
+                    bottom:
+                        BorderSide(color: OutdoorTheme.signalOrange, width: 1),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.android,
+                      size: 18,
+                      color: OutdoorTheme.signalOrange,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Доступно офлайн-приложение Android',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: OutdoorTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => WebApkDownloadModal.show(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: OutdoorTheme.signalOrange,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text(
+                        'Скачать APK',
+                        style: TextStyle(
+                            fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close,
+                          size: 14, color: OutdoorTheme.textMuted),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => setState(() => _hideWebBanner = true),
+                    ),
+                  ],
+                ),
+              ),
+
+            Expanded(
+              child: IndexedStack(
+                index: _currentIndex,
+                children: screens,
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         top: false,
@@ -72,7 +148,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               destinations: const [
                 NavigationDestination(
                   icon: Icon(Icons.tune),
-                  selectedIcon: Icon(Icons.tune, color: OutdoorTheme.signalOrange),
+                  selectedIcon:
+                      Icon(Icons.tune, color: OutdoorTheme.signalOrange),
                   label: 'Параметры',
                 ),
                 NavigationDestination(
@@ -89,14 +166,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.restaurant_menu),
-                  selectedIcon:
-                      Icon(Icons.restaurant_menu, color: OutdoorTheme.signalOrange),
+                  selectedIcon: Icon(Icons.restaurant_menu,
+                      color: OutdoorTheme.signalOrange),
                   label: 'Раскладка',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.checklist_rtl),
-                  selectedIcon:
-                      Icon(Icons.checklist_rtl, color: OutdoorTheme.signalOrange),
+                  selectedIcon: Icon(Icons.checklist_rtl,
+                      color: OutdoorTheme.signalOrange),
                   label: 'Снаряжение',
                 ),
               ],

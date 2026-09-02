@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
@@ -8,6 +9,7 @@ import 'package:survival_calc/features/tracking/domain/models/camp_debrief.dart'
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
 import 'package:survival_calc/features/tracking/domain/models/gps_point.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/tracking/domain/services/camp_debrief_calculator.dart';
 import 'package:survival_calc/features/tracking/domain/services/distance_calculator.dart';
@@ -64,6 +66,8 @@ class TrackingState {
   final int pauseSeconds;
   final String? errorMessage;
   final bool hasLocationPermission;
+  final WayPoint? lastReachedWaypoint;
+  final String? waypointNotification;
 
   const TrackingState({
     this.status = TrackingStatus.idle,
@@ -76,6 +80,8 @@ class TrackingState {
     this.pauseSeconds = 0,
     this.errorMessage,
     this.hasLocationPermission = false,
+    this.lastReachedWaypoint,
+    this.waypointNotification,
   });
 
   bool get isRecording => status == TrackingStatus.tracking;
@@ -93,6 +99,9 @@ class TrackingState {
     int? pauseSeconds,
     String? errorMessage,
     bool? hasLocationPermission,
+    WayPoint? lastReachedWaypoint,
+    String? waypointNotification,
+    bool clearWaypointNotification = false,
   }) {
     return TrackingState(
       status: status ?? this.status,
@@ -106,6 +115,11 @@ class TrackingState {
       errorMessage: errorMessage,
       hasLocationPermission:
           hasLocationPermission ?? this.hasLocationPermission,
+      lastReachedWaypoint:
+          lastReachedWaypoint ?? this.lastReachedWaypoint,
+      waypointNotification: clearWaypointNotification
+          ? null
+          : (waypointNotification ?? this.waypointNotification),
     );
   }
 }
@@ -340,10 +354,11 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     await _repository.saveActiveTrack(newTrack);
   }
 
-  /// Start simulated movement (test mode in sandbox with realistic ~4.8 km/h speed)
+  /// Start simulated movement (along loaded PlannedRoute if provided, or synthetic sandbox)
   Future<void> startSimulation({
     int? dayIndex,
     String? title,
+    PlannedRoute? route,
   }) async {
     _positionSubscription?.cancel();
     _simTimer?.cancel();
@@ -355,12 +370,15 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
       isSimulation: true,
     );
 
+    final trackTitle = title ??
+        (route != null ? 'Симуляция: ${route.name}' : dayInfo.title);
+
     final newTrack = DailyTrack(
       id: 'sim_track_${now.millisecondsSinceEpoch}',
       tripId: DailyTrack.sandboxTripId,
       dayIndex: dayIndex ?? dayInfo.dayIndex,
       segmentIndex: dayInfo.segmentIndex,
-      title: title ?? dayInfo.title,
+      title: trackTitle,
       startTime: now,
       isSimulation: true,
     );
@@ -378,66 +396,196 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
 
     _startTimer();
 
-    double lat = state.currentPoint?.latitude ?? 55.7558;
-    double lng = state.currentPoint?.longitude ?? 37.6173;
-    double alt = state.currentPoint?.altitude ?? 150.0;
+    if (route != null && route.points.isNotEmpty) {
+      // Scenario A: Move along the real GPX route points with physical hiking speed
+      int routeIndex = 0;
+      final totalRoutePoints = route.points.length;
+      final int stepIncrement = math.max(1, (totalRoutePoints / 60).ceil());
 
-    // Accelerated demo mode: 1 real second = 30 simulated seconds (traveling ~40m at ~4.8 km/h)
-    _simTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.status != TrackingStatus.tracking || state.activeTrack == null) {
-        timer.cancel();
-        return;
-      }
+      int accumulatedMovingSeconds = 0;
+      GpsPoint? previousPoint;
+      final Set<String> reachedWaypointIds = {};
+      final List<WayPoint> passedWaypoints = [];
 
-      // Step ~40 meters per tick in coordinate space
-      lat += 0.00028 + (timer.tick % 3) * 0.00004;
-      lng += 0.00032 + (timer.tick % 2) * 0.00004;
-      alt += 2.5 + (timer.tick % 4) * 0.6; // ~3m ascent per tick
-      final speed = 4.8 + (timer.tick % 5) * 0.15;
+      _simTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (state.status != TrackingStatus.tracking || state.activeTrack == null) {
+          timer.cancel();
+          return;
+        }
 
-      final pt = GpsPoint(
-        latitude: lat,
-        longitude: lng,
-        altitude: alt,
-        timestamp: DateTime.now(),
-        speedKmh: speed,
-        accuracy: 3.0,
-      );
+        final targetPoint = route.points[routeIndex];
+        routeIndex = math.min(totalRoutePoints, routeIndex + stepIncrement);
 
-      final updatedPoints = List<GpsPoint>.from(state.activeTrack!.points)
-        ..add(pt);
-      final double distanceKm =
-          _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
-      final elevation =
-          _distanceCalculator.calculateElevationProfile(updatedPoints);
+        // Calculate realistic speed from slope & terrain
+        double stepDistanceKm = 0.0;
+        double speed = 4.5;
+        if (previousPoint != null) {
+          final double dMeters = _distanceCalculator.distanceBetweenMeters(
+            previousPoint!.latitude,
+            previousPoint!.longitude,
+            targetPoint.latitude,
+            targetPoint.longitude,
+          );
+          stepDistanceKm = dMeters / 1000.0;
 
-      // Advance simulated moving time by 30 seconds per tick
-      final int simulatedMovingSeconds = timer.tick * 30;
-      final double avgMovingSpeedKmh = simulatedMovingSeconds > 0
-          ? (distanceKm / (simulatedMovingSeconds / 3600.0))
-          : speed;
-      final double maxSpeed = mathMax(state.maxSpeedKmh, speed);
+          final double altDelta = targetPoint.altitude - previousPoint!.altitude;
+          final double slope = dMeters > 5.0 ? (altDelta / dMeters) : 0.0;
 
-      final updatedTrack = state.activeTrack!.copyWith(
-        points: updatedPoints,
-        totalDistanceKm: distanceKm,
-        elevationGainMeters: elevation.gain,
-        elevationLossMeters: elevation.loss,
-        movingDurationSeconds: simulatedMovingSeconds,
-        pauseDurationSeconds: state.pauseSeconds,
-        avgMovingSpeedKmh: avgMovingSpeedKmh,
-        maxSpeedKmh: maxSpeed,
-      );
+          if (slope > 0.12) {
+            speed = 3.3 + (timer.tick % 3) * 0.1; // Steep climb
+          } else if (slope > 0.04) {
+            speed = 3.9 + (timer.tick % 4) * 0.1; // Moderate climb
+          } else if (slope < -0.15) {
+            speed = 4.1 + (timer.tick % 3) * 0.1; // Steep descent / technical
+          } else if (slope < -0.04) {
+            speed = 5.0 + (timer.tick % 4) * 0.1; // Gentle downhill
+          } else {
+            speed = 4.6 + (timer.tick % 5) * 0.1; // Flat terrain
+          }
+        }
 
-      state = state.copyWith(
-        activeTrack: updatedTrack,
-        currentPoint: pt,
-        movingSeconds: simulatedMovingSeconds,
-        totalElapsedSeconds: simulatedMovingSeconds,
-        liveSpeedKmh: speed,
-        maxSpeedKmh: maxSpeed,
-      );
-    });
+        // Advance realistic simulated moving seconds proportional to distance covered
+        final int stepSeconds = stepDistanceKm > 0.005
+            ? math.max(1, ((stepDistanceKm / speed) * 3600).round())
+            : 30;
+        accumulatedMovingSeconds += stepSeconds;
+
+        final pt = GpsPoint(
+          latitude: targetPoint.latitude,
+          longitude: targetPoint.longitude,
+          altitude: targetPoint.altitude,
+          timestamp: DateTime.now(),
+          speedKmh: speed,
+          accuracy: 3.0,
+        );
+        previousPoint = pt;
+
+        final updatedPoints = List<GpsPoint>.from(state.activeTrack!.points)
+          ..add(pt);
+        final double distanceKm =
+            _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
+        final elevation =
+            _distanceCalculator.calculateElevationProfile(updatedPoints);
+
+        final double avgMovingSpeedKmh = accumulatedMovingSeconds > 0
+            ? (distanceKm / (accumulatedMovingSeconds / 3600.0))
+            : speed;
+        final double maxSpeed = math.max(state.maxSpeedKmh, speed);
+
+        // Check for waypoints proximity along the route (within ~500m)
+        WayPoint? newlyReached;
+        String? waypointNotif;
+        for (final wp in route.waypoints) {
+          if (!reachedWaypointIds.contains(wp.id)) {
+            final double distMeters = _distanceCalculator.distanceBetweenMeters(
+              pt.latitude,
+              pt.longitude,
+              wp.latitude,
+              wp.longitude,
+            );
+            if (distMeters <= 500.0) {
+              reachedWaypointIds.add(wp.id);
+              passedWaypoints.add(wp);
+              newlyReached = wp;
+              waypointNotif = '🚩 Пройдена точка: «${wp.title}» (${wp.altitude.toInt()}м)';
+            }
+          }
+        }
+
+        final updatedTrack = state.activeTrack!.copyWith(
+          points: updatedPoints,
+          waypoints: passedWaypoints.isNotEmpty
+              ? List<WayPoint>.from(passedWaypoints)
+              : state.activeTrack!.waypoints,
+          totalDistanceKm: distanceKm,
+          elevationGainMeters: elevation.gain,
+          elevationLossMeters: elevation.loss,
+          movingDurationSeconds: accumulatedMovingSeconds,
+          pauseDurationSeconds: state.pauseSeconds,
+          avgMovingSpeedKmh: avgMovingSpeedKmh,
+          maxSpeedKmh: maxSpeed,
+        );
+
+        state = state.copyWith(
+          activeTrack: updatedTrack,
+          currentPoint: pt,
+          movingSeconds: accumulatedMovingSeconds,
+          totalElapsedSeconds: accumulatedMovingSeconds,
+          liveSpeedKmh: speed,
+          maxSpeedKmh: maxSpeed,
+          lastReachedWaypoint: newlyReached ?? state.lastReachedWaypoint,
+          waypointNotification: waypointNotif ?? state.waypointNotification,
+        );
+
+        _repository.saveActiveTrack(updatedTrack);
+
+        if (routeIndex >= totalRoutePoints) {
+          timer.cancel();
+        }
+      });
+    } else {
+      // Scenario B: Fallback synthetic step generation (4.8 km/h walking speed)
+      double lat = state.currentPoint?.latitude ?? 55.7558;
+      double lng = state.currentPoint?.longitude ?? 37.6173;
+      double alt = state.currentPoint?.altitude ?? 150.0;
+
+      // Accelerated demo mode: 1 real second = 30 simulated seconds (~40m at ~4.8 km/h)
+      _simTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (state.status != TrackingStatus.tracking || state.activeTrack == null) {
+          timer.cancel();
+          return;
+        }
+
+        // Step ~40 meters per tick in coordinate space
+        lat += 0.00028 + (timer.tick % 3) * 0.00004;
+        lng += 0.00032 + (timer.tick % 2) * 0.00004;
+        alt += 2.5 + (timer.tick % 4) * 0.6; // ~3m ascent per tick
+        final speed = 4.8 + (timer.tick % 5) * 0.15;
+
+        final pt = GpsPoint(
+          latitude: lat,
+          longitude: lng,
+          altitude: alt,
+          timestamp: DateTime.now(),
+          speedKmh: speed,
+          accuracy: 3.0,
+        );
+
+        final updatedPoints = List<GpsPoint>.from(state.activeTrack!.points)
+          ..add(pt);
+        final double distanceKm =
+            _distanceCalculator.calculateTotalDistanceKm(updatedPoints);
+        final elevation =
+            _distanceCalculator.calculateElevationProfile(updatedPoints);
+
+        // Advance simulated moving time by 30 seconds per tick
+        final int simulatedMovingSeconds = timer.tick * 30;
+        final double avgMovingSpeedKmh = simulatedMovingSeconds > 0
+            ? (distanceKm / (simulatedMovingSeconds / 3600.0))
+            : speed;
+        final double maxSpeed = math.max(state.maxSpeedKmh, speed);
+
+        final updatedTrack = state.activeTrack!.copyWith(
+          points: updatedPoints,
+          totalDistanceKm: distanceKm,
+          elevationGainMeters: elevation.gain,
+          elevationLossMeters: elevation.loss,
+          movingDurationSeconds: simulatedMovingSeconds,
+          pauseDurationSeconds: state.pauseSeconds,
+          avgMovingSpeedKmh: avgMovingSpeedKmh,
+          maxSpeedKmh: maxSpeed,
+        );
+
+        state = state.copyWith(
+          activeTrack: updatedTrack,
+          currentPoint: pt,
+          movingSeconds: simulatedMovingSeconds,
+          totalElapsedSeconds: simulatedMovingSeconds,
+          liveSpeedKmh: speed,
+          maxSpeedKmh: maxSpeed,
+        );
+      });
+    }
   }
 
   Future<void> deleteTrack(String trackId) async {

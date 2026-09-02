@@ -255,8 +255,12 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Общая дистанция:',
-                              style: TextStyle(fontSize: 14, color: OutdoorTheme.textSecondary)),
+                          const Expanded(
+                            child: Text('Общая дистанция:',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: OutdoorTheme.textSecondary)),
+                          ),
                           Text(
                             '${profile.totalDistanceKm.toStringAsFixed(0)} км',
                             style: const TextStyle(
@@ -282,8 +286,12 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Суммарный набор высоты:',
-                              style: TextStyle(fontSize: 14, color: OutdoorTheme.textSecondary)),
+                          const Expanded(
+                            child: Text('Суммарный набор высоты:',
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: OutdoorTheme.textSecondary)),
+                          ),
                           Text(
                             '${profile.totalAscentMeters.toInt()} м',
                             style: const TextStyle(
@@ -496,27 +504,34 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                           ),
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            _buildQuickStat(
-                              'Калории',
-                              '${result.targets.dailyCalories.toInt()} ккал',
-                              OutdoorTheme.signalOrange,
+                            Expanded(
+                              child: _buildQuickStat(
+                                'Калории',
+                                '${result.targets.dailyCalories.toInt()} ккал',
+                                OutdoorTheme.signalOrange,
+                              ),
                             ),
-                            _buildQuickStat(
-                              'Белки',
-                              '${result.targets.dailyProteinG.toInt()} г/д',
-                              OutdoorTheme.electricCyan,
+                            Expanded(
+                              child: _buildQuickStat(
+                                'Белки',
+                                '${result.targets.dailyProteinG.toInt()} г/д',
+                                OutdoorTheme.electricCyan,
+                              ),
                             ),
-                            _buildQuickStat(
-                              'Рюкзак',
-                              '${result.startPackWeightPerPersonKg.toStringAsFixed(1)} кг',
-                              OutdoorTheme.signalAmber,
+                            Expanded(
+                              child: _buildQuickStat(
+                                'Рюкзак',
+                                '${result.startPackWeightPerPersonKg.toStringAsFixed(1)} кг',
+                                OutdoorTheme.signalAmber,
+                              ),
                             ),
-                            _buildQuickStat(
-                              'Еда/день',
-                              '${(result.foodWeightPerPersonPerDayKg * 1000).toInt()} г',
-                              OutdoorTheme.tacticalGreen,
+                            Expanded(
+                              child: _buildQuickStat(
+                                'Еда/день',
+                                '${(result.foodWeightPerPersonPerDayKg * 1000).toInt()} г',
+                                OutdoorTheme.tacticalGreen,
+                              ),
                             ),
                           ],
                         ),
@@ -706,18 +721,23 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                         children: [
                           Row(
                             children: [
-                              Text(
-                                p.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: OutdoorTheme.textPrimary,
+                              Flexible(
+                                child: Text(
+                                  p.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: OutdoorTheme.textPrimary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 '${p.weightKg.toInt()} кг • ${p.strengthRatio}x',
-                                style: const TextStyle(fontSize: 11, color: OutdoorTheme.textMuted),
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: OutdoorTheme.textMuted),
                               ),
                             ],
                           ),

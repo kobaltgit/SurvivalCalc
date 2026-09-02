@@ -255,6 +255,42 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<TrackingState>(trackingProvider, (prev, next) {
+      if (next.waypointNotification != null &&
+          next.waypointNotification != prev?.waypointNotification &&
+          mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.flag_circle,
+                    color: OutdoorTheme.signalOrange, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    next.waypointNotification!,
+                    style: const TextStyle(
+                      color: OutdoorTheme.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: OutdoorTheme.surfaceCardElevated,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: OutdoorTheme.signalOrange, width: 1),
+            ),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    });
+
     final state = ref.watch(trackingProvider);
     final track = state.activeTrack;
     final curPt = state.currentPoint;
@@ -694,12 +730,18 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () {
-              ref.read(trackingProvider.notifier).startSimulation();
+              final plannedRoute = ref.read(plannedRouteProvider);
+              ref
+                  .read(trackingProvider.notifier)
+                  .startSimulation(route: plannedRoute);
+              final msg = plannedRoute != null
+                  ? '🧪 Симуляция по маршруту: «${plannedRoute.name}» (${plannedRoute.points.length} точек)'
+                  : '🧪 Включена симуляция движения в песочнице (5 км/ч)';
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('🧪 Включена симуляция движения по маршруту (5 км/ч)'),
+                SnackBar(
+                  content: Text(msg),
                   backgroundColor: OutdoorTheme.signalOrange,
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 3),
                 ),
               );
             },
