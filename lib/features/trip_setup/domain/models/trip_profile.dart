@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:survival_calc/core/enums/trip_enums.dart';
+import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 
 class TripProfile {
   final String id;
@@ -19,6 +20,20 @@ class TripProfile {
   final String emergencyExitRoutes;
   final String mkkName;
 
+  // New MKK 2020 Standard Fields
+  final String routeBookNumber;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String mchsRegNumber;
+  final String coordinatorName;
+  final String coordinatorPhone;
+  final String coordinatorEmail;
+  final String satellitePhone;
+  final String communicationSchedule;
+  final String deputyLeaderName;
+  final String deputyLeaderPhone;
+  final List<PlannedDaySchedule> plannedItinerary;
+
   const TripProfile({
     required this.id,
     this.title = 'Новый поход',
@@ -36,6 +51,18 @@ class TripProfile {
     this.geographicalRegion = '',
     this.emergencyExitRoutes = '',
     this.mkkName = '',
+    this.routeBookNumber = '',
+    this.startDate,
+    this.endDate,
+    this.mchsRegNumber = '',
+    this.coordinatorName = '',
+    this.coordinatorPhone = '',
+    this.coordinatorEmail = '',
+    this.satellitePhone = '',
+    this.communicationSchedule = '',
+    this.deputyLeaderName = '',
+    this.deputyLeaderPhone = '',
+    this.plannedItinerary = const [],
   });
 
   TripProfile copyWith({
@@ -55,6 +82,18 @@ class TripProfile {
     String? geographicalRegion,
     String? emergencyExitRoutes,
     String? mkkName,
+    String? routeBookNumber,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? mchsRegNumber,
+    String? coordinatorName,
+    String? coordinatorPhone,
+    String? coordinatorEmail,
+    String? satellitePhone,
+    String? communicationSchedule,
+    String? deputyLeaderName,
+    String? deputyLeaderPhone,
+    List<PlannedDaySchedule>? plannedItinerary,
   }) {
     return TripProfile(
       id: id ?? this.id,
@@ -74,6 +113,19 @@ class TripProfile {
       geographicalRegion: geographicalRegion ?? this.geographicalRegion,
       emergencyExitRoutes: emergencyExitRoutes ?? this.emergencyExitRoutes,
       mkkName: mkkName ?? this.mkkName,
+      routeBookNumber: routeBookNumber ?? this.routeBookNumber,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      mchsRegNumber: mchsRegNumber ?? this.mchsRegNumber,
+      coordinatorName: coordinatorName ?? this.coordinatorName,
+      coordinatorPhone: coordinatorPhone ?? this.coordinatorPhone,
+      coordinatorEmail: coordinatorEmail ?? this.coordinatorEmail,
+      satellitePhone: satellitePhone ?? this.satellitePhone,
+      communicationSchedule:
+          communicationSchedule ?? this.communicationSchedule,
+      deputyLeaderName: deputyLeaderName ?? this.deputyLeaderName,
+      deputyLeaderPhone: deputyLeaderPhone ?? this.deputyLeaderPhone,
+      plannedItinerary: plannedItinerary ?? this.plannedItinerary,
     );
   }
 
@@ -95,6 +147,18 @@ class TripProfile {
       'geographicalRegion': geographicalRegion,
       'emergencyExitRoutes': emergencyExitRoutes,
       'mkkName': mkkName,
+      'routeBookNumber': routeBookNumber,
+      'startDate': startDate?.toIso8601String(),
+      'endDate': endDate?.toIso8601String(),
+      'mchsRegNumber': mchsRegNumber,
+      'coordinatorName': coordinatorName,
+      'coordinatorPhone': coordinatorPhone,
+      'coordinatorEmail': coordinatorEmail,
+      'satellitePhone': satellitePhone,
+      'communicationSchedule': communicationSchedule,
+      'deputyLeaderName': deputyLeaderName,
+      'deputyLeaderPhone': deputyLeaderPhone,
+      'plannedItinerary': plannedItinerary.map((d) => d.toMap()).toList(),
     };
   }
 
@@ -120,6 +184,25 @@ class TripProfile {
       geographicalRegion: map['geographicalRegion'] as String? ?? '',
       emergencyExitRoutes: map['emergencyExitRoutes'] as String? ?? '',
       mkkName: map['mkkName'] as String? ?? '',
+      routeBookNumber: map['routeBookNumber'] as String? ?? '',
+      startDate: map['startDate'] != null
+          ? DateTime.tryParse(map['startDate'] as String)
+          : null,
+      endDate: map['endDate'] != null
+          ? DateTime.tryParse(map['endDate'] as String)
+          : null,
+      mchsRegNumber: map['mchsRegNumber'] as String? ?? '',
+      coordinatorName: map['coordinatorName'] as String? ?? '',
+      coordinatorPhone: map['coordinatorPhone'] as String? ?? '',
+      coordinatorEmail: map['coordinatorEmail'] as String? ?? '',
+      satellitePhone: map['satellitePhone'] as String? ?? '',
+      communicationSchedule: map['communicationSchedule'] as String? ?? '',
+      deputyLeaderName: map['deputyLeaderName'] as String? ?? '',
+      deputyLeaderPhone: map['deputyLeaderPhone'] as String? ?? '',
+      plannedItinerary: (map['plannedItinerary'] as List<dynamic>?)
+              ?.map((e) => PlannedDaySchedule.fromMap(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
@@ -145,6 +228,18 @@ class TripProfile {
       geographicalRegion: '',
       emergencyExitRoutes: '',
       mkkName: '',
+      routeBookNumber: '',
+      startDate: null,
+      endDate: null,
+      mchsRegNumber: '',
+      coordinatorName: '',
+      coordinatorPhone: '',
+      coordinatorEmail: '',
+      satellitePhone: '',
+      communicationSchedule: '',
+      deputyLeaderName: '',
+      deputyLeaderPhone: '',
+      plannedItinerary: const [],
     );
   }
 }

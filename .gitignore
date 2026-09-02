@@ -47,3 +47,9 @@ raw-sources/PresentationSurvivalCalc.ai
 raw-sources/SurvivalCalc_Tactical_Navigator.pdf
 .kotlin/
 android/.kotlin/
+raw-sources/Маршрутная-книжка-электронная-2020.docx
+.gitignore
+.gitignore
+.gitignore
+tool/read_docx.dart
+wiki/mkk_book_2020_dump.txt

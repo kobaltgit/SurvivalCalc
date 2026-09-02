@@ -137,14 +137,14 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
               const Divider(color: OutdoorTheme.borderSubtle),
               const SizedBox(height: 12),
 
-              // Document 1: Pre-trip Passport
+              // Document 1: Pre-trip Passport / Form No. 5 Tour
               _buildDocCard(
                 context: context,
                 isLoading: _isGeneratingPassport,
                 icon: Icons.menu_book,
                 badgeColor: OutdoorTheme.signalOrange,
-                title: '📕 Предпоходный паспорт (Маршрутная книжка)',
-                subtitle: 'Заявочный документ до старта: реквизиты МКК, состав группы, весовая ведомость, схема питания и раскладки.',
+                title: '📕 Маршрутная книжка (Форма № 5 – Тур, ФСТР 2020)',
+                subtitle: 'Официальный заявочный бланк ФСТР: титул МЧС, состав группы с ПДн, заявленный график по дням, норматив веса М/Ж (п. 4.6), координатор и штампы МКК.',
                 onPrint: () async {
                   setState(() => _isGeneratingPassport = true);
                   try {
@@ -156,7 +156,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                     final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
                     await FileSaverService.openPdfInViewer(
                       bytes: pdfBytes,
-                      filename: 'Passport_MKK_$safeTitle.pdf',
+                      filename: 'RouteBook_Form5_$safeTitle.pdf',
                     );
                   } catch (e) {
                     if (context.mounted) {
@@ -182,9 +182,9 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                     final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
                     await FileSaverService.saveAndShareFile(
                       bytes: pdfBytes,
-                      filename: 'Passport_MKK_$safeTitle.pdf',
+                      filename: 'RouteBook_Form5_$safeTitle.pdf',
                       mimeType: 'application/pdf',
-                      subject: 'Маршрутная книжка: ${tripProfile.title}',
+                      subject: 'Маршрутная книжка (Форма № 5 - Тур): ${tripProfile.title}',
                     );
                     if (context.mounted && kIsWeb) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,7 +216,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                   Clipboard.setData(ClipboardData(text: md));
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('📋 Предпоходный паспорт скопирован в буфер обмена (готово для Word)!'),
+                      content: Text('📋 Маршрутная книжка скопирована в буфер обмена (Markdown / Word)!'),
                       backgroundColor: OutdoorTheme.tacticalGreen,
                     ),
                   );

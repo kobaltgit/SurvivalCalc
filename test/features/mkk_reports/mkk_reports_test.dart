@@ -156,7 +156,8 @@ void main() {
       expect(md, contains('МКК ФСТ-ОТМ'));
       expect(md, contains('Смирнов Алексей Викторович'));
       expect(md, contains('3ГУ (рук), 4ГУ (уч)'));
-      expect(md, contains('Сводная весовая ведомость'));
+      expect(md, contains('МАТЕРИАЛЬНОЕ ОБЕСПЕЧЕНИЕ И ВЕСОВЫЕ ХАРАКТЕРИСТИКИ'));
+      expect(md, contains('Персональная весовая ведомость'));
     });
 
     test('generatePostTripReportMarkdown contains Plan/Fact, Tracks and Waypoints', () {

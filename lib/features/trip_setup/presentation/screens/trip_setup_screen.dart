@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
@@ -12,6 +13,7 @@ import 'package:survival_calc/features/tracking/presentation/providers/planned_r
 import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_dialog.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/offline_maps_sheet.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
+import 'package:survival_calc/features/trip_setup/presentation/dialogs/planned_itinerary_dialog.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/save_trip_dialog.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/trip_library_sheet.dart';
 import 'package:survival_calc/features/wiki/presentation/screens/wiki_screen.dart';
@@ -672,12 +674,19 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
   }
 
   Widget _buildMkkSection(BuildContext context, TripProfile profile, WidgetRef ref) {
+    final dateFormat = DateFormat('dd.MM.yyyy');
+    final datesLabel = (profile.startDate != null && profile.endDate != null)
+        ? '${dateFormat.format(profile.startDate!)} – ${dateFormat.format(profile.endDate!)}'
+        : 'Указать точные даты похода';
+
     return Card(
       child: ExpansionTile(
-        initiallyExpanded: profile.clubOrCity.isNotEmpty || profile.difficultyCategory != 'н/к',
+        initiallyExpanded: profile.clubOrCity.isNotEmpty ||
+            profile.difficultyCategory != 'н/к' ||
+            profile.routeBookNumber.isNotEmpty,
         leading: const Icon(Icons.military_tech, color: OutdoorTheme.signalOrange),
         title: const Text(
-          '🏅 Спортивный туризм и реквизиты МКК',
+          '🏅 Спортивный туризм и реквизиты МКК (ФСТР 2020)',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -685,13 +694,13 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
           ),
         ),
         subtitle: Text(
-          'Кат. сл.: ${profile.difficultyCategory} • ${profile.clubOrCity.isNotEmpty ? profile.clubOrCity : "Клуб не указан"}',
+          'Кат. сл.: ${profile.difficultyCategory} • ${profile.routeBookNumber.isNotEmpty ? "Книжка № ${profile.routeBookNumber}" : (profile.clubOrCity.isNotEmpty ? profile.clubOrCity : "Не заполнено")}',
           style: const TextStyle(fontSize: 11, color: OutdoorTheme.textSecondary),
         ),
         childrenPadding: const EdgeInsets.all(16),
         children: [
           Text(
-            'Заполните официальные данные для маршрутной книжки и отчета МКК:',
+            'Официальные данные для Маршрутной книжки (Форма № 5 – Тур) и МЧС:',
             style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
           ),
           const SizedBox(height: 12),
@@ -717,6 +726,84 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             }).toList(),
           ),
           const SizedBox(height: 12),
+
+          // Row: Route Book Number & MCHS Reg Number
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: profile.routeBookNumber,
+                  decoration: const InputDecoration(
+                    labelText: 'Маршрутная книжка №',
+                    prefixIcon: Icon(Icons.bookmark_border),
+                    isDense: true,
+                  ),
+                  onChanged: (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(routeBookNumber: val.trim());
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  initialValue: profile.mchsRegNumber,
+                  decoration: const InputDecoration(
+                    labelText: 'Рег. номер МЧС РФ',
+                    prefixIcon: Icon(Icons.emergency_outlined),
+                    isDense: true,
+                  ),
+                  onChanged: (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(mchsRegNumber: val.trim());
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Date Range Picker Button
+          OutlinedButton.icon(
+            onPressed: () async {
+              final now = DateTime.now();
+              final initialRange = (profile.startDate != null && profile.endDate != null)
+                  ? DateTimeRange(start: profile.startDate!, end: profile.endDate!)
+                  : DateTimeRange(start: now, end: now.add(Duration(days: profile.durationDays - 1)));
+
+              final picked = await showDateRangePicker(
+                context: context,
+                firstDate: now.subtract(const Duration(days: 365)),
+                lastDate: now.add(const Duration(days: 730)),
+                initialDateRange: initialRange,
+                builder: (context, child) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      colorScheme: const ColorScheme.dark(
+                        primary: OutdoorTheme.signalOrange,
+                        onPrimary: Colors.white,
+                        surface: OutdoorTheme.darkBackground,
+                        onSurface: OutdoorTheme.textPrimary,
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
+              );
+
+              if (picked != null) {
+                ref.read(activeTripProfileProvider.notifier).updateMkkDetails(
+                      startDate: picked.start,
+                      endDate: picked.end,
+                    );
+              }
+            },
+            icon: const Icon(Icons.calendar_month_outlined, size: 18),
+            label: Text('Сроки похода: $datesLabel'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: OutdoorTheme.textPrimary,
+              alignment: Alignment.centerLeft,
+            ),
+          ),
+          const SizedBox(height: 10),
 
           TextFormField(
             initialValue: profile.clubOrCity,
@@ -771,16 +858,107 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
           ),
           const SizedBox(height: 12),
 
+          // Communication & Coordinator Sub-block
+          const Text(
+            '📡 Связь и городской координатор (Раздел 6):',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: OutdoorTheme.signalOrange),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: profile.coordinatorName,
+                  decoration: const InputDecoration(
+                    labelText: 'ФИО координатора в городе',
+                    prefixIcon: Icon(Icons.person_pin_outlined),
+                    isDense: true,
+                  ),
+                  onChanged: (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(coordinatorName: val.trim());
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  initialValue: profile.coordinatorPhone,
+                  decoration: const InputDecoration(
+                    labelText: 'Телефон координатора',
+                    prefixIcon: Icon(Icons.phone_in_talk_outlined),
+                    isDense: true,
+                  ),
+                  onChanged: (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(coordinatorPhone: val.trim());
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: profile.satellitePhone,
+                  decoration: const InputDecoration(
+                    labelText: 'Спутниковый тел. / Трекер группы',
+                    prefixIcon: Icon(Icons.satellite_alt_outlined),
+                    isDense: true,
+                  ),
+                  onChanged: (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(satellitePhone: val.trim());
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextFormField(
+                  initialValue: profile.communicationSchedule,
+                  decoration: const InputDecoration(
+                    labelText: 'График сеансов связи',
+                    prefixIcon: Icon(Icons.access_time_outlined),
+                    isDense: true,
+                  ),
+                  onChanged: (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(communicationSchedule: val.trim());
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Button 1: Planned Itinerary Editor (Section 3)
+          OutlinedButton.icon(
+            onPressed: () => PlannedItineraryDialog.show(context, profile),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: OutdoorTheme.textPrimary,
+              side: const BorderSide(color: OutdoorTheme.borderSubtle),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+            ),
+            icon: const Icon(Icons.calendar_view_day_outlined, size: 18),
+            label: Text(
+              profile.plannedItinerary.isNotEmpty
+                  ? 'График движения по дням (${profile.plannedItinerary.length} дн. настроено)'
+                  : 'Заполнить график движения по дням (Раздел 3)',
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // Button 2: Export Documents Sheet
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
+            child: ElevatedButton.icon(
               onPressed: () => MkkExportSheet.show(context),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: OutdoorTheme.signalOrange,
-                side: const BorderSide(color: OutdoorTheme.signalOrange),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: OutdoorTheme.signalOrange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               icon: const Icon(Icons.picture_as_pdf, size: 18),
-              label: const Text('Сформировать документы МКК (PDF / ZIP)'),
+              label: const Text('Сформировать Маршрутную книжку (PDF / ZIP)'),
             ),
           ),
         ],
@@ -1323,9 +1501,9 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                     ),
                     const Divider(height: 24),
 
-                    // MKK and Sports Tourism Fields
+                    // MKK and Sports Tourism Fields (FSTR 2020)
                     const Text(
-                      '📋 Данные для МКК и маршрутной книжки:',
+                      '📋 Анкета для Маршрутной книжки (ФСТР 2020):',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -1333,6 +1511,43 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
+
+                    // Gender Selector (for sport weight limit calculation)
+                    Row(
+                      children: [
+                        const Text('Пол участника:', style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary)),
+                        const SizedBox(width: 10),
+                        ChoiceChip(
+                          label: const Text('👨 Мужчина'),
+                          selected: currentP.gender == Gender.male,
+                          onSelected: (val) {
+                            if (val) {
+                              ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                                    id: p.id,
+                                    gender: Gender.male,
+                                  );
+                              setModalState(() {});
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: const Text('👩 Женщина'),
+                          selected: currentP.gender == Gender.female,
+                          onSelected: (val) {
+                            if (val) {
+                              ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                                    id: p.id,
+                                    gender: Gender.female,
+                                  );
+                              setModalState(() {});
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
                     TextFormField(
                       initialValue: currentP.fullName,
                       decoration: const InputDecoration(
@@ -1348,25 +1563,54 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: currentP.touristExperience,
-                      decoration: const InputDecoration(
-                        labelText: 'Туристский опыт (к.с., перевалы)',
-                        prefixIcon: Icon(Icons.hiking_outlined),
-                        isDense: true,
-                      ),
-                      onChanged: (val) {
-                        ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
-                          id: p.id,
-                          touristExperience: val.trim(),
-                        );
-                      },
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: TextFormField(
+                            initialValue: currentP.birthYear?.toString() ?? '',
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: 'Год рожд.',
+                              prefixIcon: Icon(Icons.cake_outlined),
+                              isDense: true,
+                            ),
+                            onChanged: (val) {
+                              final yr = int.tryParse(val.trim());
+                              ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                                    id: p.id,
+                                    birthYear: yr,
+                                  );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            initialValue: currentP.cityRegion,
+                            decoration: const InputDecoration(
+                              labelText: 'Город / Субъект РФ',
+                              prefixIcon: Icon(Icons.location_city_outlined),
+                              isDense: true,
+                            ),
+                            onChanged: (val) {
+                              ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                                    id: p.id,
+                                    cityRegion: val.trim(),
+                                  );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
+
                     TextFormField(
                       initialValue: currentP.contactPhone,
                       decoration: const InputDecoration(
-                        labelText: 'Телефон / Экстренный контакт',
+                        labelText: 'Личный телефон участника',
                         prefixIcon: Icon(Icons.phone_outlined),
                         isDense: true,
                       ),
@@ -1374,6 +1618,38 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                         ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
                           id: p.id,
                           contactPhone: val.trim(),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+
+                    TextFormField(
+                      initialValue: currentP.emergencyContactRelatives,
+                      decoration: const InputDecoration(
+                        labelText: 'Контакты родственников (ФИО, телефон, родство)',
+                        prefixIcon: Icon(Icons.contact_phone_outlined),
+                        isDense: true,
+                      ),
+                      onChanged: (val) {
+                        ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                              id: p.id,
+                              emergencyContactRelatives: val.trim(),
+                            );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+
+                    TextFormField(
+                      initialValue: currentP.touristExperience,
+                      decoration: const InputDecoration(
+                        labelText: 'Туристский опыт (к.с., перевалы, Р/У)',
+                        prefixIcon: Icon(Icons.hiking_outlined),
+                        isDense: true,
+                      ),
+                      onChanged: (val) {
+                        ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                          id: p.id,
+                          touristExperience: val.trim(),
                         );
                       },
                     ),

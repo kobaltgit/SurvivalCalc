@@ -18,6 +18,12 @@ class Participant {
   final String touristExperience;
   final String contactPhone;
 
+  // New MKK 2020 Standard Fields
+  final Gender gender;
+  final int? birthYear;
+  final String cityRegion;
+  final String emergencyContactRelatives;
+
   const Participant({
     required this.id,
     required this.name,
@@ -33,16 +39,22 @@ class Participant {
     this.fullName = '',
     this.touristExperience = '',
     this.contactPhone = '',
+    this.gender = Gender.male,
+    this.birthYear,
+    this.cityRegion = '',
+    this.emergencyContactRelatives = '',
   });
 
   /// Display name (full name if provided, otherwise standard name)
   String get displayName => fullName.trim().isNotEmpty ? fullName : name;
 
   /// True if this participant requires an isolated/individual meal pack
-  bool get hasSpecialDiet => dietaryRestrictions.any((d) => d != DietaryRestriction.none);
+  bool get hasSpecialDiet =>
+      dietaryRestrictions.any((d) => d != DietaryRestriction.none);
 
   /// True if participant has medical conditions requiring specific first-aid meds
-  bool get hasMedicalNeeds => medicalConditions.any((m) => m != MedicalCondition.none);
+  bool get hasMedicalNeeds =>
+      medicalConditions.any((m) => m != MedicalCondition.none);
 
   /// Total assigned group gear weight in kg
   double get assignedGroupGearWeightKg {
@@ -78,6 +90,10 @@ class Participant {
     String? fullName,
     String? touristExperience,
     String? contactPhone,
+    Gender? gender,
+    int? birthYear,
+    String? cityRegion,
+    String? emergencyContactRelatives,
   }) {
     return Participant(
       id: id ?? this.id,
@@ -94,6 +110,11 @@ class Participant {
       fullName: fullName ?? this.fullName,
       touristExperience: touristExperience ?? this.touristExperience,
       contactPhone: contactPhone ?? this.contactPhone,
+      gender: gender ?? this.gender,
+      birthYear: birthYear ?? this.birthYear,
+      cityRegion: cityRegion ?? this.cityRegion,
+      emergencyContactRelatives:
+          emergencyContactRelatives ?? this.emergencyContactRelatives,
     );
   }
 
@@ -113,6 +134,10 @@ class Participant {
       'fullName': fullName,
       'touristExperience': touristExperience,
       'contactPhone': contactPhone,
+      'gender': gender.name,
+      'birthYear': birthYear,
+      'cityRegion': cityRegion,
+      'emergencyContactRelatives': emergencyContactRelatives,
     };
   }
 
@@ -138,6 +163,13 @@ class Participant {
       fullName: map['fullName'] as String? ?? '',
       touristExperience: map['touristExperience'] as String? ?? '',
       contactPhone: map['contactPhone'] as String? ?? '',
+      gender: map['gender'] != null
+          ? Gender.fromString(map['gender'].toString())
+          : Gender.male,
+      birthYear: (map['birthYear'] as num?)?.toInt(),
+      cityRegion: map['cityRegion'] as String? ?? '',
+      emergencyContactRelatives:
+          map['emergencyContactRelatives'] as String? ?? '',
     );
   }
 }

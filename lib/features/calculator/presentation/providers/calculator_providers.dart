@@ -12,6 +12,7 @@ import 'package:survival_calc/features/ration/data/repositories/food_repository.
 import 'package:survival_calc/features/ration/domain/models/daily_ration.dart';
 import 'package:survival_calc/features/ration/domain/models/food_item.dart';
 import 'package:survival_calc/features/trip_setup/data/repositories/trip_repository.dart';
+import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 
 // --- Repositories and Services ---
@@ -126,6 +127,18 @@ class TripProfileNotifier extends StateNotifier<TripProfile> {
     String? geographicalRegion,
     String? emergencyExitRoutes,
     String? mkkName,
+    String? routeBookNumber,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? mchsRegNumber,
+    String? coordinatorName,
+    String? coordinatorPhone,
+    String? coordinatorEmail,
+    String? satellitePhone,
+    String? communicationSchedule,
+    String? deputyLeaderName,
+    String? deputyLeaderPhone,
+    List<PlannedDaySchedule>? plannedItinerary,
   }) {
     updateProfile(state.copyWith(
       clubOrCity: clubOrCity,
@@ -133,6 +146,18 @@ class TripProfileNotifier extends StateNotifier<TripProfile> {
       geographicalRegion: geographicalRegion,
       emergencyExitRoutes: emergencyExitRoutes,
       mkkName: mkkName,
+      routeBookNumber: routeBookNumber,
+      startDate: startDate,
+      endDate: endDate,
+      mchsRegNumber: mchsRegNumber,
+      coordinatorName: coordinatorName,
+      coordinatorPhone: coordinatorPhone,
+      coordinatorEmail: coordinatorEmail,
+      satellitePhone: satellitePhone,
+      communicationSchedule: communicationSchedule,
+      deputyLeaderName: deputyLeaderName,
+      deputyLeaderPhone: deputyLeaderPhone,
+      plannedItinerary: plannedItinerary,
     ));
   }
 }
@@ -431,6 +456,10 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
     String? fullName,
     String? touristExperience,
     String? contactPhone,
+    Gender? gender,
+    int? birthYear,
+    String? cityRegion,
+    String? emergencyContactRelatives,
   }) {
     state = state.map((p) {
       if (p.id != id) return p;
@@ -438,6 +467,11 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
         fullName: fullName ?? p.fullName,
         touristExperience: touristExperience ?? p.touristExperience,
         contactPhone: contactPhone ?? p.contactPhone,
+        gender: gender ?? p.gender,
+        birthYear: birthYear ?? p.birthYear,
+        cityRegion: cityRegion ?? p.cityRegion,
+        emergencyContactRelatives:
+            emergencyContactRelatives ?? p.emergencyContactRelatives,
       );
     }).toList();
     _persist();

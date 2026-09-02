@@ -452,3 +452,40 @@ enum TripRole {
     }
   }
 }
+
+enum Gender {
+  male,
+  female;
+
+  String get displayNameRu {
+    switch (this) {
+      case Gender.male:
+        return 'Мужчина';
+      case Gender.female:
+        return 'Женщина';
+    }
+  }
+
+  String get shortNameRu {
+    switch (this) {
+      case Gender.male:
+        return 'М';
+      case Gender.female:
+        return 'Ж';
+    }
+  }
+
+  static Gender fromString(String val) {
+    switch (val.toLowerCase()) {
+      case 'female':
+      case 'женщина':
+      case 'ж':
+        return Gender.female;
+      case 'male':
+      case 'мужчина':
+      case 'м':
+      default:
+        return Gender.male;
+    }
+  }
+}

@@ -380,7 +380,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 tileDisplay: const TileDisplay.fadeIn(
                   duration: Duration(milliseconds: 150),
                 ),
-                userAgentPackageName: 'com.survivalcalc.app',
+                additionalOptions: const <String, String>{
+                  'User-Agent': 'com.survivalcalc.app',
+                },
               ),
               // Planned GPX Route Layer (Cyan)
               if (plannedPoints.isNotEmpty)

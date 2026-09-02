@@ -13,8 +13,8 @@ class CachedTileProvider extends TileProvider {
   }) : super(
           headers: headers ??
               (kIsWeb
-                  ? const <String, String>{}
-                  : const <String, String>{
+                  ? <String, String>{}
+                  : <String, String>{
                       'User-Agent': 'SurvivalCalc/1.0.0 (https://github.com/kobaltgit/SurvivalCalc; contact@survivalcalc.app)',
                       'Accept': 'image/webp,image/png,image/jpeg,*/*',
                     }),
