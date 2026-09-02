@@ -357,21 +357,25 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                   markers: plannedRoute.waypoints.map((wp) {
                     return Marker(
                       point: LatLng(wp.latitude, wp.longitude),
-                      width: 32,
-                      height: 32,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: _getWaypointColor(wp.type),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.cyanAccent, width: 2),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black45, blurRadius: 4),
-                          ],
-                        ),
-                        child: Icon(
-                          _getWaypointIcon(wp.type),
-                          color: Colors.white,
-                          size: 16,
+                      width: 34,
+                      height: 34,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => WaypointDetailsSheet.show(context, wp),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _getWaypointColor(wp.type),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.cyanAccent, width: 2),
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black45, blurRadius: 4),
+                            ],
+                          ),
+                          child: Icon(
+                            _getWaypointIcon(wp.type),
+                            color: Colors.white,
+                            size: 17,
+                          ),
                         ),
                       ),
                     );

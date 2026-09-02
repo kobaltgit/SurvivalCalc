@@ -85,6 +85,8 @@ class GpxRouteParser {
       if (lat == null || lon == null) continue;
 
       final name = wpt.findElements('name').firstOrNull?.innerText ?? 'Точка';
+      final desc = wpt.findElements('desc').firstOrNull?.innerText ?? '';
+      final cmt = wpt.findElements('cmt').firstOrNull?.innerText ?? '';
       final eleText = wpt.findElements('ele').firstOrNull?.innerText;
       final ele = eleText != null ? double.tryParse(eleText) ?? 0.0 : 0.0;
       final sym = wpt.findElements('sym').firstOrNull?.innerText.toLowerCase() ?? '';
@@ -95,22 +97,92 @@ class GpxRouteParser {
       if (lon < minLon) minLon = lon;
       if (lon > maxLon) maxLon = lon;
 
+      final combined = '$name $desc $cmt $sym $typeStr'.toLowerCase();
+
       WayPointType wpType = WayPointType.other;
-      if (typeStr.contains('camp') || sym.contains('camp')) {
+      if (combined.contains('camp') ||
+          combined.contains('лагер') ||
+          combined.contains('приют') ||
+          combined.contains('ночевк') ||
+          combined.contains('стоян') ||
+          combined.contains('бивак') ||
+          combined.contains('бивуак') ||
+          combined.contains('база') ||
+          combined.contains('изба') ||
+          combined.contains('кордон') ||
+          combined.contains('палатк') ||
+          combined.contains('кемпинг') ||
+          combined.contains('shelter') ||
+          combined.contains('cabin') ||
+          combined.contains('hut') ||
+          combined.contains('турбаза')) {
         wpType = WayPointType.camp;
-      } else if (typeStr.contains('water') || sym.contains('water') || name.toLowerCase().contains('родник')) {
+      } else if (combined.contains('water') ||
+          combined.contains('родник') ||
+          combined.contains('источник') ||
+          combined.contains('ручей') ||
+          combined.contains('река') ||
+          combined.contains('озер') ||
+          combined.contains('ключ') ||
+          combined.contains('колодец') ||
+          combined.contains('водопад') ||
+          combined.contains('spring') ||
+          combined.contains('stream') ||
+          combined.contains('creek') ||
+          combined.contains('lake') ||
+          combined.contains('river') ||
+          combined.contains('well') ||
+          combined.contains('пруд') ||
+          combined.contains('водоем')) {
         wpType = WayPointType.water;
-      } else if (typeStr.contains('pass') || sym.contains('peak') || name.toLowerCase().contains('перевал') || name.toLowerCase().contains('вершина')) {
+      } else if (combined.contains('pass') ||
+          combined.contains('peak') ||
+          combined.contains('summit') ||
+          combined.contains('mountain') ||
+          combined.contains('перевал') ||
+          combined.contains('вершин') ||
+          combined.contains('пик') ||
+          combined.contains('гора') ||
+          combined.contains('хребет') ||
+          combined.contains('сопк') ||
+          combined.contains('холм') ||
+          combined.contains('седловин') ||
+          combined.contains('скал') ||
+          combined.contains('пер. ') ||
+          combined.contains('пер.') ||
+          combined.contains('г. ')) {
         wpType = WayPointType.pass;
-      } else if (typeStr.contains('danger') || sym.contains('danger') || name.toLowerCase().contains('опасн')) {
+      } else if (combined.contains('danger') ||
+          combined.contains('hazard') ||
+          combined.contains('опасн') ||
+          combined.contains('брод') ||
+          combined.contains('завал') ||
+          combined.contains('курум') ||
+          combined.contains('обрыв') ||
+          combined.contains('переправ') ||
+          combined.contains('сыпух') ||
+          combined.contains('ледник') ||
+          combined.contains('болот') ||
+          combined.contains('порог') ||
+          combined.contains('ford') ||
+          combined.contains('swamp')) {
         wpType = WayPointType.obstacle;
-      } else if (typeStr.contains('view') || name.toLowerCase().contains('обзор')) {
+      } else if (combined.contains('view') ||
+          combined.contains('обзор') ||
+          combined.contains('смотров') ||
+          combined.contains('панорам') ||
+          combined.contains('lookout') ||
+          combined.contains('scenic') ||
+          combined.contains('вышка')) {
         wpType = WayPointType.viewpoint;
       }
+
+      final noteText = desc.isNotEmpty ? desc : (cmt.isNotEmpty ? cmt : null);
 
       waypoints.add(WayPoint(
         id: 'wpt_${waypoints.length + 1}',
         title: name,
+        note: noteText,
         latitude: lat,
         longitude: lon,
         altitude: ele,
