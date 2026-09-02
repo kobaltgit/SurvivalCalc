@@ -1,7 +1,17 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <base href="$FLUTTER_BASE_HREF">
+  <script>
+    (function () {
+      var base = document.createElement('base');
+      if (window.location.pathname.startsWith('/SurvivalCalc')) {
+        base.href = '/SurvivalCalc/';
+      } else {
+        base.href = '/';
+      }
+      document.head.appendChild(base);
+    })();
+  </script>
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
