@@ -14,3 +14,12 @@ Future<void> downloadFileToDevice({
     ..click();
   html.Url.revokeObjectUrl(url);
 }
+
+Future<void> openPdfInViewer({
+  required List<int> bytes,
+  required String filename,
+}) async {
+  final blob = html.Blob([bytes], 'application/pdf');
+  final url = html.Url.createObjectUrlFromBlob(blob);
+  html.window.open(url, '_blank');
+}

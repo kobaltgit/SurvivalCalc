@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> downloadFileToDevice({
@@ -19,5 +21,15 @@ Future<void> downloadFileToDevice({
       subject: subject,
       text: subject,
     ),
+  );
+}
+
+Future<void> openPdfInViewer({
+  required List<int> bytes,
+  required String filename,
+}) async {
+  await Printing.layoutPdf(
+    onLayout: (format) => Uint8List.fromList(bytes),
+    name: filename,
   );
 }

@@ -16,4 +16,14 @@ class FileSaverService {
       subject: subject,
     );
   }
+
+  static Future<void> openPdfInViewer({
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    await impl.openPdfInViewer(
+      bytes: bytes,
+      filename: filename,
+    );
+  }
 }

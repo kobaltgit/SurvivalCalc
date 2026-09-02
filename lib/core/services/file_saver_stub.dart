@@ -6,3 +6,10 @@ Future<void> downloadFileToDevice({
 }) async {
   throw UnsupportedError('Platform not supported');
 }
+
+Future<void> openPdfInViewer({
+  required List<int> bytes,
+  required String filename,
+}) async {
+  throw UnsupportedError('Platform not supported');
+}

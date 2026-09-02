@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:printing/printing.dart';
 import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
@@ -123,9 +122,10 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                       participants: participants,
                       calcResult: calcResult,
                     );
-                    await Printing.layoutPdf(
-                      onLayout: (format) => pdfBytes,
-                      name: 'Passport_MKK_${tripProfile.title}.pdf',
+                    final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
+                    await FileSaverService.openPdfInViewer(
+                      bytes: pdfBytes,
+                      filename: 'Passport_MKK_$safeTitle.pdf',
                     );
                   } catch (e) {
                     if (context.mounted) {
@@ -211,9 +211,10 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                       waypoints: waypoints,
                       campNotes: campNotes,
                     );
-                    await Printing.layoutPdf(
-                      onLayout: (format) => pdfBytes,
-                      name: 'Report_${tripProfile.title}.pdf',
+                    final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
+                    await FileSaverService.openPdfInViewer(
+                      bytes: pdfBytes,
+                      filename: 'Report_$safeTitle.pdf',
                     );
                   } catch (e) {
                     if (context.mounted) {
