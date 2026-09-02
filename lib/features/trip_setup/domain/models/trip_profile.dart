@@ -13,6 +13,11 @@ class TripProfile {
   final ActivityType activityType;
   final double avgParticipantWeightKg;
   final DateTime createdAt;
+  final String clubOrCity;
+  final String difficultyCategory;
+  final String geographicalRegion;
+  final String emergencyExitRoutes;
+  final String mkkName;
 
   const TripProfile({
     required this.id,
@@ -26,6 +31,11 @@ class TripProfile {
     required this.activityType,
     this.avgParticipantWeightKg = 75.0,
     required this.createdAt,
+    this.clubOrCity = '',
+    this.difficultyCategory = 'н/к',
+    this.geographicalRegion = '',
+    this.emergencyExitRoutes = '',
+    this.mkkName = '',
   });
 
   TripProfile copyWith({
@@ -40,6 +50,11 @@ class TripProfile {
     ActivityType? activityType,
     double? avgParticipantWeightKg,
     DateTime? createdAt,
+    String? clubOrCity,
+    String? difficultyCategory,
+    String? geographicalRegion,
+    String? emergencyExitRoutes,
+    String? mkkName,
   }) {
     return TripProfile(
       id: id ?? this.id,
@@ -54,6 +69,11 @@ class TripProfile {
       avgParticipantWeightKg:
           avgParticipantWeightKg ?? this.avgParticipantWeightKg,
       createdAt: createdAt ?? this.createdAt,
+      clubOrCity: clubOrCity ?? this.clubOrCity,
+      difficultyCategory: difficultyCategory ?? this.difficultyCategory,
+      geographicalRegion: geographicalRegion ?? this.geographicalRegion,
+      emergencyExitRoutes: emergencyExitRoutes ?? this.emergencyExitRoutes,
+      mkkName: mkkName ?? this.mkkName,
     );
   }
 
@@ -70,6 +90,11 @@ class TripProfile {
       'activityType': activityType.name,
       'avgParticipantWeightKg': avgParticipantWeightKg,
       'createdAt': createdAt.toIso8601String(),
+      'clubOrCity': clubOrCity,
+      'difficultyCategory': difficultyCategory,
+      'geographicalRegion': geographicalRegion,
+      'emergencyExitRoutes': emergencyExitRoutes,
+      'mkkName': mkkName,
     };
   }
 
@@ -90,6 +115,11 @@ class TripProfile {
       createdAt: map['createdAt'] != null
           ? DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
+      clubOrCity: map['clubOrCity'] as String? ?? '',
+      difficultyCategory: map['difficultyCategory'] as String? ?? 'н/к',
+      geographicalRegion: map['geographicalRegion'] as String? ?? '',
+      emergencyExitRoutes: map['emergencyExitRoutes'] as String? ?? '',
+      mkkName: map['mkkName'] as String? ?? '',
     );
   }
 
@@ -110,6 +140,11 @@ class TripProfile {
       activityType: ActivityType.hiking,
       avgParticipantWeightKg: 75.0,
       createdAt: DateTime.now(),
+      clubOrCity: '',
+      difficultyCategory: 'н/к',
+      geographicalRegion: '',
+      emergencyExitRoutes: '',
+      mkkName: '',
     );
   }
 }

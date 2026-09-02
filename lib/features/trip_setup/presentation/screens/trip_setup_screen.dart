@@ -6,6 +6,7 @@ import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/core/widgets/app_logo.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/mkk_reports/presentation/dialogs/mkk_export_sheet.dart';
 import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_dialog.dart';
@@ -62,6 +63,13 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: 'Документы МКК / Отчеты',
+            icon: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange),
+            onPressed: () {
+              MkkExportSheet.show(context);
+            },
+          ),
+          IconButton(
             tooltip: 'Импорт GPX трека',
             icon: const Icon(Icons.alt_route, color: OutdoorTheme.signalOrange),
             onPressed: () async {
@@ -91,7 +99,9 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             tooltip: 'Инструменты и обмен',
             icon: const Icon(Icons.more_vert, color: OutdoorTheme.signalOrange),
             onSelected: (val) {
-              if (val == 'share_qr') {
+              if (val == 'mkk_export') {
+                MkkExportSheet.show(context);
+              } else if (val == 'share_qr') {
                 ref.read(qrSyncServiceProvider).showQrShareModal(context, ref);
               } else if (val == 'import_qr') {
                 ref.read(qrSyncServiceProvider).showQrImportModal(context, ref);
@@ -100,6 +110,16 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
               }
             },
             itemBuilder: (ctx) => [
+              const PopupMenuItem(
+                value: 'mkk_export',
+                child: Row(
+                  children: [
+                    Icon(Icons.picture_as_pdf, size: 18, color: OutdoorTheme.signalOrange),
+                    SizedBox(width: 8),
+                    Text('Документы МКК / Отчет'),
+                  ],
+                ),
+              ),
               const PopupMenuItem(
                 value: 'share_qr',
                 child: Row(
@@ -466,6 +486,9 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                 ),
               ),
 
+              // 6.5. MKK and Sports Tourism Section
+              _buildMkkSection(context, profile, ref),
+
               // 7. Summary CTA Banner
               if (result != null)
                 Padding(
@@ -536,13 +559,30 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                           ],
                         ),
                         const SizedBox(height: 14),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: widget.onCalculatePressed,
-                            icon: const Icon(Icons.arrow_forward),
-                            label: const Text('Смотреть подробный дашборд'),
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => MkkExportSheet.show(context),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: OutdoorTheme.signalOrange,
+                                  side: const BorderSide(color: OutdoorTheme.signalOrange),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                                icon: const Icon(Icons.picture_as_pdf, size: 18),
+                                label: const Text('МКК / Отчет'),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton.icon(
+                                onPressed: widget.onCalculatePressed,
+                                icon: const Icon(Icons.arrow_forward),
+                                label: const Text('К дашборду'),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -551,6 +591,123 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMkkSection(BuildContext context, TripProfile profile, WidgetRef ref) {
+    return Card(
+      child: ExpansionTile(
+        initiallyExpanded: profile.clubOrCity.isNotEmpty || profile.difficultyCategory != 'н/к',
+        leading: const Icon(Icons.military_tech, color: OutdoorTheme.signalOrange),
+        title: const Text(
+          '🏅 Спортивный туризм и реквизиты МКК',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: OutdoorTheme.textPrimary,
+          ),
+        ),
+        subtitle: Text(
+          'Кат. сл.: ${profile.difficultyCategory} • ${profile.clubOrCity.isNotEmpty ? profile.clubOrCity : "Клуб не указан"}',
+          style: const TextStyle(fontSize: 11, color: OutdoorTheme.textSecondary),
+        ),
+        childrenPadding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            'Заполните официальные данные для маршрутной книжки и отчета МКК:',
+            style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
+          ),
+          const SizedBox(height: 12),
+
+          // Category of difficulty chips
+          const Text('Категория сложности (к.с.):',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: OutdoorTheme.textPrimary)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: ['н/к', '1 к.с.', '2 к.с.', '3 к.с.', '4 к.с.', '5 к.с.', '6 к.с.', 'ПВД'].map((cat) {
+              final isSelected = profile.difficultyCategory == cat;
+              return ChoiceChip(
+                label: Text(cat),
+                selected: isSelected,
+                onSelected: (val) {
+                  if (val) {
+                    ref.read(activeTripProfileProvider.notifier).updateMkkDetails(difficultyCategory: cat);
+                  }
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 12),
+
+          TextFormField(
+            initialValue: profile.clubOrCity,
+            decoration: const InputDecoration(
+              labelText: 'Турклуб / Город / Организация',
+              prefixIcon: Icon(Icons.home_work_outlined),
+              isDense: true,
+            ),
+            onChanged: (val) {
+              ref.read(activeTripProfileProvider.notifier).updateMkkDetails(clubOrCity: val.trim());
+            },
+          ),
+          const SizedBox(height: 10),
+
+          TextFormField(
+            initialValue: profile.mkkName,
+            decoration: const InputDecoration(
+              labelText: 'Выпускающая МКК (номер/название)',
+              prefixIcon: Icon(Icons.verified_user_outlined),
+              isDense: true,
+            ),
+            onChanged: (val) {
+              ref.read(activeTripProfileProvider.notifier).updateMkkDetails(mkkName: val.trim());
+            },
+          ),
+          const SizedBox(height: 10),
+
+          TextFormField(
+            initialValue: profile.geographicalRegion,
+            decoration: const InputDecoration(
+              labelText: 'Географический район похода',
+              prefixIcon: Icon(Icons.map_outlined),
+              isDense: true,
+            ),
+            onChanged: (val) {
+              ref.read(activeTripProfileProvider.notifier).updateMkkDetails(geographicalRegion: val.trim());
+            },
+          ),
+          const SizedBox(height: 10),
+
+          TextFormField(
+            initialValue: profile.emergencyExitRoutes,
+            maxLines: 2,
+            decoration: const InputDecoration(
+              labelText: 'Аварийные сходы и запасные пути',
+              prefixIcon: Icon(Icons.warning_amber_outlined),
+              isDense: true,
+            ),
+            onChanged: (val) {
+              ref.read(activeTripProfileProvider.notifier).updateMkkDetails(emergencyExitRoutes: val.trim());
+            },
+          ),
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => MkkExportSheet.show(context),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: OutdoorTheme.signalOrange,
+                side: const BorderSide(color: OutdoorTheme.signalOrange),
+              ),
+              icon: const Icon(Icons.picture_as_pdf, size: 18),
+              label: const Text('Сформировать документы МКК (PDF / ZIP)'),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1087,6 +1244,62 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                           },
                         );
                       }).toList(),
+                    ),
+                    const Divider(height: 24),
+
+                    // MKK and Sports Tourism Fields
+                    const Text(
+                      '📋 Данные для МКК и маршрутной книжки:',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: OutdoorTheme.signalOrange,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      initialValue: currentP.fullName,
+                      decoration: const InputDecoration(
+                        labelText: 'ФИО полностью',
+                        prefixIcon: Icon(Icons.badge_outlined),
+                        isDense: true,
+                      ),
+                      onChanged: (val) {
+                        ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                          id: p.id,
+                          fullName: val.trim(),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      initialValue: currentP.touristExperience,
+                      decoration: const InputDecoration(
+                        labelText: 'Туристский опыт (к.с., перевалы)',
+                        prefixIcon: Icon(Icons.hiking_outlined),
+                        isDense: true,
+                      ),
+                      onChanged: (val) {
+                        ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                          id: p.id,
+                          touristExperience: val.trim(),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      initialValue: currentP.contactPhone,
+                      decoration: const InputDecoration(
+                        labelText: 'Телефон / Экстренный контакт',
+                        prefixIcon: Icon(Icons.phone_outlined),
+                        isDense: true,
+                      ),
+                      onChanged: (val) {
+                        ref.read(groupParticipantsProvider.notifier).updateParticipantMkkDetails(
+                          id: p.id,
+                          contactPhone: val.trim(),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
 

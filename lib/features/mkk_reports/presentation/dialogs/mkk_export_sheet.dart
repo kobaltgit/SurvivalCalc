@@ -1,0 +1,415 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
+import 'package:survival_calc/features/mkk_reports/domain/services/expedition_archive_service.dart';
+import 'package:survival_calc/features/mkk_reports/domain/services/mkk_markdown_generator.dart';
+import 'package:survival_calc/features/mkk_reports/domain/services/mkk_pdf_generator.dart';
+import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
+
+class MkkExportSheet extends ConsumerStatefulWidget {
+  const MkkExportSheet({super.key});
+
+  static void show(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const MkkExportSheet(),
+    );
+  }
+
+  @override
+  ConsumerState<MkkExportSheet> createState() => _MkkExportSheetState();
+}
+
+class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
+  bool _isExportingZip = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final tripProfile = ref.watch(tripProfileProvider);
+    final participants = ref.watch(participantsProvider);
+    final calcResult = ref.watch(tripCalculationResultProvider);
+    final tracksAsync = ref.watch(currentTripTracksProvider);
+    final tracks = tracksAsync.value ?? [];
+    final waypoints = tracks.expand((t) => t.waypoints).toList();
+    final campNotes = tracks.expand((t) => t.debrief?.notes ?? <DailyCampNote>[]).toList();
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: OutdoorTheme.darkBackground,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        top: 20,
+        left: 20,
+        right: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: OutdoorTheme.signalOrange.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Экспорт документов МКК',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: OutdoorTheme.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Маршрутная книжка, Отчет и ZIP-архив',
+                            style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: OutdoorTheme.textSecondary),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: OutdoorTheme.borderSubtle),
+              const SizedBox(height: 12),
+
+              // Document 1: Pre-trip Passport
+              _buildDocCard(
+                context: context,
+                icon: Icons.menu_book,
+                badgeColor: OutdoorTheme.signalOrange,
+                title: '📕 Предпоходный паспорт (Маршрутная книжка)',
+                subtitle: 'Заявочный документ до старта: реквизиты МКК, состав группы, весовая ведомость, схема питания и раскладки.',
+                onPrint: () async {
+                  final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
+                    profile: tripProfile,
+                    participants: participants,
+                    calcResult: calcResult,
+                  );
+                  await Printing.layoutPdf(
+                    onLayout: (format) => pdfBytes,
+                    name: 'Passport_MKK_${tripProfile.title}.pdf',
+                  );
+                },
+                onShare: () async {
+                  final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
+                    profile: tripProfile,
+                    participants: participants,
+                    calcResult: calcResult,
+                  );
+                  await Printing.sharePdf(
+                    bytes: pdfBytes,
+                    filename: 'Passport_MKK_${tripProfile.title}.pdf',
+                  );
+                },
+                onCopyMarkdown: () {
+                  final md = MkkMarkdownGenerator.generatePreTripPassportMarkdown(
+                    profile: tripProfile,
+                    participants: participants,
+                    calcResult: calcResult,
+                  );
+                  Clipboard.setData(ClipboardData(text: md));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('📋 Предпоходный паспорт скопирован в буфер обмена (готово для Word)!'),
+                      backgroundColor: OutdoorTheme.tacticalGreen,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+
+              // Document 2: Post-trip Technical Report
+              _buildDocCard(
+                context: context,
+                icon: Icons.assignment_turned_in,
+                badgeColor: OutdoorTheme.tacticalGreen,
+                title: '📗 Итоговый технический отчет о походе',
+                subtitle: 'Отчет после прохождения: сравнение План/Факт, треки по дням, паспорт путевых точек, погода и дневник лагеря.',
+                onPrint: () async {
+                  final pdfBytes = await MkkPdfGenerator.generatePostTripReportPdf(
+                    profile: tripProfile,
+                    participants: participants,
+                    tracks: tracks,
+                    waypoints: waypoints,
+                    campNotes: campNotes,
+                  );
+                  await Printing.layoutPdf(
+                    onLayout: (format) => pdfBytes,
+                    name: 'Report_${tripProfile.title}.pdf',
+                  );
+                },
+                onShare: () async {
+                  final pdfBytes = await MkkPdfGenerator.generatePostTripReportPdf(
+                    profile: tripProfile,
+                    participants: participants,
+                    tracks: tracks,
+                    waypoints: waypoints,
+                    campNotes: campNotes,
+                  );
+                  await Printing.sharePdf(
+                    bytes: pdfBytes,
+                    filename: 'Report_${tripProfile.title}.pdf',
+                  );
+                },
+                onCopyMarkdown: () {
+                  final md = MkkMarkdownGenerator.generatePostTripReportMarkdown(
+                    profile: tripProfile,
+                    participants: participants,
+                    tracks: tracks,
+                    waypoints: waypoints,
+                    campNotes: campNotes,
+                  );
+                  Clipboard.setData(ClipboardData(text: md));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('📋 Итоговый отчет скопирован в буфер обмена!'),
+                      backgroundColor: OutdoorTheme.tacticalGreen,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 14),
+
+              // Document 3: Expedition ZIP Archive
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: OutdoorTheme.surfaceCard,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: OutdoorTheme.signalOrange.withValues(alpha: 0.5)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: OutdoorTheme.signalOrange.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.folder_zip, color: OutdoorTheme.signalOrange, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '🗄️ Экспедиционный ZIP-архив',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: OutdoorTheme.textPrimary,
+                                ),
+                              ),
+                              Text(
+                                'Всё в одном файле: PDF-отчеты + GPX + Фото + Markdown',
+                                style: TextStyle(fontSize: 11, color: OutdoorTheme.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Упаковывает в единый архив: Маршрутную книжку (PDF), Отчет (PDF), сводку Markdown/HTML, GPX-треки всех ходовых дней и оригиналы фото-меток.',
+                      style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary, height: 1.3),
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isExportingZip
+                            ? null
+                            : () async {
+                                setState(() => _isExportingZip = true);
+                                try {
+                                  final zipBytes = await ExpeditionArchiveService.createExpeditionZip(
+                                    profile: tripProfile,
+                                    participants: participants,
+                                    calcResult: calcResult,
+                                    tracks: tracks,
+                                    waypoints: waypoints,
+                                    campNotes: campNotes,
+                                  );
+
+                                  final filePath = await ExpeditionArchiveService.saveZipToTempFile(
+                                    zipBytes,
+                                    tripProfile.title,
+                                  );
+
+                                  await SharePlus.instance.share(
+                                    ShareParams(
+                                      files: [XFile(filePath)],
+                                      subject: 'Экспедиционный архив: ${tripProfile.title}',
+                                      text: 'Экспедиционный архив: ${tripProfile.title}',
+                                    ),
+                                  );
+
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('✅ Экспедиционный ZIP-архив успешно сформирован!'),
+                                        backgroundColor: OutdoorTheme.tacticalGreen,
+                                      ),
+                                    );
+                                  }
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Ошибка при сборке архива: $e'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _isExportingZip = false);
+                                  }
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: OutdoorTheme.signalOrange,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: _isExportingZip
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                              )
+                            : const Icon(Icons.download, size: 20),
+                        label: Text(
+                          _isExportingZip ? 'Сборка архива...' : 'Сформировать и скачать ZIP-архив',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDocCard({
+    required BuildContext context,
+    required IconData icon,
+    required Color badgeColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onPrint,
+    required VoidCallback onShare,
+    required VoidCallback onCopyMarkdown,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: OutdoorTheme.surfaceCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: OutdoorTheme.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: OutdoorTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary, height: 1.3),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onPrint,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: OutdoorTheme.signalOrange,
+                    side: const BorderSide(color: OutdoorTheme.signalOrange),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(Icons.print, size: 16),
+                  label: const Text('Печать / PDF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onShare,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: OutdoorTheme.tacticalGreen,
+                    side: const BorderSide(color: OutdoorTheme.tacticalGreen),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  icon: const Icon(Icons.share, size: 16),
+                  label: const Text('Отправить', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Скопировать текст (Word / Markdown)',
+                style: IconButton.styleFrom(
+                  backgroundColor: OutdoorTheme.surfaceCardElevated,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(Icons.copy, size: 18, color: OutdoorTheme.textPrimary),
+                onPressed: onCopyMarkdown,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -9,6 +9,7 @@ import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/services/media_storage_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
+import 'package:survival_calc/features/mkk_reports/presentation/dialogs/mkk_export_sheet.dart';
 import 'package:survival_calc/features/tracking/domain/models/camp_debrief.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
@@ -341,9 +342,9 @@ class _CampDebriefSheetState extends ConsumerState<CampDebriefSheet> {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () => _shareGpx(context),
-                        icon: const Icon(Icons.share, color: OutdoorTheme.signalOrange),
+                        icon: const Icon(Icons.share, color: OutdoorTheme.signalOrange, size: 18),
                         label: const Text(
-                          'GPX Экспорт',
+                          'GPX',
                           style: TextStyle(
                             color: OutdoorTheme.textPrimary,
                             fontWeight: FontWeight.bold,
@@ -358,7 +359,29 @@ class _CampDebriefSheetState extends ConsumerState<CampDebriefSheet> {
                         ),
                       ),
                     ),
-                  if (track != null) const SizedBox(width: 12),
+                  if (track != null) const SizedBox(width: 8),
+                  if (track != null)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => MkkExportSheet.show(context),
+                        icon: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange, size: 18),
+                        label: const Text(
+                          'МКК Отчет',
+                          style: TextStyle(
+                            color: OutdoorTheme.textPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: OutdoorTheme.signalOrange),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
@@ -371,7 +394,7 @@ class _CampDebriefSheetState extends ConsumerState<CampDebriefSheet> {
                         ),
                       ),
                       child: const Text(
-                        'Принять и закрыть',
+                        'Готово',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

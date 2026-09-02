@@ -14,6 +14,9 @@ class Participant {
   final List<GearItem> assignedGear;
   final List<ShoppingListItem> assignedFood;
   final double personalGearWeightKg;
+  final String fullName;
+  final String touristExperience;
+  final String contactPhone;
 
   const Participant({
     required this.id,
@@ -27,7 +30,13 @@ class Participant {
     this.assignedGear = const [],
     this.assignedFood = const [],
     this.personalGearWeightKg = 0.0,
+    this.fullName = '',
+    this.touristExperience = '',
+    this.contactPhone = '',
   });
+
+  /// Display name (full name if provided, otherwise standard name)
+  String get displayName => fullName.trim().isNotEmpty ? fullName : name;
 
   /// True if this participant requires an isolated/individual meal pack
   bool get hasSpecialDiet => dietaryRestrictions.any((d) => d != DietaryRestriction.none);
@@ -66,6 +75,9 @@ class Participant {
     List<GearItem>? assignedGear,
     List<ShoppingListItem>? assignedFood,
     double? personalGearWeightKg,
+    String? fullName,
+    String? touristExperience,
+    String? contactPhone,
   }) {
     return Participant(
       id: id ?? this.id,
@@ -79,6 +91,9 @@ class Participant {
       assignedGear: assignedGear ?? this.assignedGear,
       assignedFood: assignedFood ?? this.assignedFood,
       personalGearWeightKg: personalGearWeightKg ?? this.personalGearWeightKg,
+      fullName: fullName ?? this.fullName,
+      touristExperience: touristExperience ?? this.touristExperience,
+      contactPhone: contactPhone ?? this.contactPhone,
     );
   }
 
@@ -95,6 +110,9 @@ class Participant {
       'assignedGearIds': assignedGear.map((g) => g.id).toList(),
       'assignedFoodIds': assignedFood.map((f) => f.foodItem.id).toList(),
       'personalGearWeightKg': personalGearWeightKg,
+      'fullName': fullName,
+      'touristExperience': touristExperience,
+      'contactPhone': contactPhone,
     };
   }
 
@@ -117,6 +135,9 @@ class Participant {
           : TripRole.member,
       personalGearWeightKg:
           (map['personalGearWeightKg'] as num?)?.toDouble() ?? 0.0,
+      fullName: map['fullName'] as String? ?? '',
+      touristExperience: map['touristExperience'] as String? ?? '',
+      contactPhone: map['contactPhone'] as String? ?? '',
     );
   }
 }

@@ -115,6 +115,26 @@ class TripProfileNotifier extends StateNotifier<TripProfile> {
   void updateWeightKg(double weightKg) {
     updateProfile(state.copyWith(avgParticipantWeightKg: weightKg));
   }
+
+  void updateAvgWeight(double weight) {
+    updateProfile(state.copyWith(avgParticipantWeightKg: weight));
+  }
+
+  void updateMkkDetails({
+    String? clubOrCity,
+    String? difficultyCategory,
+    String? geographicalRegion,
+    String? emergencyExitRoutes,
+    String? mkkName,
+  }) {
+    updateProfile(state.copyWith(
+      clubOrCity: clubOrCity,
+      difficultyCategory: difficultyCategory,
+      geographicalRegion: geographicalRegion,
+      emergencyExitRoutes: emergencyExitRoutes,
+      mkkName: mkkName,
+    ));
+  }
 }
 
 final activeTripProfileProvider =
@@ -375,6 +395,22 @@ class GroupParticipantsNotifier extends StateNotifier<List<Participant>> {
       targetParticipantId: targetParticipantId,
     );
   }
+
+  void updateParticipantMkkDetails({
+    required String id,
+    String? fullName,
+    String? touristExperience,
+    String? contactPhone,
+  }) {
+    state = state.map((p) {
+      if (p.id != id) return p;
+      return p.copyWith(
+        fullName: fullName ?? p.fullName,
+        touristExperience: touristExperience ?? p.touristExperience,
+        contactPhone: contactPhone ?? p.contactPhone,
+      );
+    }).toList();
+  }
 }
 
 final groupParticipantsProvider =
@@ -382,6 +418,11 @@ final groupParticipantsProvider =
   final service = ref.watch(loadDistributionServiceProvider);
   return GroupParticipantsNotifier(service);
 });
+
+// Aliases for convenience across modules
+final tripProfileProvider = activeTripProfileProvider;
+final participantsProvider = groupParticipantsProvider;
+final tripCalculationResultProvider = calculationResultProvider;
 
 // --- Calculation Result Provider ---
 
