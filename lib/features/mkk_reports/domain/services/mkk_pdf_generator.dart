@@ -346,7 +346,10 @@ class MkkPdfGenerator {
     final data = participants.asMap().entries.map((e) {
       final idx = e.key + 1;
       final p = e.value;
-      final exp = p.touristExperience.isNotEmpty ? p.touristExperience : (p.contactPhone.isNotEmpty ? p.contactPhone : '—');
+      final expParts = <String>[];
+      if (p.touristExperience.isNotEmpty) expParts.add('Опыт: ${p.touristExperience}');
+      if (p.contactPhone.isNotEmpty) expParts.add('Тел: ${p.contactPhone}');
+      final exp = expParts.isNotEmpty ? expParts.join('\n') : '—';
       final diet = p.dietaryRestrictions.map((d) => d.displayNameRu).join(', ');
       return [
         '$idx',

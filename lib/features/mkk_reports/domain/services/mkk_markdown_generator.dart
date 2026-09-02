@@ -59,7 +59,10 @@ class MkkMarkdownGenerator {
     sb.writeln('|:-:|:---|:---:|:-:|:-:|:---|:---|');
     for (int i = 0; i < effectiveParticipants.length; i++) {
       final p = effectiveParticipants[i];
-      final exp = p.touristExperience.isNotEmpty ? p.touristExperience : (p.contactPhone.isNotEmpty ? p.contactPhone : '—');
+      final expParts = <String>[];
+      if (p.touristExperience.isNotEmpty) expParts.add('Опыт: ${p.touristExperience}');
+      if (p.contactPhone.isNotEmpty) expParts.add('Тел: ${p.contactPhone}');
+      final exp = expParts.isNotEmpty ? expParts.join('<br/>') : '—';
       final diet = p.dietaryRestrictions.map((d) => d.displayNameRu).join(', ');
       sb.writeln('| ${i + 1} | ${p.displayName} | ${p.role.displayNameRu} | ${p.weightKg.toStringAsFixed(0)} | ${p.strengthRatio}x | $exp | $diet |');
     }
