@@ -3,6 +3,8 @@ import 'package:survival_calc/features/calculator/presentation/providers/calcula
 import 'package:survival_calc/features/gear/domain/models/gear_item.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/ration/domain/models/food_item.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_storage/data/repositories/saved_trips_repository.dart';
 import 'package:survival_calc/features/trip_storage/domain/models/saved_trip_entry.dart';
@@ -36,6 +38,7 @@ class SavedTripsNotifier extends StateNotifier<AsyncValue<List<SavedTripEntry>>>
     required List<Participant> participants,
     required List<FoodItem> customFoods,
     required List<GearItem> customGear,
+    PlannedRoute? plannedRoute,
     String note = '',
   }) async {
     final checkedIds = isTemplate
@@ -59,6 +62,7 @@ class SavedTripsNotifier extends StateNotifier<AsyncValue<List<SavedTripEntry>>>
       participants: participants,
       customFoods: customFoods,
       customGear: customGear,
+      plannedRoute: plannedRoute,
       note: note,
     );
 
@@ -103,6 +107,11 @@ class SavedTripsNotifier extends StateNotifier<AsyncValue<List<SavedTripEntry>>>
     // 3. Set participants if available
     if (entry.participants.isNotEmpty) {
       ref.read(groupParticipantsProvider.notifier).setParticipants(entry.participants);
+    }
+
+    // 4. Set planned route if available
+    if (entry.plannedRoute != null) {
+      ref.read(plannedRouteProvider.notifier).setPlannedRoute(entry.plannedRoute!);
     }
   }
 }

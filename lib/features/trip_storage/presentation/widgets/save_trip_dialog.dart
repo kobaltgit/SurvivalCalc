@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/trip_storage/presentation/providers/saved_trips_providers.dart';
 
 class SaveTripDialog extends ConsumerStatefulWidget {
@@ -54,6 +55,7 @@ class _SaveTripDialogState extends ConsumerState<SaveTripDialog> {
     final participants = ref.watch(groupParticipantsProvider);
     final customFoods = ref.watch(customFoodProvider);
     final customGear = ref.watch(customGearProvider);
+    final plannedRoute = ref.watch(plannedRouteProvider);
 
     return AlertDialog(
       backgroundColor: OutdoorTheme.surfaceCard,
@@ -226,6 +228,7 @@ class _SaveTripDialogState extends ConsumerState<SaveTripDialog> {
                         participants: participants,
                         customFoods: customFoods,
                         customGear: customGear,
+                        plannedRoute: plannedRoute,
                         note: _noteController.text,
                       );
                   if (context.mounted) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:survival_calc/features/gear/domain/models/gear_item.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/ration/domain/models/food_item.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 
 class SavedTripEntry {
@@ -15,6 +16,7 @@ class SavedTripEntry {
   final List<Participant> participants;
   final List<FoodItem> customFoods;
   final List<GearItem> customGear;
+  final PlannedRoute? plannedRoute;
   final String note;
 
   const SavedTripEntry({
@@ -28,6 +30,7 @@ class SavedTripEntry {
     this.participants = const [],
     this.customFoods = const [],
     this.customGear = const [],
+    this.plannedRoute,
     this.note = '',
   });
 
@@ -42,6 +45,7 @@ class SavedTripEntry {
     List<Participant>? participants,
     List<FoodItem>? customFoods,
     List<GearItem>? customGear,
+    PlannedRoute? plannedRoute,
     String? note,
   }) {
     return SavedTripEntry(
@@ -55,6 +59,7 @@ class SavedTripEntry {
       participants: participants ?? this.participants,
       customFoods: customFoods ?? this.customFoods,
       customGear: customGear ?? this.customGear,
+      plannedRoute: plannedRoute ?? this.plannedRoute,
       note: note ?? this.note,
     );
   }
@@ -71,6 +76,7 @@ class SavedTripEntry {
       'participants': participants.map((p) => p.toMap()).toList(),
       'customFoods': customFoods.map((f) => f.toMap()).toList(),
       'customGear': customGear.map((g) => g.toMap()).toList(),
+      if (plannedRoute != null) 'plannedRoute': plannedRoute!.toMap(),
       'note': note,
     };
   }
@@ -105,6 +111,9 @@ class SavedTripEntry {
               ?.map((g) => GearItem.fromMap(g as Map<String, dynamic>))
               .toList() ??
           const [],
+      plannedRoute: map['plannedRoute'] != null
+          ? PlannedRoute.fromMap(map['plannedRoute'] as Map<String, dynamic>)
+          : null,
       note: map['note'] as String? ?? '',
     );
   }

@@ -48,6 +48,17 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
         _followUser = true;
       });
       _mapController.move(target, 15.0);
+    } else {
+      final planned = ref.read(plannedRouteProvider);
+      if (planned != null && planned.points.isNotEmpty && mounted) {
+        final midPt = planned.points[planned.points.length ~/ 2];
+        final target = LatLng(midPt.latitude, midPt.longitude);
+        setState(() {
+          _lastCenter = target;
+          _followUser = false;
+        });
+        _mapController.move(target, 13.0);
+      }
     }
   }
 
@@ -290,6 +301,18 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             duration: const Duration(seconds: 4),
           ),
         );
+      }
+    });
+
+    ref.listen<PlannedRoute?>(plannedRouteProvider, (prev, next) {
+      if (next != null && next.points.isNotEmpty && mounted) {
+        final midPt = next.points[next.points.length ~/ 2];
+        final target = LatLng(midPt.latitude, midPt.longitude);
+        setState(() {
+          _lastCenter = target;
+          _followUser = false;
+        });
+        _mapController.move(target, 13.0);
       }
     });
 
