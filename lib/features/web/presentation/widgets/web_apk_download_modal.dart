@@ -7,7 +7,7 @@ class WebApkDownloadModal extends StatelessWidget {
   const WebApkDownloadModal({super.key});
 
   static const String apkDownloadUrl =
-      'https://github.com/kobaltgit/SurvivalCalc/releases/latest/download/SurvivalCalc.apk';
+      'https://github.com/kobaltgit/SurvivalCalc/releases/latest/download/SurvivalCalc_v1.0.0.apk';
 
   static void show(BuildContext context) {
     showDialog(
