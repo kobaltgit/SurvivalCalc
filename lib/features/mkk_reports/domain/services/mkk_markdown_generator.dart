@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:survival_calc/features/calculator/domain/models/trip_calculation_result.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/mkk_reports/domain/services/mkk_pdf_generator.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
@@ -13,6 +14,11 @@ class MkkMarkdownGenerator {
     required List<Participant> participants,
     required TripCalculationResult? calcResult,
   }) {
+    final effectiveParticipants = MkkPdfGenerator.resolveEffectiveParticipants(
+      participants: participants,
+      calcResult: calcResult,
+      groupSize: profile.groupSize,
+    );
     final dateFormat = DateFormat('dd.MM.yyyy');
     final sb = StringBuffer();
 
@@ -51,8 +57,8 @@ class MkkMarkdownGenerator {
     sb.writeln('## 2. Состав группы и распределение обязанностей');
     sb.writeln('| № | ФИО / Имя | Должность | Вес (кг) | Сила | Опыт / Контакты | Особенности / Диета |');
     sb.writeln('|:-:|:---|:---:|:-:|:-:|:---|:---|');
-    for (int i = 0; i < participants.length; i++) {
-      final p = participants[i];
+    for (int i = 0; i < effectiveParticipants.length; i++) {
+      final p = effectiveParticipants[i];
       final exp = p.touristExperience.isNotEmpty ? p.touristExperience : (p.contactPhone.isNotEmpty ? p.contactPhone : '—');
       final diet = p.dietaryRestrictions.map((d) => d.displayNameRu).join(', ');
       sb.writeln('| ${i + 1} | ${p.displayName} | ${p.role.displayNameRu} | ${p.weightKg.toStringAsFixed(0)} | ${p.strengthRatio}x | $exp | $diet |');
@@ -63,8 +69,8 @@ class MkkMarkdownGenerator {
     sb.writeln('## 3. Сводная весовая ведомость («Кто что несёт»)');
     sb.writeln('| № | Участник | Личное (кг) | Групп. снаряжение (кг) | Паек питания (кг) | ИТОГО на старте (кг) |');
     sb.writeln('|:-:|:---|:-:|:-:|:-:|:-:|');
-    for (int i = 0; i < participants.length; i++) {
-      final p = participants[i];
+    for (int i = 0; i < effectiveParticipants.length; i++) {
+      final p = effectiveParticipants[i];
       sb.writeln('| ${i + 1} | ${p.displayName} | ${p.personalGearWeightKg.toStringAsFixed(2)} | ${p.assignedGroupGearWeightKg.toStringAsFixed(2)} | ${p.assignedFoodWeightKg.toStringAsFixed(2)} | **${p.totalPackWeightKg.toStringAsFixed(2)}** |');
     }
     sb.writeln();

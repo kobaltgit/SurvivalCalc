@@ -6,6 +6,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:survival_calc/features/calculator/domain/models/trip_calculation_result.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/group_distribution/domain/services/load_distribution_service.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
@@ -35,6 +36,45 @@ class MkkPdfGenerator {
     }
   }
 
+  /// Automatically ensures participants have distributed gear and food if not already distributed
+  static List<Participant> resolveEffectiveParticipants({
+    required List<Participant> participants,
+    required TripCalculationResult? calcResult,
+    required int groupSize,
+  }) {
+    if (calcResult == null) return participants;
+
+    if (calcResult.participants.isNotEmpty &&
+        calcResult.participants.any((p) => p.assignedGear.isNotEmpty || p.assignedFood.isNotEmpty)) {
+      return calcResult.participants;
+    }
+
+    List<Participant> list = List.from(participants);
+    if (list.isEmpty || list.length != groupSize) {
+      list = List.generate(groupSize, (i) {
+        final id = 'p_${i + 1}';
+        final existing = participants.where((p) => p.id == id).firstOrNull;
+        return existing ??
+            Participant(
+              id: id,
+              name: 'Участник ${i + 1}',
+              strengthRatio: 1.0,
+            );
+      });
+    }
+
+    final needsAutoDistribute = list.every((p) => p.assignedGear.isEmpty && p.assignedFood.isEmpty);
+    if (needsAutoDistribute) {
+      return const LoadDistributionService().autoDistribute(
+        participants: list,
+        allGear: calcResult.gearList,
+        shoppingList: calcResult.shoppingList,
+        personalGearWeightKg: calcResult.totalPersonalGearWeightKg,
+      );
+    }
+    return list;
+  }
+
   /// Generates PDF bytes for Document 1: Pre-Trip Route Passport / MKK Route Book
   static Future<Uint8List> generatePreTripPassportPdf({
     required TripProfile profile,
@@ -44,6 +84,12 @@ class MkkPdfGenerator {
     pw.Font? boldFont,
     pw.Font? italicFont,
   }) async {
+    final effectiveParticipants = resolveEffectiveParticipants(
+      participants: participants,
+      calcResult: calcResult,
+      groupSize: profile.groupSize,
+    );
+
     final pdf = pw.Document(title: 'Маршрутная книжка - ${profile.title}', author: 'SurvivalCalc');
     final font = regularFont ?? await _resolveFont();
     final fontBold = boldFont ?? font;
@@ -69,10 +115,10 @@ class MkkPdfGenerator {
           _buildRouteOverviewTable(profile, calcResult),
           pw.SizedBox(height: 18),
           _buildSectionHeader('1. Состав группы и распределение обязанностей'),
-          _buildGroupMembersTable(participants),
+          _buildGroupMembersTable(effectiveParticipants),
           pw.SizedBox(height: 18),
           _buildSectionHeader('2. Сводная весовая ведомость («Кто что несёт»)'),
-          _buildWeightDistributionTable(participants),
+          _buildWeightDistributionTable(effectiveParticipants),
           pw.SizedBox(height: 18),
           if (calcResult != null) ...[
             _buildSectionHeader('3. Параметры рациона и обеспечение безопасности'),
