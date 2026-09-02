@@ -63,6 +63,7 @@ class OfflineTileRepository {
   static String? _tilesBasePath;
 
   static Future<void> init() async {
+    if (kIsWeb) return;
     await getTilesBasePath();
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool('purged_watermarked_esri_v5') != true) {

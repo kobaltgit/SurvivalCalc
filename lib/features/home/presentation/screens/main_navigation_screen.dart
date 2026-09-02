@@ -8,6 +8,7 @@ import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
+import 'package:survival_calc/features/web/domain/services/browser_history_sync/browser_history_sync.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
 import 'package:survival_calc/features/web/presentation/screens/web_landing_screen.dart';
 import 'package:survival_calc/features/web/presentation/widgets/topographic_background.dart';
@@ -24,6 +25,16 @@ class MainNavigationScreen extends ConsumerStatefulWidget {
 class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   int _currentIndex = 0;
   bool _hideWebBanner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        removeWebLoadingIndicator();
+      });
+    }
+  }
 
   void _switchTab(int index) {
     setState(() {

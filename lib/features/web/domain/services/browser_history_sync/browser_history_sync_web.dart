@@ -6,3 +6,10 @@ void syncUrlToBrowserHistory(String url) {
     html.window.history.replaceState(null, '', url);
   } catch (_) {}
 }
+
+void removeWebLoadingIndicator() {
+  try {
+    final el = html.document.getElementById('loading-indicator');
+    el?.remove();
+  } catch (_) {}
+}

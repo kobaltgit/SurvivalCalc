@@ -8,6 +8,7 @@ import 'package:survival_calc/features/ration/presentation/screens/food_breakdow
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
+import 'package:survival_calc/features/web/domain/services/browser_history_sync/browser_history_sync.dart';
 import 'package:survival_calc/features/web/presentation/widgets/topographic_background.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_expandable_promo_banner.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_header.dart';
@@ -29,6 +30,9 @@ class _WebLandingScreenState extends ConsumerState<WebLandingScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      removeWebLoadingIndicator();
+    });
   }
 
   @override

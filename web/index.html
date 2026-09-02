@@ -70,6 +70,33 @@
     <div class="spinner"></div>
     <div class="loading-text">Инициализация SurvivalCalc Engine...</div>
   </div>
+  <script>
+    function removeLoading() {
+      var loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+        loadingIndicator.style.opacity = '0';
+        loadingIndicator.style.transition = 'opacity 0.25s ease-out';
+        setTimeout(function () {
+          if (loadingIndicator && loadingIndicator.parentNode) {
+            loadingIndicator.parentNode.removeChild(loadingIndicator);
+          }
+        }, 250);
+      }
+    }
+    window.addEventListener('flutter-first-frame', removeLoading);
+    window.addEventListener('load', function () {
+      var interval = setInterval(function () {
+        if (document.querySelector('flutter-view') || document.querySelector('flt-glass-pane')) {
+          removeLoading();
+          clearInterval(interval);
+        }
+      }, 100);
+      setTimeout(function () {
+        removeLoading();
+        clearInterval(interval);
+      }, 3500);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
