@@ -87,7 +87,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             icon: const Icon(Icons.more_vert, color: OutdoorTheme.signalOrange),
             onSelected: (val) async {
               if (val == 'share_qr') {
-                ref.read(qrSyncServiceProvider).showQrShareModal(context, result.profile);
+                ref.read(qrSyncServiceProvider).showQrShareModal(context, ref);
               } else if (val == 'copy_report') {
                 await exportService.copyToClipboard(result);
                 if (context.mounted) {

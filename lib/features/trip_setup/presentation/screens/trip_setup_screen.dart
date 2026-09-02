@@ -92,7 +92,7 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             icon: const Icon(Icons.more_vert, color: OutdoorTheme.signalOrange),
             onSelected: (val) {
               if (val == 'share_qr') {
-                ref.read(qrSyncServiceProvider).showQrShareModal(context, profile);
+                ref.read(qrSyncServiceProvider).showQrShareModal(context, ref);
               } else if (val == 'import_qr') {
                 ref.read(qrSyncServiceProvider).showQrImportModal(context, ref);
               } else if (val == 'library_templates') {

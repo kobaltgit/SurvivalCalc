@@ -1,3 +1,5 @@
+import 'package:survival_calc/core/enums/trip_enums.dart';
+
 enum WayPointType {
   water,
   camp,
@@ -19,7 +21,7 @@ extension WayPointTypeExtension on WayPointType {
       case WayPointType.obstacle:
         return 'Препятствие / Брод';
       case WayPointType.viewpoint:
-        return 'Видовая точка';
+        return 'Видовая точка / Фото';
       case WayPointType.other:
         return 'Особая метка';
     }
@@ -52,6 +54,9 @@ class WayPoint {
   final double longitude;
   final double altitude;
   final DateTime timestamp;
+  final String? photoPath;
+  final String? authorName;
+  final TripRole? authorRole;
 
   const WayPoint({
     required this.id,
@@ -62,7 +67,38 @@ class WayPoint {
     required this.longitude,
     required this.altitude,
     required this.timestamp,
+    this.photoPath,
+    this.authorName,
+    this.authorRole,
   });
+
+  WayPoint copyWith({
+    String? id,
+    String? title,
+    String? note,
+    WayPointType? type,
+    double? latitude,
+    double? longitude,
+    double? altitude,
+    DateTime? timestamp,
+    String? photoPath,
+    String? authorName,
+    TripRole? authorRole,
+  }) {
+    return WayPoint(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      note: note ?? this.note,
+      type: type ?? this.type,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      altitude: altitude ?? this.altitude,
+      timestamp: timestamp ?? this.timestamp,
+      photoPath: photoPath ?? this.photoPath,
+      authorName: authorName ?? this.authorName,
+      authorRole: authorRole ?? this.authorRole,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -74,6 +110,9 @@ class WayPoint {
       'lng': longitude,
       'alt': altitude,
       'time': timestamp.toIso8601String(),
+      if (photoPath != null) 'photoPath': photoPath,
+      if (authorName != null) 'authorName': authorName,
+      if (authorRole != null) 'authorRole': authorRole!.name,
     };
   }
 
@@ -90,6 +129,12 @@ class WayPoint {
       longitude: (json['lng'] as num).toDouble(),
       altitude: (json['alt'] as num?)?.toDouble() ?? 0.0,
       timestamp: DateTime.parse(json['time'] as String),
+      photoPath: json['photoPath'] as String?,
+      authorName: json['authorName'] as String?,
+      authorRole: json['authorRole'] != null
+          ? TripRole.fromString(json['authorRole'] as String)
+          : null,
     );
   }
 }
+

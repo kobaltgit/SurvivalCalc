@@ -3,26 +3,88 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/core/widgets/qr_scanner_dialog.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
+import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
+import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
+
+class TripQrSnapshot {
+  final TripProfile profile;
+  final List<WayPoint> waypoints;
+  final List<DailyCampNote> campNotes;
+  final bool isLeader;
+  final String? senderName;
+
+  const TripQrSnapshot({
+    required this.profile,
+    this.waypoints = const [],
+    this.campNotes = const [],
+    this.isLeader = true,
+    this.senderName,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'v': 2,
+      'profile': jsonDecode(profile.toJson()),
+      'waypoints': waypoints.map((w) => w.toJson()).toList(),
+      'campNotes': campNotes.map((n) => n.toJson()).toList(),
+      'isLeader': isLeader,
+      if (senderName != null) 'senderName': senderName,
+    };
+  }
+
+  factory TripQrSnapshot.fromJson(Map<String, dynamic> json) {
+    if (json['v'] == 2) {
+      final profMap = json['profile'] as Map<String, dynamic>;
+      final profile = TripProfile.fromJson(jsonEncode(profMap));
+      final wpList = (json['waypoints'] as List<dynamic>?)
+              ?.map((e) => WayPoint.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+      final notesList = (json['campNotes'] as List<dynamic>?)
+              ?.map((e) => DailyCampNote.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+      return TripQrSnapshot(
+        profile: profile,
+        waypoints: wpList,
+        campNotes: notesList,
+        isLeader: json['isLeader'] as bool? ?? true,
+        senderName: json['senderName'] as String?,
+      );
+    } else {
+      final profile = TripProfile.fromJson(jsonEncode(json));
+      return TripQrSnapshot(profile: profile);
+    }
+  }
+}
 
 class QrSyncService {
   const QrSyncService();
 
   static const String _qrPrefix = 'SURVIVALCALC:';
 
-  /// Encodes a TripProfile into a compressed base64 QR payload
-  String encodeTripProfile(TripProfile profile) {
-    final jsonStr = profile.toJson();
+  /// Encodes a TripProfile + current Waypoints & Notes into a compressed base64 QR payload
+  String encodeTripSnapshot(TripQrSnapshot snapshot) {
+    final jsonStr = jsonEncode(snapshot.toJson());
     final bytes = utf8.encode(jsonStr);
     final base64Str = base64Url.encode(bytes);
     return '$_qrPrefix$base64Str';
   }
 
-  /// Decodes a QR code string or raw JSON back into a TripProfile
-  TripProfile? decodeTripProfile(String payload) {
+  /// Encodes a pure TripProfile (v1 backward compatibility)
+  String encodeTripProfile(TripProfile profile) {
+    return encodeTripSnapshot(TripQrSnapshot(profile: profile));
+  }
+
+  /// Decodes a QR code string or raw JSON back into a TripQrSnapshot
+  TripQrSnapshot? decodeTripSnapshot(String payload) {
     final cleanPayload = payload.trim();
     if (cleanPayload.isEmpty) return null;
 
@@ -31,17 +93,50 @@ class QrSyncService {
         final base64Str = cleanPayload.substring(_qrPrefix.length);
         final bytes = base64Url.decode(base64Str);
         final jsonStr = utf8.decode(bytes);
-        return TripProfile.fromJson(jsonStr);
+        final decoded = jsonDecode(jsonStr);
+        if (decoded is Map<String, dynamic>) {
+          return TripQrSnapshot.fromJson(decoded);
+        }
       } else if (cleanPayload.startsWith('{') && cleanPayload.endsWith('}')) {
-        return TripProfile.fromJson(cleanPayload);
+        final decoded = jsonDecode(cleanPayload);
+        if (decoded is Map<String, dynamic>) {
+          return TripQrSnapshot.fromJson(decoded);
+        }
       }
     } catch (_) {}
     return null;
   }
 
-  /// Shows the QR code modal dialog for sharing the active trip
-  void showQrShareModal(BuildContext context, TripProfile profile) {
-    final payload = encodeTripProfile(profile);
+  /// Decodes a QR code string into a pure TripProfile
+  TripProfile? decodeTripProfile(String payload) {
+    return decodeTripSnapshot(payload)?.profile;
+  }
+
+  /// Shows the QR code modal dialog for sharing the active trip + notes
+  void showQrShareModal(BuildContext context, WidgetRef ref) {
+    final profile = ref.read(activeTripProfileProvider);
+    final activeTrack = ref.read(trackingProvider).activeTrack;
+    final waypoints = activeTrack?.waypoints ?? [];
+    final campNotes = activeTrack?.debrief?.notes ?? [];
+
+    final participants = ref.read(groupParticipantsProvider);
+    final isLeader = participants.any((p) => p.role == TripRole.leader);
+    final leaderMember = participants.firstWhere(
+      (p) => p.role == TripRole.leader,
+      orElse: () => participants.isNotEmpty
+          ? participants.first
+          : const Participant(id: 'p_leader', name: 'Руководитель', weightKg: 75),
+    );
+
+    final snapshot = TripQrSnapshot(
+      profile: profile,
+      waypoints: waypoints,
+      campNotes: campNotes,
+      isLeader: isLeader,
+      senderName: leaderMember.name,
+    );
+
+    final payload = encodeTripSnapshot(snapshot);
 
     showDialog(
       context: context,
@@ -80,7 +175,7 @@ class QrSyncService {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Сканируйте этот QR-код для моментальной синхронизации похода (100% без интернета).',
+                  'Сканируйте этот QR-код для моментальной синхронизации плана, путевых меток и дневника (100% без интернета).',
                   style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
                 ),
                 const SizedBox(height: 16),
@@ -137,7 +232,7 @@ class QrSyncService {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${profile.groupSize} чел. • ${profile.durationDays} дн. • ${profile.totalDistanceKm.toStringAsFixed(0)} км • +${profile.totalAscentMeters.toStringAsFixed(0)} м',
+                        '${profile.groupSize} чел. • ${profile.durationDays} дн. • ${profile.totalDistanceKm.toStringAsFixed(0)} км • ${waypoints.length} меток • ${campNotes.length} заметок',
                         style: const TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
                         textAlign: TextAlign.center,
                       ),
@@ -173,7 +268,7 @@ class QrSyncService {
   /// Shows the Import modal dialog for receiving a trip via QR / Text Key
   void showQrImportModal(BuildContext context, WidgetRef ref) {
     final textController = TextEditingController();
-    TripProfile? previewProfile;
+    TripQrSnapshot? previewSnapshot;
 
     showDialog(
       context: context,
@@ -200,7 +295,7 @@ class QrSyncService {
                           Icon(Icons.qr_code_scanner, color: OutdoorTheme.signalOrange, size: 22),
                           SizedBox(width: 8),
                           Text(
-                            'Импорт похода',
+                            'Импорт и синхронизация',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -217,7 +312,7 @@ class QrSyncService {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Отсканируйте QR-код камерой или вставьте текстовый ключ синхронизации:',
+                    'Отсканируйте QR-код камерой или вставьте ключ синхронизации:',
                     style: TextStyle(fontSize: 12, color: OutdoorTheme.textSecondary),
                   ),
                   const SizedBox(height: 16),
@@ -244,8 +339,8 @@ class QrSyncService {
                         final scanned = await QrScannerDialog.show(context);
                         if (scanned != null && scanned.isNotEmpty) {
                           textController.text = scanned;
-                          final parsed = decodeTripProfile(scanned);
-                          setModalState(() => previewProfile = parsed);
+                          final parsed = decodeTripSnapshot(scanned);
+                          setModalState(() => previewSnapshot = parsed);
                           if (parsed == null && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -276,11 +371,11 @@ class QrSyncService {
                   const SizedBox(height: 16),
 
                   // Divider with Text
-                  Row(
+                  const Row(
                     children: [
-                      const Expanded(child: Divider(color: OutdoorTheme.borderSubtle)),
+                      Expanded(child: Divider(color: OutdoorTheme.borderSubtle)),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        padding: EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
                           'ИЛИ ВВЕДИТЕ КЛЮЧ ВРУЧНУЮ',
                           style: TextStyle(
@@ -291,7 +386,7 @@ class QrSyncService {
                           ),
                         ),
                       ),
-                      const Expanded(child: Divider(color: OutdoorTheme.borderSubtle)),
+                      Expanded(child: Divider(color: OutdoorTheme.borderSubtle)),
                     ],
                   ),
 
@@ -311,21 +406,21 @@ class QrSyncService {
                           final data = await Clipboard.getData(Clipboard.kTextPlain);
                           if (data?.text != null) {
                             textController.text = data!.text!;
-                            final parsed = decodeTripProfile(data.text!);
-                            setModalState(() => previewProfile = parsed);
+                            final parsed = decodeTripSnapshot(data.text!);
+                            setModalState(() => previewSnapshot = parsed);
                           }
                         },
                       ),
                     ),
                     onChanged: (val) {
-                      final parsed = decodeTripProfile(val);
-                      setModalState(() => previewProfile = parsed);
+                      final parsed = decodeTripSnapshot(val);
+                      setModalState(() => previewSnapshot = parsed);
                     },
                   ),
                   const SizedBox(height: 14),
 
                   // Preview Card if successfully decoded
-                  if (previewProfile != null) ...[
+                  if (previewSnapshot != null) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -343,7 +438,7 @@ class QrSyncService {
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
-                                  'Поход: ${previewProfile!.title}',
+                                  'Поход: ${previewSnapshot!.profile.title}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13,
@@ -355,9 +450,18 @@ class QrSyncService {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Дней: ${previewProfile!.durationDays} • Участников: ${previewProfile!.groupSize} • Дистанция: ${previewProfile!.totalDistanceKm.toStringAsFixed(0)} км • ${previewProfile!.season.displayNameRu}',
+                            'Дней: ${previewSnapshot!.profile.durationDays} • Участников: ${previewSnapshot!.profile.groupSize} • Дистанция: ${previewSnapshot!.profile.totalDistanceKm.toStringAsFixed(0)} км',
                             style: const TextStyle(
                                 fontSize: 11, color: OutdoorTheme.textSecondary),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '📍 Новых меток: ${previewSnapshot!.waypoints.length} • 📝 Заметок лагеря: ${previewSnapshot!.campNotes.length}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.cyanAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -366,22 +470,66 @@ class QrSyncService {
                   ],
 
                   ElevatedButton.icon(
-                    onPressed: previewProfile == null
+                    onPressed: previewSnapshot == null
                         ? null
-                        : () {
-                            ref
-                                .read(activeTripProfileProvider.notifier)
-                                .updateProfile(previewProfile!);
-                            Navigator.pop(ctx);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('✅ Поход "${previewProfile!.title}" успешно загружен!'),
-                                backgroundColor: OutdoorTheme.tacticalGreen,
-                              ),
-                            );
+                        : () async {
+                            final snapshot = previewSnapshot!;
+                            final currentParticipants = ref.read(groupParticipantsProvider);
+                            final currentIsLeader = currentParticipants
+                                .any((p) => p.role == TripRole.leader);
+
+                            // 1. Update Profile (if receiver is not leader or code is from leader)
+                            if (!currentIsLeader || snapshot.isLeader) {
+                              ref
+                                  .read(activeTripProfileProvider.notifier)
+                                  .updateProfile(snapshot.profile);
+                            }
+
+                            // 2. Merge Waypoints (non-destructive)
+                            final trackingNotifier = ref.read(trackingProvider.notifier);
+                            final activeTrack = ref.read(trackingProvider).activeTrack;
+                            if (activeTrack != null && snapshot.waypoints.isNotEmpty) {
+                              for (final wp in snapshot.waypoints) {
+                                final alreadyExists = activeTrack.waypoints.any(
+                                  (existing) =>
+                                      existing.id == wp.id ||
+                                      (existing.title == wp.title &&
+                                          (existing.latitude - wp.latitude).abs() < 0.0001 &&
+                                          (existing.longitude - wp.longitude).abs() < 0.0001),
+                                );
+                                if (!alreadyExists) {
+                                  await trackingNotifier.addWaypoint(
+                                    title: wp.title,
+                                    type: wp.type,
+                                    note: wp.note,
+                                    photoPath: wp.photoPath,
+                                    authorName: wp.authorName,
+                                    authorRole: wp.authorRole,
+                                  );
+                                }
+                              }
+                            }
+
+                            // 3. Merge Camp Notes (non-destructive)
+                            if (snapshot.campNotes.isNotEmpty) {
+                              for (final note in snapshot.campNotes) {
+                                await trackingNotifier.addCampNoteToActiveTrack(note);
+                              }
+                            }
+
+                            if (context.mounted) {
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      '✅ Данные похода "${snapshot.profile.title}" успешно объединены! (+${snapshot.waypoints.length} меток, +${snapshot.campNotes.length} заметок)'),
+                                  backgroundColor: OutdoorTheme.tacticalGreen,
+                                ),
+                              );
+                            }
                           },
                     icon: const Icon(Icons.download_done),
-                    label: const Text('Загрузить и применить поход'),
+                    label: const Text('Принять и объединить данные'),
                   ),
                 ],
               ),

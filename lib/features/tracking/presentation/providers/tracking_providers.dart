@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/tracking/data/repositories/track_storage_repository.dart';
 import 'package:survival_calc/features/tracking/domain/models/camp_debrief.dart';
+import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
 import 'package:survival_calc/features/tracking/domain/models/gps_point.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
@@ -570,6 +572,9 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
     required String title,
     required WayPointType type,
     String? note,
+    String? photoPath,
+    String? authorName,
+    TripRole? authorRole,
   }) async {
     if (state.activeTrack == null) return;
 
@@ -598,6 +603,9 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
       longitude: lng,
       altitude: alt,
       timestamp: DateTime.now(),
+      photoPath: photoPath,
+      authorName: authorName,
+      authorRole: authorRole,
     );
 
     final updatedWaypoints = List<WayPoint>.from(state.activeTrack!.waypoints)
@@ -608,6 +616,20 @@ class TrackingNotifier extends StateNotifier<TrackingState> {
 
     state = state.copyWith(activeTrack: updatedTrack);
     await _syncActiveTrackToDisk();
+  }
+
+  /// Attach a daily camp journal note to the active track debrief
+  Future<void> addCampNoteToActiveTrack(DailyCampNote note) async {
+    if (state.activeTrack == null) return;
+
+    final currentDebrief = state.activeTrack!.debrief;
+    if (currentDebrief != null) {
+      final updatedNotes = List<DailyCampNote>.from(currentDebrief.notes)..add(note);
+      final updatedDebrief = currentDebrief.copyWith(notes: updatedNotes);
+      final updatedTrack = state.activeTrack!.copyWith(debrief: updatedDebrief);
+      state = state.copyWith(activeTrack: updatedTrack);
+      await _syncActiveTrackToDisk();
+    }
   }
 
   /// Stop tracking ("Встали на ночевку / Завершить день") and generate CampDebrief

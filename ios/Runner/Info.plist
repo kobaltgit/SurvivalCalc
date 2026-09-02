@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Приложению необходим доступ к камере для сканирования QR-кодов походных раскладок.</string>
+	<string>Приложению необходим доступ к камере для сканирования QR-кодов и съемки путевых фото-меток.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Приложению необходим доступ к фотогалерее для прикрепления фотографий к путевым точкам и дневнику похода.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

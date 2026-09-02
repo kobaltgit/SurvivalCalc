@@ -12,6 +12,7 @@ import 'package:survival_calc/features/tracking/presentation/widgets/camp_debrie
 import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_dialog.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/offline_maps_sheet.dart';
 import 'package:survival_calc/features/tracking/presentation/widgets/track_history_sheet.dart';
+import 'package:survival_calc/features/tracking/presentation/widgets/waypoint_details_sheet.dart';
 
 class TrackingScreen extends ConsumerStatefulWidget {
   const TrackingScreen({super.key});
@@ -76,15 +77,25 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AddWaypointDialog(
-        onAdd: (title, type, note) {
+        onAdd: ({
+          required title,
+          required type,
+          note,
+          photoPath,
+          authorName,
+          authorRole,
+        }) {
           ref.read(trackingProvider.notifier).addWaypoint(
                 title: title,
                 type: type,
                 note: note,
+                photoPath: photoPath,
+                authorName: authorName,
+                authorRole: authorRole,
               );
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Метка "$title" добавлена на карту'),
+              content: Text('📍 Метка "$title" ${photoPath != null ? '📷 с фото ' : ''}добавлена на карту'),
               backgroundColor: OutdoorTheme.signalOrange,
             ),
           );
@@ -345,23 +356,54 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
               if (track != null && track.waypoints.isNotEmpty)
                 MarkerLayer(
                   markers: track.waypoints.map((wp) {
+                    final hasPhoto = wp.photoPath != null;
                     return Marker(
                       point: LatLng(wp.latitude, wp.longitude),
-                      width: 36,
-                      height: 36,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: _getWaypointColor(wp.type),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black45, blurRadius: 4),
+                      width: hasPhoto ? 40 : 36,
+                      height: hasPhoto ? 40 : 36,
+                      child: GestureDetector(
+                        onTap: () => WaypointDetailsSheet.show(context, wp),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: _getWaypointColor(wp.type),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: hasPhoto ? Colors.cyanAccent : Colors.white,
+                                  width: hasPhoto ? 2.5 : 2,
+                                ),
+                                boxShadow: const [
+                                  BoxShadow(color: Colors.black45, blurRadius: 4),
+                                ],
+                              ),
+                              child: Icon(
+                                _getWaypointIcon(wp.type),
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                            if (hasPhoto)
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.photo_camera,
+                                    color: Colors.cyanAccent,
+                                    size: 11,
+                                  ),
+                                ),
+                              ),
                           ],
-                        ),
-                        child: Icon(
-                          _getWaypointIcon(wp.type),
-                          color: Colors.white,
-                          size: 18,
                         ),
                       ),
                     );

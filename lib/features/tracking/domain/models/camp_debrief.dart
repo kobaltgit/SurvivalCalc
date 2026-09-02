@@ -1,3 +1,5 @@
+import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
+
 class CampDebrief {
   final int dayIndex;
   final String dayTitle;
@@ -30,6 +32,9 @@ class CampDebrief {
   final double dailyGasConsumedG;
   final double estimatedMorningPackWeightKg;
 
+  // Daily camp journal & photo reflections
+  final List<DailyCampNote> notes;
+
   const CampDebrief({
     required this.dayIndex,
     required this.dayTitle,
@@ -51,7 +56,60 @@ class CampDebrief {
     required this.dailyFoodWeightConsumedG,
     required this.dailyGasConsumedG,
     required this.estimatedMorningPackWeightKg,
+    this.notes = const [],
   });
+
+  CampDebrief copyWith({
+    int? dayIndex,
+    String? dayTitle,
+    double? plannedDistanceKm,
+    double? actualDistanceKm,
+    double? plannedAscentMeters,
+    double? actualAscentMeters,
+    double? actualDescentMeters,
+    int? movingDurationSeconds,
+    int? pauseDurationSeconds,
+    double? avgMovingSpeedKmh,
+    double? plannedDailyCalories,
+    double? actualCaloriesBurned,
+    double? calorieDelta,
+    double? targetWaterLiters,
+    double? eveningWaterCompensationLiters,
+    String? electrolyteAdvice,
+    List<String>? nutritionRecommendations,
+    double? dailyFoodWeightConsumedG,
+    double? dailyGasConsumedG,
+    double? estimatedMorningPackWeightKg,
+    List<DailyCampNote>? notes,
+  }) {
+    return CampDebrief(
+      dayIndex: dayIndex ?? this.dayIndex,
+      dayTitle: dayTitle ?? this.dayTitle,
+      plannedDistanceKm: plannedDistanceKm ?? this.plannedDistanceKm,
+      actualDistanceKm: actualDistanceKm ?? this.actualDistanceKm,
+      plannedAscentMeters: plannedAscentMeters ?? this.plannedAscentMeters,
+      actualAscentMeters: actualAscentMeters ?? this.actualAscentMeters,
+      actualDescentMeters: actualDescentMeters ?? this.actualDescentMeters,
+      movingDurationSeconds: movingDurationSeconds ?? this.movingDurationSeconds,
+      pauseDurationSeconds: pauseDurationSeconds ?? this.pauseDurationSeconds,
+      avgMovingSpeedKmh: avgMovingSpeedKmh ?? this.avgMovingSpeedKmh,
+      plannedDailyCalories: plannedDailyCalories ?? this.plannedDailyCalories,
+      actualCaloriesBurned: actualCaloriesBurned ?? this.actualCaloriesBurned,
+      calorieDelta: calorieDelta ?? this.calorieDelta,
+      targetWaterLiters: targetWaterLiters ?? this.targetWaterLiters,
+      eveningWaterCompensationLiters:
+          eveningWaterCompensationLiters ?? this.eveningWaterCompensationLiters,
+      electrolyteAdvice: electrolyteAdvice ?? this.electrolyteAdvice,
+      nutritionRecommendations:
+          nutritionRecommendations ?? this.nutritionRecommendations,
+      dailyFoodWeightConsumedG:
+          dailyFoodWeightConsumedG ?? this.dailyFoodWeightConsumedG,
+      dailyGasConsumedG: dailyGasConsumedG ?? this.dailyGasConsumedG,
+      estimatedMorningPackWeightKg:
+          estimatedMorningPackWeightKg ?? this.estimatedMorningPackWeightKg,
+      notes: notes ?? this.notes,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -75,6 +133,7 @@ class CampDebrief {
       'dailyFoodWeightConsumedG': dailyFoodWeightConsumedG,
       'dailyGasConsumedG': dailyGasConsumedG,
       'estimatedMorningPackWeightKg': estimatedMorningPackWeightKg,
+      'notes': notes.map((n) => n.toJson()).toList(),
     };
   }
 
@@ -117,6 +176,11 @@ class CampDebrief {
           (json['dailyGasConsumedG'] as num?)?.toDouble() ?? 0.0,
       estimatedMorningPackWeightKg:
           (json['estimatedMorningPackWeightKg'] as num?)?.toDouble() ?? 0.0,
+      notes: (json['notes'] as List<dynamic>?)
+              ?.map((e) => DailyCampNote.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
+

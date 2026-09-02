@@ -1,3 +1,4 @@
+import 'package:survival_calc/features/tracking/domain/models/camp_debrief.dart';
 import 'package:survival_calc/features/tracking/domain/models/gps_point.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 
@@ -22,6 +23,7 @@ class DailyTrack {
   final bool isCompleted;
   final bool isSimulation;
   final int segmentIndex;
+  final CampDebrief? debrief;
 
   const DailyTrack({
     required this.id,
@@ -42,6 +44,7 @@ class DailyTrack {
     this.isCompleted = false,
     this.isSimulation = false,
     this.segmentIndex = 1,
+    this.debrief,
   });
 
   DailyTrack copyWith({
@@ -63,6 +66,7 @@ class DailyTrack {
     bool? isCompleted,
     bool? isSimulation,
     int? segmentIndex,
+    CampDebrief? debrief,
   }) {
     return DailyTrack(
       id: id ?? this.id,
@@ -85,6 +89,7 @@ class DailyTrack {
       isCompleted: isCompleted ?? this.isCompleted,
       isSimulation: isSimulation ?? this.isSimulation,
       segmentIndex: segmentIndex ?? this.segmentIndex,
+      debrief: debrief ?? this.debrief,
     );
   }
 
@@ -108,6 +113,7 @@ class DailyTrack {
       'isCompleted': isCompleted,
       'isSimulation': isSimulation,
       'segmentIndex': segmentIndex,
+      if (debrief != null) 'debrief': debrief!.toJson(),
     };
   }
 
@@ -142,6 +148,10 @@ class DailyTrack {
       isCompleted: json['isCompleted'] as bool? ?? false,
       isSimulation: json['isSimulation'] as bool? ?? false,
       segmentIndex: json['segmentIndex'] as int? ?? 1,
+      debrief: json['debrief'] != null
+          ? CampDebrief.fromJson(json['debrief'] as Map<String, dynamic>)
+          : null,
     );
   }
 }
+
