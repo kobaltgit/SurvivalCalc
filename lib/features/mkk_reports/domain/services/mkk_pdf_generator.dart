@@ -142,6 +142,7 @@ class MkkPdfGenerator {
   // Helper widgets for PDF generation
 
   static pw.Widget _buildHeader(String documentType, String tripTitle) {
+    final truncatedTitle = tripTitle.length > 40 ? '${tripTitle.substring(0, 37)}...' : tripTitle;
     return pw.Container(
       margin: const pw.EdgeInsets.only(bottom: 16),
       padding: const pw.EdgeInsets.only(bottom: 6),
@@ -152,9 +153,16 @@ class MkkPdfGenerator {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text('SurvivalCalc • ЭКСПЕДИЦИОННЫЙ ПАКЕТ',
-              style: pw.TextStyle(fontSize: 9, color: PdfColors.grey700, fontWeight: pw.FontWeight.bold)),
-          pw.Text('$documentType: $tripTitle',
-              style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
+              style: pw.TextStyle(fontSize: 8.5, color: PdfColors.grey700, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(width: 16),
+          pw.Expanded(
+            child: pw.Text(
+              '$documentType • $truncatedTitle',
+              textAlign: pw.TextAlign.right,
+              maxLines: 1,
+              style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey700),
+            ),
+          ),
         ],
       ),
     );
