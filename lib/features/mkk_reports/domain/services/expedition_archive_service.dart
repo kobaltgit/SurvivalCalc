@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:survival_calc/features/calculator/domain/models/trip_calculation_result.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
 import 'package:survival_calc/features/mkk_reports/domain/services/mkk_markdown_generator.dart';
@@ -106,15 +105,5 @@ class ExpeditionArchiveService {
     final encoder = ZipEncoder();
     final zipData = encoder.encode(archive);
     return Uint8List.fromList(zipData);
-  }
-
-  /// Saves the ZIP archive to temporary storage and returns the local file path
-  static Future<String> saveZipToTempFile(Uint8List zipBytes, String tripTitle) async {
-    final tempDir = await getTemporaryDirectory();
-    final safeTitle = tripTitle.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
-    final filePath = '${tempDir.path}/Expedition_${safeTitle}_${DateTime.now().millisecondsSinceEpoch}.zip';
-    final file = File(filePath);
-    await file.writeAsBytes(zipBytes, flush: true);
-    return filePath;
   }
 }

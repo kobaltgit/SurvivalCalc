@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/mkk_reports/domain/services/expedition_archive_service.dart';
@@ -29,6 +30,8 @@ class MkkExportSheet extends ConsumerStatefulWidget {
 
 class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
   bool _isExportingZip = false;
+  bool _isGeneratingPassport = false;
+  bool _isGeneratingReport = false;
 
   @override
   Widget build(BuildContext context) {
@@ -107,31 +110,71 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
               // Document 1: Pre-trip Passport
               _buildDocCard(
                 context: context,
+                isLoading: _isGeneratingPassport,
                 icon: Icons.menu_book,
                 badgeColor: OutdoorTheme.signalOrange,
                 title: '📕 Предпоходный паспорт (Маршрутная книжка)',
                 subtitle: 'Заявочный документ до старта: реквизиты МКК, состав группы, весовая ведомость, схема питания и раскладки.',
                 onPrint: () async {
-                  final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
-                    profile: tripProfile,
-                    participants: participants,
-                    calcResult: calcResult,
-                  );
-                  await Printing.layoutPdf(
-                    onLayout: (format) => pdfBytes,
-                    name: 'Passport_MKK_${tripProfile.title}.pdf',
-                  );
+                  setState(() => _isGeneratingPassport = true);
+                  try {
+                    final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
+                      profile: tripProfile,
+                      participants: participants,
+                      calcResult: calcResult,
+                    );
+                    await Printing.layoutPdf(
+                      onLayout: (format) => pdfBytes,
+                      name: 'Passport_MKK_${tripProfile.title}.pdf',
+                    );
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Ошибка формирования PDF: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isGeneratingPassport = false);
+                  }
                 },
                 onShare: () async {
-                  final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
-                    profile: tripProfile,
-                    participants: participants,
-                    calcResult: calcResult,
-                  );
-                  await Printing.sharePdf(
-                    bytes: pdfBytes,
-                    filename: 'Passport_MKK_${tripProfile.title}.pdf',
-                  );
+                  setState(() => _isGeneratingPassport = true);
+                  try {
+                    final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
+                      profile: tripProfile,
+                      participants: participants,
+                      calcResult: calcResult,
+                    );
+                    final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
+                    await FileSaverService.saveAndShareFile(
+                      bytes: pdfBytes,
+                      filename: 'Passport_MKK_$safeTitle.pdf',
+                      mimeType: 'application/pdf',
+                      subject: 'Маршрутная книжка: ${tripProfile.title}',
+                    );
+                    if (context.mounted && kIsWeb) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✅ Документ PDF загружен!'),
+                          backgroundColor: OutdoorTheme.tacticalGreen,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Ошибка экспорта PDF: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isGeneratingPassport = false);
+                  }
                 },
                 onCopyMarkdown: () {
                   final md = MkkMarkdownGenerator.generatePreTripPassportMarkdown(
@@ -153,35 +196,75 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
               // Document 2: Post-trip Technical Report
               _buildDocCard(
                 context: context,
+                isLoading: _isGeneratingReport,
                 icon: Icons.assignment_turned_in,
                 badgeColor: OutdoorTheme.tacticalGreen,
                 title: '📗 Итоговый технический отчет о походе',
                 subtitle: 'Отчет после прохождения: сравнение План/Факт, треки по дням, паспорт путевых точек, погода и дневник лагеря.',
                 onPrint: () async {
-                  final pdfBytes = await MkkPdfGenerator.generatePostTripReportPdf(
-                    profile: tripProfile,
-                    participants: participants,
-                    tracks: tracks,
-                    waypoints: waypoints,
-                    campNotes: campNotes,
-                  );
-                  await Printing.layoutPdf(
-                    onLayout: (format) => pdfBytes,
-                    name: 'Report_${tripProfile.title}.pdf',
-                  );
+                  setState(() => _isGeneratingReport = true);
+                  try {
+                    final pdfBytes = await MkkPdfGenerator.generatePostTripReportPdf(
+                      profile: tripProfile,
+                      participants: participants,
+                      tracks: tracks,
+                      waypoints: waypoints,
+                      campNotes: campNotes,
+                    );
+                    await Printing.layoutPdf(
+                      onLayout: (format) => pdfBytes,
+                      name: 'Report_${tripProfile.title}.pdf',
+                    );
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Ошибка формирования отчета PDF: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isGeneratingReport = false);
+                  }
                 },
                 onShare: () async {
-                  final pdfBytes = await MkkPdfGenerator.generatePostTripReportPdf(
-                    profile: tripProfile,
-                    participants: participants,
-                    tracks: tracks,
-                    waypoints: waypoints,
-                    campNotes: campNotes,
-                  );
-                  await Printing.sharePdf(
-                    bytes: pdfBytes,
-                    filename: 'Report_${tripProfile.title}.pdf',
-                  );
+                  setState(() => _isGeneratingReport = true);
+                  try {
+                    final pdfBytes = await MkkPdfGenerator.generatePostTripReportPdf(
+                      profile: tripProfile,
+                      participants: participants,
+                      tracks: tracks,
+                      waypoints: waypoints,
+                      campNotes: campNotes,
+                    );
+                    final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
+                    await FileSaverService.saveAndShareFile(
+                      bytes: pdfBytes,
+                      filename: 'Report_$safeTitle.pdf',
+                      mimeType: 'application/pdf',
+                      subject: 'Итоговый отчет: ${tripProfile.title}',
+                    );
+                    if (context.mounted && kIsWeb) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('✅ Итоговый отчет PDF загружен!'),
+                          backgroundColor: OutdoorTheme.tacticalGreen,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Ошибка экспорта отчета: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  } finally {
+                    if (mounted) setState(() => _isGeneratingReport = false);
+                  }
                 },
                 onCopyMarkdown: () {
                   final md = MkkMarkdownGenerator.generatePostTripReportMarkdown(
@@ -268,23 +351,18 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                                     campNotes: campNotes,
                                   );
 
-                                  final filePath = await ExpeditionArchiveService.saveZipToTempFile(
-                                    zipBytes,
-                                    tripProfile.title,
-                                  );
-
-                                  await SharePlus.instance.share(
-                                    ShareParams(
-                                      files: [XFile(filePath)],
-                                      subject: 'Экспедиционный архив: ${tripProfile.title}',
-                                      text: 'Экспедиционный архив: ${tripProfile.title}',
-                                    ),
+                                  final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
+                                  await FileSaverService.saveAndShareFile(
+                                    bytes: zipBytes,
+                                    filename: 'Expedition_${safeTitle}_${DateTime.now().millisecondsSinceEpoch}.zip',
+                                    mimeType: 'application/zip',
+                                    subject: 'Экспедиционный архив: ${tripProfile.title}',
                                   );
 
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text('✅ Экспедиционный ZIP-архив успешно сформирован!'),
+                                        content: Text('✅ Экспедиционный ZIP-архив успешно сформирован и сохранен!'),
                                         backgroundColor: OutdoorTheme.tacticalGreen,
                                       ),
                                     );
@@ -335,6 +413,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
 
   Widget _buildDocCard({
     required BuildContext context,
+    required bool isLoading,
     required IconData icon,
     required Color badgeColor,
     required String title,
@@ -371,29 +450,35 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: onPrint,
+                  onPressed: isLoading ? null : onPrint,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: OutdoorTheme.signalOrange,
                     side: const BorderSide(color: OutdoorTheme.signalOrange),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  icon: const Icon(Icons.print, size: 16),
+                  icon: isLoading
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: OutdoorTheme.signalOrange),
+                        )
+                      : const Icon(Icons.print, size: 16),
                   label: const Text('Печать / PDF', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: onShare,
+                  onPressed: isLoading ? null : onShare,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: OutdoorTheme.tacticalGreen,
                     side: const BorderSide(color: OutdoorTheme.tacticalGreen),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  icon: const Icon(Icons.share, size: 16),
-                  label: const Text('Отправить', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.download, size: 16),
+                  label: Text(kIsWeb ? 'Скачать PDF' : 'Отправить', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(width: 8),

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,11 +17,21 @@ class MkkPdfGenerator {
   static const PdfColor alternateRowBg = PdfColor.fromInt(0xFFF4F6F8);
   static const PdfColor borderGray = PdfColor.fromInt(0xFFD1D5DB);
 
-  static Future<pw.Font> _resolveFont(Future<pw.Font> Function() googleFontLoader, pw.Font fallback) async {
+  static pw.Font? _cachedFont;
+
+  static Future<pw.Font> _resolveFont() async {
+    if (_cachedFont != null) return _cachedFont!;
     try {
-      return await googleFontLoader();
+      final data = await rootBundle.load('assets/fonts/Roboto-Regular.ttf');
+      _cachedFont = pw.Font.ttf(data);
+      return _cachedFont!;
     } catch (_) {
-      return fallback;
+      try {
+        _cachedFont = await PdfGoogleFonts.robotoRegular();
+        return _cachedFont!;
+      } catch (_) {
+        return pw.Font.helvetica();
+      }
     }
   }
 
@@ -34,13 +45,13 @@ class MkkPdfGenerator {
     pw.Font? italicFont,
   }) async {
     final pdf = pw.Document(title: 'Маршрутная книжка - ${profile.title}', author: 'SurvivalCalc');
-    final fontRegular = regularFont ?? await _resolveFont(PdfGoogleFonts.robotoRegular, pw.Font.helvetica());
-    final fontBold = boldFont ?? await _resolveFont(PdfGoogleFonts.robotoBold, pw.Font.helveticaBold());
-    final fontItalic = italicFont ?? await _resolveFont(PdfGoogleFonts.robotoItalic, pw.Font.helveticaOblique());
+    final font = regularFont ?? await _resolveFont();
+    final fontBold = boldFont ?? font;
+    final fontItalic = italicFont ?? font;
     final dateFormat = DateFormat('dd.MM.yyyy');
 
     final baseTheme = pw.ThemeData.withFont(
-      base: fontRegular,
+      base: font,
       bold: fontBold,
       italic: fontItalic,
     );
@@ -86,13 +97,13 @@ class MkkPdfGenerator {
     pw.Font? italicFont,
   }) async {
     final pdf = pw.Document(title: 'Итоговый отчет - ${profile.title}', author: 'SurvivalCalc');
-    final fontRegular = regularFont ?? await _resolveFont(PdfGoogleFonts.robotoRegular, pw.Font.helvetica());
-    final fontBold = boldFont ?? await _resolveFont(PdfGoogleFonts.robotoBold, pw.Font.helveticaBold());
-    final fontItalic = italicFont ?? await _resolveFont(PdfGoogleFonts.robotoItalic, pw.Font.helveticaOblique());
+    final font = regularFont ?? await _resolveFont();
+    final fontBold = boldFont ?? font;
+    final fontItalic = italicFont ?? font;
     final dateFormat = DateFormat('dd.MM.yyyy');
 
     final baseTheme = pw.ThemeData.withFont(
-      base: fontRegular,
+      base: font,
       bold: fontBold,
       italic: fontItalic,
     );
