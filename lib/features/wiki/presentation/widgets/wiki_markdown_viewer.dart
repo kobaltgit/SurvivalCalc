@@ -446,7 +446,7 @@ class WikiMarkdownViewer extends StatelessWidget {
 
     final headerCols = tableLines[0]
         .split('|')
-        .map((s) => s.trim())
+        .map((s) => s.trim().replaceAll('**', ''))
         .where((s) => s.isNotEmpty)
         .toList();
 
@@ -455,7 +455,7 @@ class WikiMarkdownViewer extends StatelessWidget {
       if (tableLines[i].contains('---') || tableLines[i].contains(':---')) continue;
       final rowCols = tableLines[i]
           .split('|')
-          .map((s) => s.trim())
+          .map((s) => s.trim().replaceAll('**', ''))
           .where((s) => s.isNotEmpty)
           .toList();
       if (rowCols.isNotEmpty) {
@@ -463,74 +463,186 @@ class WikiMarkdownViewer extends StatelessWidget {
       }
     }
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: OutdoorTheme.surfaceCard,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: DataTable(
-              columnSpacing: 20,
-              horizontalMargin: 16,
-              headingRowHeight: 46,
-              dataRowMinHeight: 44,
-              dataRowMaxHeight: 120,
-              headingRowColor: WidgetStateProperty.all(OutdoorTheme.darkBackground),
-              headingTextStyle: const TextStyle(
-                color: OutdoorTheme.signalOrange,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-              dataTextStyle: const TextStyle(
-                color: Colors.white70,
-                fontSize: 12.5,
-              ),
-              columns: headerCols
-                  .map((h) => DataColumn(
-                        label: Text(h.replaceAll('**', '')),
-                      ))
-                  .toList(),
-              rows: dataRows.map((row) {
-                return DataRow(
-                  cells: row.asMap().entries.map((entry) {
-                    final colIdx = entry.key;
-                    final cell = entry.value;
-                    final isLastCol = colIdx == row.length - 1;
-                    return DataCell(
-                      Container(
-                        constraints: BoxConstraints(
-                          minWidth: 100,
-                          maxWidth: isLastCol ? 340 : 200,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Text(
-                          cell.replaceAll('**', ''),
-                          softWrap: true,
-                          style: TextStyle(
-                            color: colIdx == 0 ? Colors.white : Colors.white70,
-                            fontWeight: colIdx == 0 ? FontWeight.w600 : FontWeight.normal,
-                            fontSize: 12.5,
-                            height: 1.35,
+    if (dataRows.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 650;
+
+        // On mobile / narrow screens with 3+ columns, render as structured responsive cards
+        if (isCompact && headerCols.length >= 3) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: dataRows.map((row) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: OutdoorTheme.surfaceCard,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Row: Primary Title + Category Tag
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              row.length > 1 ? row[1] : row[0],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.bold,
+                                height: 1.25,
+                              ),
+                            ),
                           ),
+                          if (row.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: OutdoorTheme.signalOrange.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: OutdoorTheme.signalOrange.withValues(alpha: 0.4)),
+                              ),
+                              child: Text(
+                                row[0],
+                                style: const TextStyle(
+                                  color: OutdoorTheme.signalOrange,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Detail fields (Columns 2+)
+                      for (int c = 2; c < row.length && c < headerCols.length; c++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 5),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${headerCols[c]}: ',
+                                style: const TextStyle(
+                                  color: Colors.white54,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  row[c],
+                                  style: TextStyle(
+                                    color: c == 2 ? Colors.cyanAccent : Colors.white70,
+                                    fontSize: 12.5,
+                                    height: 1.3,
+                                    fontWeight: c == 2 ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        }
+
+        // Standard Wide Table (100% width, no horizontal scrolling needed)
+        final columnWidths = <int, TableColumnWidth>{};
+        if (headerCols.length == 2) {
+          columnWidths[0] = const FlexColumnWidth(2);
+          columnWidths[1] = const FlexColumnWidth(1.5);
+        } else if (headerCols.length == 4) {
+          columnWidths[0] = const FlexColumnWidth(1.2);
+          columnWidths[1] = const FlexColumnWidth(1.2);
+          columnWidths[2] = const FlexColumnWidth(1.1);
+          columnWidths[3] = const FlexColumnWidth(2.2);
+        } else {
+          for (int c = 0; c < headerCols.length; c++) {
+            columnWidths[c] = const FlexColumnWidth(1);
+          }
+        }
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: OutdoorTheme.surfaceCard,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.white12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Table(
+              columnWidths: columnWidths,
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: [
+                // Header Row
+                TableRow(
+                  decoration: const BoxDecoration(
+                    color: OutdoorTheme.darkBackground,
+                    border: Border(bottom: BorderSide(color: Colors.white12)),
+                  ),
+                  children: headerCols.map((h) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      child: Text(
+                        h,
+                        style: const TextStyle(
+                          color: OutdoorTheme.signalOrange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12.5,
                         ),
                       ),
                     );
                   }).toList(),
-                );
-              }).toList(),
+                ),
+
+                // Data Rows
+                for (int r = 0; r < dataRows.length; r++)
+                  TableRow(
+                    decoration: BoxDecoration(
+                      color: r % 2 == 1 ? Colors.white.withValues(alpha: 0.02) : Colors.transparent,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: r == dataRows.length - 1 ? Colors.transparent : Colors.white.withValues(alpha: 0.05),
+                        ),
+                      ),
+                    ),
+                    children: [
+                      for (int c = 0; c < headerCols.length; c++)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                          child: Text(
+                            c < dataRows[r].length ? dataRows[r][c] : '',
+                            style: TextStyle(
+                              color: c == 0 ? Colors.white : Colors.white70,
+                              fontWeight: c == 0 || c == 1 ? FontWeight.w600 : FontWeight.normal,
+                              fontSize: 12.5,
+                              height: 1.35,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
