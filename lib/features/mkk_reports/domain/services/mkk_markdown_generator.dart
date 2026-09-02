@@ -5,6 +5,7 @@ import 'package:survival_calc/features/group_distribution/domain/models/particip
 import 'package:survival_calc/features/mkk_reports/domain/services/mkk_pdf_generator.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
@@ -110,12 +111,27 @@ ${out.toString()}
     required TripProfile profile,
     required List<Participant> participants,
     required TripCalculationResult? calcResult,
+    PlannedRoute? plannedRoute,
+    List<WayPoint> waypoints = const [],
   }) {
     final effectiveParticipants = MkkPdfGenerator.resolveEffectiveParticipants(
       participants: participants,
       calcResult: calcResult,
       groupSize: profile.groupSize,
     );
+
+    // Collect all distinct waypoints
+    final allWaypoints = <WayPoint>[];
+    if (plannedRoute != null) {
+      allWaypoints.addAll(plannedRoute.waypoints);
+    }
+    for (final w in waypoints) {
+      if (!allWaypoints.any((existing) =>
+          existing.id == w.id ||
+          (existing.latitude == w.latitude && existing.longitude == w.longitude))) {
+        allWaypoints.add(w);
+      }
+    }
 
     final dateFormat = DateFormat('dd.MM.yyyy');
     final sb = StringBuffer();
@@ -180,21 +196,12 @@ ${out.toString()}
     sb.writeln();
 
     sb.writeln('---');
-    sb.writeln('## 3. ПЛАН И ГРАФИК ДВИЖЕНИЯ ПО МАРШРУТУ');
-    final List<PlannedDaySchedule> items = profile.plannedItinerary.isNotEmpty
-        ? profile.plannedItinerary
-        : List.generate(profile.activeDays, (index) {
-            final dayNum = index + 1;
-            final dist = (profile.totalDistanceKm / (profile.activeDays > 0 ? profile.activeDays : 1));
-            return PlannedDaySchedule(
-              dayNumber: dayNum,
-              date: profile.startDate?.add(Duration(days: index)),
-              routeSection: 'Ходовой переход $dayNum',
-              distanceKm: dist,
-              movementType: profile.activityType.displayNameRu,
-              obstacles: 'Полевой рельеф',
-            );
-          });
+    sb.writeln('## 3.1. ПЛАН И ГРАФИК ДВИЖЕНИЯ ПО МАРШРУТУ');
+    final List<PlannedDaySchedule> items = PlannedDaySchedule.generateDefaultSchedule(
+      profile: profile,
+      plannedRoute: plannedRoute,
+      waypoints: allWaypoints,
+    );
 
     sb.writeln('| День | Дата | Участок маршрута (Откуда – Куда) | Км | Способ передвижения | Препятствия / Ночевки |');
     sb.writeln('|:-:|:---:|:---|:---:|:---:|:---|');
@@ -205,6 +212,24 @@ ${out.toString()}
     }
     sb.writeln('| | **ИТОГО:** | **Активным способом передвижения** | **${profile.totalDistanceKm.toStringAsFixed(1)}** | **${profile.activityType.displayNameRu}** | |');
     sb.writeln();
+
+    if (allWaypoints.isNotEmpty) {
+      sb.writeln('---');
+      sb.writeln('## 3.2. КООРДИНАТЫ КОНТРОЛЬНЫХ ТОЧЕК, ПЕРЕВАЛОВ И МЕСТ НОЧЕВОК (WGS-84)');
+      sb.writeln('| № | Название точки / Стоянки | Тип | Координаты (WGS-84) | Высота | Описание |');
+      sb.writeln('|:-:|:---|:---:|:---:|:-:|:---|');
+      for (int i = 0; i < allWaypoints.length; i++) {
+        final w = allWaypoints[i];
+        final latSign = w.latitude >= 0 ? 'N' : 'S';
+        final lonSign = w.longitude >= 0 ? 'E' : 'W';
+        final coords = '${w.latitude.abs().toStringAsFixed(5)}° $latSign, ${w.longitude.abs().toStringAsFixed(5)}° $lonSign';
+        final desc = (w.note != null && w.note!.isNotEmpty)
+            ? w.note!
+            : (w.authorName != null ? 'Автор: ${w.authorName}' : '—');
+        sb.writeln('| ${i + 1} | **${w.title}** | ${w.type.displayNameRu} | $coords | ${w.altitude.round()} м | $desc |');
+      }
+      sb.writeln();
+    }
 
     if (calcResult != null) {
       sb.writeln('---');

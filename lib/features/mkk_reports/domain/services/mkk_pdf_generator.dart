@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
@@ -10,6 +11,7 @@ import 'package:survival_calc/features/group_distribution/domain/models/particip
 import 'package:survival_calc/features/group_distribution/domain/services/load_distribution_service.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
@@ -113,6 +115,8 @@ class MkkPdfGenerator {
     required TripProfile profile,
     required List<Participant> participants,
     required TripCalculationResult? calcResult,
+    PlannedRoute? plannedRoute,
+    List<WayPoint> waypoints = const [],
     pw.Font? regularFont,
     pw.Font? boldFont,
     pw.Font? italicFont,
@@ -122,6 +126,19 @@ class MkkPdfGenerator {
       calcResult: calcResult,
       groupSize: profile.groupSize,
     );
+
+    // Collect all distinct waypoints from plannedRoute and explicitly passed waypoints
+    final allWaypoints = <WayPoint>[];
+    if (plannedRoute != null) {
+      allWaypoints.addAll(plannedRoute.waypoints);
+    }
+    for (final w in waypoints) {
+      if (!allWaypoints.any((existing) =>
+          existing.id == w.id ||
+          (existing.latitude == w.latitude && existing.longitude == w.longitude))) {
+        allWaypoints.add(w);
+      }
+    }
 
     final pdf = pw.Document(
       title: 'Маршрутная книжка - ${profile.title}',
@@ -165,10 +182,26 @@ class MkkPdfGenerator {
           ),
           pw.SizedBox(height: 14),
 
-          // 3. Planned Itinerary (Section 3)
-          _buildSectionHeader('3. ПЛАН И ГРАФИК ДВИЖЕНИЯ ПО МАРШРУТУ'),
-          _buildPlannedItineraryTable(profile, dateFormat),
+          // 3.1. Planned Itinerary (Section 3)
+          _buildSectionHeader('3.1. ПЛАН И ГРАФИК ДВИЖЕНИЯ ПО МАРШРУТУ'),
+          _buildPlannedItineraryTable(profile, plannedRoute, allWaypoints, dateFormat),
           pw.SizedBox(height: 14),
+
+          // 3.2. Waypoints Coordinates Table (if waypoints exist)
+          if (allWaypoints.isNotEmpty) ...[
+            _buildSectionHeader('3.2. КООРДИНАТЫ КОНТРОЛЬНЫХ ТОЧЕК, ПЕРЕВАЛОВ И МЕСТ НОЧЕВОК (WGS-84)'),
+            _buildWaypointsCoordinatesTable(allWaypoints),
+            pw.SizedBox(height: 14),
+          ],
+
+          // 3.3. Route Map & Elevation Profile (if GPX route points exist)
+          if (plannedRoute != null && plannedRoute.points.length >= 2) ...[
+            _buildSectionHeader('3.3. ОБЗОРНАЯ СХЕМА НИТКИ МАРШРУТА И ВЫСОТНЫЙ ПРОФИЛЬ'),
+            _buildRouteVectorMap(plannedRoute, font, fontBold),
+            pw.SizedBox(height: 8),
+            _buildElevationProfile(plannedRoute, font),
+            pw.SizedBox(height: 14),
+          ],
 
           // 4. Material Support & Weight Characteristics (Section 4 & 4.6)
           _buildSectionHeader('4. МАТЕРИАЛЬНОЕ ОБЕСПЕЧЕНИЕ И ВЕСОВЫЕ ХАРАКТЕРИСТИКИ (п. 4.6)'),
@@ -510,22 +543,18 @@ class MkkPdfGenerator {
     );
   }
 
-  /// Planned Itinerary Table (Section 3)
-  static pw.Widget _buildPlannedItineraryTable(TripProfile profile, DateFormat dateFormat) {
-    final List<PlannedDaySchedule> items = profile.plannedItinerary.isNotEmpty
-        ? profile.plannedItinerary
-        : List.generate(profile.activeDays, (index) {
-            final dayNum = index + 1;
-            final dist = (profile.totalDistanceKm / (profile.activeDays > 0 ? profile.activeDays : 1));
-            return PlannedDaySchedule(
-              dayNumber: dayNum,
-              date: profile.startDate?.add(Duration(days: index)),
-              routeSection: 'Ходовой переход $dayNum (участок маршрута)',
-              distanceKm: dist,
-              movementType: profile.activityType.displayNameRu,
-              obstacles: 'Полевой рельеф',
-            );
-          });
+  /// Planned Itinerary Table (Section 3.1)
+  static pw.Widget _buildPlannedItineraryTable(
+    TripProfile profile,
+    PlannedRoute? plannedRoute,
+    List<WayPoint> waypoints,
+    DateFormat dateFormat,
+  ) {
+    final List<PlannedDaySchedule> items = PlannedDaySchedule.generateDefaultSchedule(
+      profile: profile,
+      plannedRoute: plannedRoute,
+      waypoints: waypoints,
+    );
 
     return pw.Table(
       border: pw.TableBorder.all(color: borderGray, width: 0.5),
@@ -563,6 +592,351 @@ class MkkPdfGenerator {
           isHeader: true,
         ),
       ],
+    );
+  }
+
+  /// Table of Coordinates and Altitudes of Key Route Points (Section 3.2 WGS-84)
+  static pw.Widget _buildWaypointsCoordinatesTable(List<WayPoint> waypoints) {
+    return pw.Table(
+      border: pw.TableBorder.all(color: borderGray, width: 0.5),
+      columnWidths: {
+        0: const pw.FixedColumnWidth(22),
+        1: const pw.FlexColumnWidth(2.5),
+        2: const pw.FlexColumnWidth(1.8),
+        3: const pw.FlexColumnWidth(2.5),
+        4: const pw.FixedColumnWidth(45),
+        5: const pw.FlexColumnWidth(2.0),
+      },
+      children: [
+        _buildTableRow(
+          ['№', 'Название точки / Стоянки', 'Тип объекта', 'Координаты (WGS-84)', 'Высота', 'Описание / Примечание'],
+          isHeader: true,
+        ),
+        ...waypoints.asMap().entries.map((entry) {
+          final i = entry.key;
+          final w = entry.value;
+          final latSign = w.latitude >= 0 ? 'N' : 'S';
+          final lonSign = w.longitude >= 0 ? 'E' : 'W';
+          final coordsStr =
+              '${w.latitude.abs().toStringAsFixed(5)}° $latSign, ${w.longitude.abs().toStringAsFixed(5)}° $lonSign';
+          final desc = (w.note != null && w.note!.isNotEmpty)
+              ? w.note!
+              : (w.authorName != null ? 'Автор: ${w.authorName}' : '—');
+
+          return _buildTableRow(
+            [
+              '${i + 1}',
+              w.title,
+              w.type.displayNameRu,
+              coordsStr,
+              '${w.altitude.round()} м',
+              desc,
+            ],
+            isAlt: i % 2 == 1,
+          );
+        }),
+      ],
+    );
+  }
+
+  /// Vector Drawing of Route Track on Coordinate Grid with Scale and North Indicator (Section 3.3)
+  static pw.Widget _buildRouteVectorMap(PlannedRoute route, pw.Font font, pw.Font fontBold) {
+    final pts = route.points;
+    if (pts.length < 2) return pw.SizedBox();
+
+    double minLat = pts.first.latitude;
+    double maxLat = pts.first.latitude;
+    double minLon = pts.first.longitude;
+    double maxLon = pts.first.longitude;
+
+    for (final p in pts) {
+      if (p.latitude < minLat) minLat = p.latitude;
+      if (p.latitude > maxLat) maxLat = p.latitude;
+      if (p.longitude < minLon) minLon = p.longitude;
+      if (p.longitude > maxLon) maxLon = p.longitude;
+    }
+
+    final latCenterRad = ((minLat + maxLat) / 2.0) * (pi / 180.0);
+    final cosLat = cos(latCenterRad).abs().clamp(0.2, 1.0);
+
+    final latSpan = (maxLat - minLat).clamp(0.0001, 180.0);
+    final lonSpan = ((maxLon - minLon) * cosLat).clamp(0.0001, 360.0);
+
+    const mapW = 538.0;
+    const mapH = 175.0;
+    const margin = 26.0;
+
+    final availW = mapW - (margin * 2);
+    final availH = mapH - (margin * 2);
+
+    final scale = min(availW / lonSpan, availH / latSpan);
+    final offsetX = margin + (availW - (lonSpan * scale)) / 2.0;
+    final offsetY = margin + (availH - (latSpan * scale)) / 2.0;
+
+    double toX(double lon) => offsetX + (lon - minLon) * cosLat * scale;
+    double toY(double lat) => offsetY + (lat - minLat) * scale;
+
+    final coordBounds =
+        'Охват WGS-84: [${minLat.toStringAsFixed(4)}°..${maxLat.toStringAsFixed(4)}°N, ${minLon.toStringAsFixed(4)}°..${maxLon.toStringAsFixed(4)}°E]';
+
+    return pw.Container(
+      width: mapW,
+      height: mapH,
+      decoration: pw.BoxDecoration(
+        color: const PdfColor.fromInt(0xFF1E232B),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+        border: pw.Border.all(color: borderGray, width: 0.8),
+      ),
+      child: pw.Stack(
+        children: [
+          pw.CustomPaint(
+            size: const PdfPoint(mapW, mapH),
+            painter: (PdfGraphics canvas, PdfPoint size) {
+              // 1. Draw coordinate grid lines
+              canvas.setColor(const PdfColor.fromInt(0xFF2E3844));
+              canvas.setLineWidth(0.5);
+
+              for (int step = 1; step <= 3; step++) {
+                final gx = margin + (availW * (step / 4));
+                canvas.moveTo(gx, margin);
+                canvas.lineTo(gx, mapH - margin);
+                canvas.strokePath();
+              }
+              for (int step = 1; step <= 2; step++) {
+                final gy = margin + (availH * (step / 3));
+                canvas.moveTo(margin, gy);
+                canvas.lineTo(mapW - margin, gy);
+                canvas.strokePath();
+              }
+
+              // 2. Draw Track Polyline
+              canvas.setColor(primaryOrange);
+              canvas.setLineWidth(2.2);
+
+              final startX = toX(pts.first.longitude);
+              final startY = toY(pts.first.latitude);
+              canvas.moveTo(startX, startY);
+
+              for (int i = 1; i < pts.length; i++) {
+                final x = toX(pts[i].longitude);
+                final y = toY(pts[i].latitude);
+                canvas.lineTo(x, y);
+              }
+              canvas.strokePath();
+
+              // 3. Draw Start Marker (Green circle with inner dot)
+              canvas.setColor(const PdfColor.fromInt(0xFF2E7D32));
+              canvas.drawEllipse(startX, startY, 4.5, 4.5);
+              canvas.fillPath();
+              canvas.setColor(PdfColors.white);
+              canvas.drawEllipse(startX, startY, 1.8, 1.8);
+              canvas.fillPath();
+
+              // 4. Draw Finish Marker (Red circle with inner dot)
+              final endX = toX(pts.last.longitude);
+              final endY = toY(pts.last.latitude);
+              canvas.setColor(const PdfColor.fromInt(0xFFC62828));
+              canvas.drawEllipse(endX, endY, 4.5, 4.5);
+              canvas.fillPath();
+              canvas.setColor(PdfColors.white);
+              canvas.drawEllipse(endX, endY, 1.8, 1.8);
+              canvas.fillPath();
+
+              // 5. Draw Waypoint Markers
+              for (final w in route.waypoints) {
+                final wx = toX(w.longitude);
+                final wy = toY(w.latitude);
+                canvas.setColor(const PdfColor.fromInt(0xFF00E5FF));
+                canvas.drawEllipse(wx, wy, 3.5, 3.5);
+                canvas.fillPath();
+                canvas.setColor(darkHeader);
+                canvas.drawEllipse(wx, wy, 1.2, 1.2);
+                canvas.fillPath();
+              }
+            },
+          ),
+          // Map Title Header
+          pw.Positioned(
+            left: 10,
+            top: 8,
+            child: pw.Text(
+              'СХЕМА ТРЕКА: ${route.name.toUpperCase()}',
+              style: pw.TextStyle(fontSize: 8.5, fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+            ),
+          ),
+          // North indicator
+          pw.Positioned(
+            right: 14,
+            top: 6,
+            child: pw.Column(
+              children: [
+                pw.Text('N', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                pw.Text('↑', style: pw.TextStyle(fontSize: 8, color: primaryOrange, fontWeight: pw.FontWeight.bold)),
+              ],
+            ),
+          ),
+          // Coordinate Bounds Bottom Left
+          pw.Positioned(
+            left: 10,
+            bottom: 6,
+            child: pw.Text(
+              coordBounds,
+              style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey400),
+            ),
+          ),
+          // Legend Bottom Right
+          pw.Positioned(
+            right: 12,
+            bottom: 6,
+            child: pw.Row(
+              children: [
+                pw.Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF2E7D32), shape: pw.BoxShape.circle),
+                ),
+                pw.SizedBox(width: 3),
+                pw.Text('Старт', style: const pw.TextStyle(fontSize: 7, color: PdfColors.white)),
+                pw.SizedBox(width: 8),
+                pw.Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFFC62828), shape: pw.BoxShape.circle),
+                ),
+                pw.SizedBox(width: 3),
+                pw.Text('Финиш', style: const pw.TextStyle(fontSize: 7, color: PdfColors.white)),
+                pw.SizedBox(width: 8),
+                pw.Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const pw.BoxDecoration(color: PdfColor.fromInt(0xFF00E5FF), shape: pw.BoxShape.circle),
+                ),
+                pw.SizedBox(width: 3),
+                pw.Text('Точки', style: const pw.TextStyle(fontSize: 7, color: PdfColors.white)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Elevation Profile Chart of Planned Route (Section 3.3)
+  static pw.Widget _buildElevationProfile(PlannedRoute route, pw.Font font) {
+    final pts = route.points;
+    if (pts.length < 2) return pw.SizedBox();
+
+    double minAlt = pts.first.altitude;
+    double maxAlt = pts.first.altitude;
+
+    for (final p in pts) {
+      if (p.altitude < minAlt) minAlt = p.altitude;
+      if (p.altitude > maxAlt) maxAlt = p.altitude;
+    }
+
+    if ((maxAlt - minAlt) < 10) {
+      minAlt = max(0, minAlt - 20);
+      maxAlt = maxAlt + 20;
+    }
+
+    const chartW = 538.0;
+    const chartH = 85.0;
+    const padL = 36.0;
+    const padR = 14.0;
+    const padB = 16.0;
+    const padT = 12.0;
+
+    final availW = chartW - padL - padR;
+    final availH = chartH - padB - padT;
+
+    double toX(int index) => padL + (index / (pts.length - 1)) * availW;
+    double toY(double alt) => padB + ((alt - minAlt) / (maxAlt - minAlt)) * availH;
+
+    return pw.Container(
+      width: chartW,
+      height: chartH,
+      decoration: pw.BoxDecoration(
+        color: alternateRowBg,
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+        border: pw.Border.all(color: borderGray, width: 0.8),
+      ),
+      child: pw.Stack(
+        children: [
+          pw.CustomPaint(
+            size: const PdfPoint(chartW, chartH),
+            painter: (PdfGraphics canvas, PdfPoint size) {
+              // 1. Draw Grid Baseline and Reference Line
+              canvas.setColor(borderGray);
+              canvas.setLineWidth(0.5);
+              canvas.moveTo(padL, padB);
+              canvas.lineTo(chartW - padR, padB);
+              canvas.strokePath();
+
+              canvas.moveTo(padL, chartH - padT);
+              canvas.lineTo(chartW - padR, chartH - padT);
+              canvas.strokePath();
+
+              // 2. Draw Filled Polygon Under Curve
+              canvas.setColor(const PdfColor.fromInt(0xFFFFE0B2));
+              canvas.moveTo(toX(0), padB);
+
+              for (int i = 0; i < pts.length; i++) {
+                canvas.lineTo(toX(i), toY(pts[i].altitude));
+              }
+              canvas.lineTo(toX(pts.length - 1), padB);
+              canvas.closePath();
+              canvas.fillPath();
+
+              // 3. Draw Stroke Line
+              canvas.setColor(primaryOrange);
+              canvas.setLineWidth(1.6);
+              canvas.moveTo(toX(0), toY(pts.first.altitude));
+
+              for (int i = 1; i < pts.length; i++) {
+                canvas.lineTo(toX(i), toY(pts[i].altitude));
+              }
+              canvas.strokePath();
+            },
+          ),
+          // Chart Header
+          pw.Positioned(
+            left: padL + 4,
+            top: 4,
+            child: pw.Text(
+              'Высотный профиль (+${route.totalAscentMeters.round()}м / -${route.totalDescentMeters.round()}м)',
+              style: pw.TextStyle(fontSize: 7.5, fontWeight: pw.FontWeight.bold, color: darkHeader),
+            ),
+          ),
+          // Max elevation label
+          pw.Positioned(
+            left: 4,
+            top: padT - 2,
+            child: pw.Text('${maxAlt.round()} м', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+          ),
+          // Min elevation label
+          pw.Positioned(
+            left: 4,
+            bottom: padB - 2,
+            child: pw.Text('${minAlt.round()} м', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+          ),
+          // Distance X-Axis labels
+          pw.Positioned(
+            left: padL,
+            bottom: 2,
+            child: pw.Text('0 км', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+          ),
+          pw.Positioned(
+            left: padL + (availW / 2) - 12,
+            bottom: 2,
+            child: pw.Text('${(route.totalDistanceKm / 2).toStringAsFixed(1)} км', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+          ),
+          pw.Positioned(
+            right: padR,
+            bottom: 2,
+            child: pw.Text('${route.totalDistanceKm.toStringAsFixed(1)} км', style: const pw.TextStyle(fontSize: 7, color: PdfColors.grey800)),
+          ),
+        ],
+      ),
     );
   }
 

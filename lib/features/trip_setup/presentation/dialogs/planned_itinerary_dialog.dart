@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 
@@ -31,24 +32,12 @@ class _PlannedItineraryDialogState extends ConsumerState<PlannedItineraryDialog>
     if (widget.profile.plannedItinerary.isNotEmpty) {
       _items = List.from(widget.profile.plannedItinerary);
     } else {
-      // Auto-generate default itinerary from activeDays and totalDistanceKm
-      final count = widget.profile.activeDays > 0 ? widget.profile.activeDays : 1;
-      final dailyKm = widget.profile.totalDistanceKm / count;
-      _items = List.generate(count, (index) {
-        final dayNum = index + 1;
-        DateTime? date;
-        if (widget.profile.startDate != null) {
-          date = widget.profile.startDate!.add(Duration(days: index));
-        }
-        return PlannedDaySchedule(
-          dayNumber: dayNum,
-          date: date,
-          routeSection: 'Ходовой переход $dayNum',
-          distanceKm: dailyKm,
-          movementType: widget.profile.activityType.displayNameRu,
-          obstacles: 'Полевой рельеф',
-        );
-      });
+      final plannedRoute = ref.read(plannedRouteProvider);
+      _items = PlannedDaySchedule.generateDefaultSchedule(
+        profile: widget.profile,
+        plannedRoute: plannedRoute,
+        waypoints: plannedRoute?.waypoints ?? const [],
+      );
     }
   }
 

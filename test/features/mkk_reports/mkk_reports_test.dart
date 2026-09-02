@@ -185,14 +185,29 @@ void main() {
       expect(html, contains('<th>Имя</th>'));
       expect(html, contains('<td>Алексей</td>'));
     });
+    test('generatePreTripPassportMarkdown includes waypoints coordinates and no field relief placeholders', () {
+      final md = MkkMarkdownGenerator.generatePreTripPassportMarkdown(
+        profile: testProfile,
+        participants: testParticipants,
+        calcResult: testCalcResult,
+        waypoints: testWaypoints,
+      );
+
+      expect(md, contains('3.1. ПЛАН И ГРАФИК ДВИЖЕНИЯ ПО МАРШРУТУ'));
+      expect(md, contains('3.2. КООРДИНАТЫ КОНТРОЛЬНЫХ ТОЧЕК, ПЕРЕВАЛОВ И МЕСТ НОЧЕВОК (WGS-84)'));
+      expect(md, contains('50.12340° N, 87.56780° E'));
+      expect(md, contains('3100 м'));
+      expect(md, isNot(contains('Полевой рельеф')));
+    });
   });
 
   group('MkkPdfGenerator Tests', () {
-    test('generatePreTripPassportPdf returns non-empty valid PDF bytes', () async {
+    test('generatePreTripPassportPdf returns non-empty valid PDF bytes with waypoints and map', () async {
       final pdfBytes = await MkkPdfGenerator.generatePreTripPassportPdf(
         profile: testProfile,
         participants: testParticipants,
         calcResult: testCalcResult,
+        waypoints: testWaypoints,
       );
 
       expect(pdfBytes, isNotNull);

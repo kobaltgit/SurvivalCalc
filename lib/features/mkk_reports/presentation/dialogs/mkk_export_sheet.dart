@@ -11,6 +11,7 @@ import 'package:survival_calc/features/mkk_reports/domain/services/mkk_pdf_gener
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
+import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 
 class MkkExportSheet extends ConsumerStatefulWidget {
@@ -42,6 +43,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
     final tracksAsync = ref.watch(currentTripTracksProvider);
     final sandboxAsync = ref.watch(sandboxTracksProvider);
     final trackingState = ref.watch(trackingProvider);
+    final plannedRoute = ref.watch(plannedRouteProvider);
 
     List<DailyTrack> tracks = List<DailyTrack>.from(tracksAsync.value ?? []);
 
@@ -61,6 +63,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
     tracks.sort((a, b) => a.startTime.compareTo(b.startTime));
 
     final List<WayPoint> waypoints = [
+      if (plannedRoute != null) ...plannedRoute.waypoints,
       ...tracks.expand((t) => t.waypoints),
       if (trackingState.activeTrack != null)
         ...trackingState.activeTrack!.waypoints.where(
@@ -144,7 +147,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                 icon: Icons.menu_book,
                 badgeColor: OutdoorTheme.signalOrange,
                 title: '📕 Маршрутная книжка (Форма № 5 – Тур, ФСТР 2020)',
-                subtitle: 'Официальный заявочный бланк ФСТР: титул МЧС, состав группы с ПДн, заявленный график по дням, норматив веса М/Ж (п. 4.6), координатор и штампы МКК.',
+                subtitle: 'Официальный заявочный бланк ФСТР: титул МЧС, состав группы с ПДн, заявленный график по дням, норматив веса М/Ж (п. 4.6), координаты точек, карта-схема и штампы МКК.',
                 onPrint: () async {
                   setState(() => _isGeneratingPassport = true);
                   try {
@@ -152,6 +155,8 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                       profile: tripProfile,
                       participants: participants,
                       calcResult: calcResult,
+                      plannedRoute: plannedRoute,
+                      waypoints: waypoints,
                     );
                     final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
                     await FileSaverService.openPdfInViewer(
@@ -178,6 +183,8 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                       profile: tripProfile,
                       participants: participants,
                       calcResult: calcResult,
+                      plannedRoute: plannedRoute,
+                      waypoints: waypoints,
                     );
                     final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');
                     await FileSaverService.saveAndShareFile(
@@ -212,6 +219,8 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                     profile: tripProfile,
                     participants: participants,
                     calcResult: calcResult,
+                    plannedRoute: plannedRoute,
+                    waypoints: waypoints,
                   );
                   Clipboard.setData(ClipboardData(text: md));
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -381,6 +390,7 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
                                     tracks: tracks,
                                     waypoints: waypoints,
                                     campNotes: campNotes,
+                                    plannedRoute: plannedRoute,
                                   );
 
                                   final safeTitle = tripProfile.title.replaceAll(RegExp(r'[^\w\dа-яА-Я_\-]'), '_');

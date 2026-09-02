@@ -8,6 +8,7 @@ import 'package:survival_calc/features/mkk_reports/domain/services/mkk_markdown_
 import 'package:survival_calc/features/mkk_reports/domain/services/mkk_pdf_generator.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
+import 'package:survival_calc/features/tracking/domain/models/planned_route.dart';
 import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/tracking/domain/services/gpx_exporter.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
@@ -21,6 +22,7 @@ class ExpeditionArchiveService {
     required List<DailyTrack> tracks,
     required List<WayPoint> waypoints,
     required List<DailyCampNote> campNotes,
+    PlannedRoute? plannedRoute,
   }) async {
     final archive = Archive();
 
@@ -30,6 +32,8 @@ class ExpeditionArchiveService {
         profile: profile,
         participants: participants,
         calcResult: calcResult,
+        plannedRoute: plannedRoute,
+        waypoints: waypoints,
       );
       archive.addFile(ArchiveFile('Passport_MKK.pdf', passportPdfBytes.length, passportPdfBytes));
     } catch (e) {
@@ -54,6 +58,8 @@ class ExpeditionArchiveService {
       profile: profile,
       participants: participants,
       calcResult: calcResult,
+      plannedRoute: plannedRoute,
+      waypoints: waypoints,
     );
     final reportMd = MkkMarkdownGenerator.generatePostTripReportMarkdown(
       profile: profile,
