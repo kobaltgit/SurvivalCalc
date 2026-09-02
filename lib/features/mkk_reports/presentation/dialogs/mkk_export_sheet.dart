@@ -9,6 +9,8 @@ import 'package:survival_calc/features/mkk_reports/domain/services/expedition_ar
 import 'package:survival_calc/features/mkk_reports/domain/services/mkk_markdown_generator.dart';
 import 'package:survival_calc/features/mkk_reports/domain/services/mkk_pdf_generator.dart';
 import 'package:survival_calc/features/tracking/domain/models/daily_camp_note.dart';
+import 'package:survival_calc/features/tracking/domain/models/daily_track.dart';
+import 'package:survival_calc/features/tracking/domain/models/way_point.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/tracking_providers.dart';
 
 class MkkExportSheet extends ConsumerStatefulWidget {
@@ -28,9 +30,9 @@ class MkkExportSheet extends ConsumerStatefulWidget {
 }
 
 class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
-  bool _isExportingZip = false;
   bool _isGeneratingPassport = false;
   bool _isGeneratingReport = false;
+  bool _isExportingZip = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +40,38 @@ class _MkkExportSheetState extends ConsumerState<MkkExportSheet> {
     final participants = ref.watch(participantsProvider);
     final calcResult = ref.watch(tripCalculationResultProvider);
     final tracksAsync = ref.watch(currentTripTracksProvider);
-    final tracks = tracksAsync.value ?? [];
-    final waypoints = tracks.expand((t) => t.waypoints).toList();
-    final campNotes = tracks.expand((t) => t.debrief?.notes ?? <DailyCampNote>[]).toList();
+    final sandboxAsync = ref.watch(sandboxTracksProvider);
+    final trackingState = ref.watch(trackingProvider);
+
+    List<DailyTrack> tracks = List<DailyTrack>.from(tracksAsync.value ?? []);
+
+    // 1. If current trip has no saved tracks yet, include sandbox tracks so simulation is reflected
+    if (tracks.isEmpty && sandboxAsync.value != null && sandboxAsync.value!.isNotEmpty) {
+      tracks = List<DailyTrack>.from(sandboxAsync.value!);
+    }
+
+    // 2. If an active track is currently running (live GPS or simulation), include it
+    if (trackingState.activeTrack != null &&
+        trackingState.activeTrack!.points.isNotEmpty &&
+        !tracks.any((t) => t.id == trackingState.activeTrack!.id)) {
+      tracks.add(trackingState.activeTrack!);
+    }
+
+    // Sort tracks chronologically
+    tracks.sort((a, b) => a.startTime.compareTo(b.startTime));
+
+    final List<WayPoint> waypoints = [
+      ...tracks.expand((t) => t.waypoints),
+      if (trackingState.activeTrack != null)
+        ...trackingState.activeTrack!.waypoints.where(
+          (wp) => !tracks.any((t) => t.waypoints.any((w) => w.id == wp.id)),
+        ),
+    ];
+    final List<DailyCampNote> campNotes = [
+      ...tracks.expand((t) => t.debrief?.notes ?? <DailyCampNote>[]),
+      if (trackingState.activeTrack?.debrief != null)
+        ...trackingState.activeTrack!.debrief!.notes,
+    ];
 
     return Container(
       decoration: const BoxDecoration(
