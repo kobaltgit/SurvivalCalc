@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
+import 'package:survival_calc/features/trip_setup/domain/models/planned_day_schedule.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_storage/data/repositories/saved_trips_repository.dart';
 import 'package:survival_calc/features/trip_storage/domain/models/saved_trip_entry.dart';
@@ -149,6 +150,60 @@ void main() {
       final all = await repository.loadAll();
       expect(all.length, equals(1));
       expect(all.first.id, equals('keep_2'));
+    });
+  });
+
+  group('Trip Lifecycle & Itinerary Schedule Tests', () {
+    test('PlannedDaySchedule dynamically regenerates when plannedItinerary is empty', () {
+      final profile = TripProfile(
+        id: 'trip_fresh',
+        title: 'Свежий маршрут',
+        groupSize: 2,
+        durationDays: 4,
+        activeDays: 4,
+        totalDistanceKm: 40.0,
+        totalAscentMeters: 800.0,
+        season: Season.summer,
+        activityType: ActivityType.hiking,
+        avgParticipantWeightKg: 75.0,
+        createdAt: DateTime.now(),
+        plannedItinerary: const [], // empty
+      );
+
+      final schedule = PlannedDaySchedule.generateDefaultSchedule(profile: profile);
+      expect(schedule.length, equals(4));
+      expect(schedule[0].dayNumber, equals(1));
+      expect(schedule[0].distanceKm, equals(10.0));
+      expect(schedule[3].dayNumber, equals(4));
+    });
+
+    test('PlannedDaySchedule ignores stale plannedItinerary if activeDays mismatch', () {
+      final staleItinerary = [
+        const PlannedDaySchedule(dayNumber: 1, routeSection: 'Старый переход 1', distanceKm: 15.0),
+        const PlannedDaySchedule(dayNumber: 2, routeSection: 'Старый переход 2', distanceKm: 15.0),
+      ];
+
+      // Profile changed to 4 days, but still held 2 days in plannedItinerary
+      final profile = TripProfile(
+        id: 'trip_updated',
+        title: 'Обновленный маршрут',
+        groupSize: 2,
+        durationDays: 4,
+        activeDays: 4,
+        totalDistanceKm: 60.0,
+        totalAscentMeters: 1200.0,
+        season: Season.summer,
+        activityType: ActivityType.hiking,
+        avgParticipantWeightKg: 75.0,
+        createdAt: DateTime.now(),
+        plannedItinerary: staleItinerary,
+      );
+
+      final schedule = PlannedDaySchedule.generateDefaultSchedule(profile: profile);
+      // Stale 2-day itinerary must be invalidated and 4 fresh days generated
+      expect(schedule.length, equals(4));
+      expect(schedule[0].distanceKm, equals(15.0));
+      expect(schedule[0].routeSection, contains('Ходовой переход 1'));
     });
   });
 }

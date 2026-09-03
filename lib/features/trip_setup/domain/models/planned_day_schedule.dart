@@ -65,11 +65,11 @@ class PlannedDaySchedule {
     PlannedRoute? plannedRoute,
     List<WayPoint> waypoints = const [],
   }) {
-    if (profile.plannedItinerary.isNotEmpty) {
+    final count = profile.activeDays > 0 ? profile.activeDays : 1;
+    if (profile.plannedItinerary.isNotEmpty && profile.plannedItinerary.length == count) {
       return profile.plannedItinerary;
     }
 
-    final count = profile.activeDays > 0 ? profile.activeDays : 1;
     final dailyKm = profile.totalDistanceKm / count;
 
     // Combine distinct waypoints

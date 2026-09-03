@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/State-Riverpod-blueviolet?style=for-the-badge" alt="Riverpod" />
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/Offline-100%25%20Autonomous-success?style=for-the-badge" alt="100% Offline" />
-  <img src="https://img.shields.io/badge/Tests-79%2F79%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
+  <img src="https://img.shields.io/badge/Tests-81%2F81%20Passing-brightgreen?style=for-the-badge" alt="Tests Passing" />
   <a href="https://keepandroidopen.org/ru/">
     <img src="https://img.shields.io/badge/Keep_Android-Open-E05315?style=for-the-badge&logo=android&logoColor=white" alt="Keep Android Open" />
   </a>

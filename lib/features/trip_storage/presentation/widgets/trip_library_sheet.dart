@@ -7,6 +7,7 @@ import 'package:survival_calc/core/services/file_saver_service.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_storage/domain/models/saved_trip_entry.dart';
+import 'package:survival_calc/features/trip_storage/presentation/dialogs/trip_lifecycle_dialogs.dart';
 import 'package:survival_calc/features/trip_storage/presentation/providers/saved_trips_providers.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/save_trip_dialog.dart';
 import 'package:survival_calc/features/web/domain/services/web_url_service.dart';
@@ -42,7 +43,7 @@ class _TripLibrarySheetState extends ConsumerState<TripLibrarySheet>
     _tabController = TabController(
       length: 2,
       vsync: this,
-      initialIndex: widget.initialTabIndex,
+      initialIndex: widget.initialTabIndex.clamp(0, 1),
     );
   }
 
@@ -66,43 +67,34 @@ class _TripLibrarySheetState extends ConsumerState<TripLibrarySheet>
       child: Column(
         children: [
           // Drag handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 10, bottom: 6),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
-              ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
 
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             child: Row(
               children: [
-                const Icon(Icons.folder_special_outlined, color: OutdoorTheme.signalOrange),
+                const Icon(Icons.folder_special, color: OutdoorTheme.signalOrange, size: 24),
                 const SizedBox(width: 10),
                 const Text(
                   'Библиотека походов',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: OutdoorTheme.textPrimary,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
-                  tooltip: 'Сохранить текущий',
-                  icon: const Icon(Icons.save_outlined, color: OutdoorTheme.signalOrange),
-                  onPressed: () {
-                    SaveTripDialog.show(context);
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: OutdoorTheme.textMuted),
+                  icon: const Icon(Icons.close, color: OutdoorTheme.textSecondary),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -179,9 +171,23 @@ class _TripLibrarySheetState extends ConsumerState<TripLibrarySheet>
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: () {
+                  Navigator.pop(context);
+                  TripLifecycleDialogs.showNewTripConfirmation(context, ref);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: OutdoorTheme.signalOrange,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                ),
+                icon: const Icon(Icons.add_circle, size: 18),
+                label: const Text('Создать новый поход с нуля', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () {
                   SaveTripDialog.show(context, initialIsTemplate: false);
                 },
-                icon: const Icon(Icons.save, size: 18),
+                icon: const Icon(Icons.save_outlined, size: 18),
                 label: const Text('Сохранить текущий поход'),
               ),
             ],
@@ -190,13 +196,32 @@ class _TripLibrarySheetState extends ConsumerState<TripLibrarySheet>
       );
     }
 
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      itemCount: trips.length,
-      itemBuilder: (ctx, i) {
-        final entry = trips[i];
-        return _buildTripCard(context, entry, isTemplate: false);
-      },
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              TripLifecycleDialogs.showNewTripConfirmation(context, ref);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: OutdoorTheme.signalOrange.withValues(alpha: 0.18),
+              foregroundColor: OutdoorTheme.signalOrange,
+              side: const BorderSide(color: OutdoorTheme.signalOrange, width: 1.2),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+            label: const Text(
+              '➕ Начать новый поход с чистого листа',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+          ),
+        ),
+        ...trips.map((entry) => _buildTripCard(context, entry, isTemplate: false)),
+      ],
     );
   }
 

@@ -109,9 +109,11 @@ class SavedTripsNotifier extends StateNotifier<AsyncValue<List<SavedTripEntry>>>
       ref.read(groupParticipantsProvider.notifier).setParticipants(entry.participants);
     }
 
-    // 4. Set planned route if available
+    // 4. Set planned route if available, or clear if absent
     if (entry.plannedRoute != null) {
       ref.read(plannedRouteProvider.notifier).setPlannedRoute(entry.plannedRoute!);
+    } else {
+      ref.read(plannedRouteProvider.notifier).clearPlannedRoute();
     }
   }
 }

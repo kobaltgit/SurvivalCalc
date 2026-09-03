@@ -100,6 +100,7 @@ class _GpxImportDialogState extends ConsumerState<GpxImportDialog> {
           title: route.name,
           totalDistanceKm: route.totalDistanceKm,
           totalAscentMeters: route.totalAscentMeters,
+          plannedItinerary: const [],
         ),
       );
     }

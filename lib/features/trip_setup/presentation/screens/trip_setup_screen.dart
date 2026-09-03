@@ -14,6 +14,7 @@ import 'package:survival_calc/features/tracking/presentation/widgets/gpx_import_
 import 'package:survival_calc/features/tracking/presentation/widgets/offline_maps_sheet.dart';
 import 'package:survival_calc/features/trip_setup/domain/models/trip_profile.dart';
 import 'package:survival_calc/features/trip_setup/presentation/dialogs/planned_itinerary_dialog.dart';
+import 'package:survival_calc/features/trip_storage/presentation/dialogs/trip_lifecycle_dialogs.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/save_trip_dialog.dart';
 import 'package:survival_calc/features/trip_storage/presentation/widgets/trip_library_sheet.dart';
 import 'package:survival_calc/features/wiki/presentation/screens/wiki_screen.dart';
@@ -45,6 +46,12 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(activeTripProfileProvider, (previous, next) {
+      if (_titleController.text != next.title) {
+        _titleController.text = next.title;
+      }
+    });
+
     final profile = ref.watch(activeTripProfileProvider);
     final result = ref.watch(calculationResultProvider);
     final plannedRoute = ref.watch(plannedRouteProvider);
@@ -75,6 +82,13 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             },
           ),
           if (isWide) ...[
+            IconButton(
+              tooltip: 'Новый поход (с чистого листа)',
+              icon: const Icon(Icons.add_circle_outline_rounded, color: OutdoorTheme.signalOrange),
+              onPressed: () {
+                TripLifecycleDialogs.showNewTripConfirmation(context, ref);
+              },
+            ),
             IconButton(
               tooltip: 'Документы МКК / Отчеты',
               icon: const Icon(Icons.picture_as_pdf, color: OutdoorTheme.signalOrange),
@@ -113,7 +127,9 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
             tooltip: 'Меню и инструменты',
             icon: const Icon(Icons.more_vert, color: OutdoorTheme.signalOrange),
             onSelected: (val) async {
-              if (val == 'wiki') {
+              if (val == 'new_trip') {
+                TripLifecycleDialogs.showNewTripConfirmation(context, ref);
+              } else if (val == 'wiki') {
                 WikiScreen.navigate(context);
               } else if (val == 'mkk_export') {
                 MkkExportSheet.show(context);
@@ -137,6 +153,17 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
               }
             },
             itemBuilder: (ctx) => [
+              const PopupMenuItem(
+                value: 'new_trip',
+                child: Row(
+                  children: [
+                    Icon(Icons.add_circle_outline_rounded, size: 18, color: OutdoorTheme.signalOrange),
+                    SizedBox(width: 8),
+                    Text('Новый поход (с чистого листа)'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
               if (!isWide) ...[
                 const PopupMenuItem(
                   value: 'save_trip',

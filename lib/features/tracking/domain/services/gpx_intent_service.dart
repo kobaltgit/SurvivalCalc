@@ -46,8 +46,10 @@ class GpxIntentService {
       final current = ref.read(activeTripProfileProvider);
       ref.read(activeTripProfileProvider.notifier).updateProfile(
             current.copyWith(
+              title: route.name,
               totalDistanceKm: route.totalDistanceKm,
               totalAscentMeters: route.totalAscentMeters,
+              plannedItinerary: const [],
             ),
           );
 
