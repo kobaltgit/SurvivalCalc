@@ -109,6 +109,10 @@
 - [x] Экспедиционный упаковщик `ExpeditionArchiveService` (упаковка в единый ZIP: Passport_MKK.pdf, Technical_Report.pdf, Trip_Summary.md, Trip_Summary.html, треки GPX по дням и фотографии)
 - [x] Модальный диалог экспорта `MkkExportSheet` (печать/PDF, отправка, копирование для Word, 1-click скачивание ZIP) и интеграция в `TripSetupScreen` и `CampDebriefSheet`
 - [x] Unit-тестирование генерации Markdown, конвертации HTML, структуры PDF и сборки ZIP архива (`mkk_reports_test.dart`)
+- [x] Векторная схема маршрута в PDF с двухцветным компасом, путевыми точками и высотным профилем
+- [x] Защита состояния GPX и данных МКК при F5 перезагрузке в Web
+- [x] Предупреждение о кэше браузера и экспорт постоянного «Ключа похода» (в буфер обмена и в `.txt`)
+- [x] Нативная ассоциация и открытие GPX файлов в Android через `intent-filter` и `GpxIntentService`
 
 ---
 
@@ -127,9 +131,9 @@
 - [x] Корректная загрузка 57 продуктов и 66 предметов снаряжения
 - [x] Мгновенный пересчет при изменении параметров
 - [x] Чистая архитектура (Clean Architecture / Feature-first)
-- [x] Тестовое покрытие (75 unit & widget тестов)
+- [x] Тестовое покрытие (79 unit & widget тестов)
 - [x] 0 предупреждений статического анализатора (`dart analyze` = 0 issues)
-- [x] 100% прохождение всех unit и widget тестов (`flutter test` = 75/75 passed)
+- [x] 100% прохождение всех unit и widget тестов (`flutter test` = 79/79 passed)
 - [x] Скомпилирован релизный установочный пакет Android (`build/SurvivalCalc_v1.0.0.apk`)
 - [x] Скомпилирован и задеплоен production Web-бандл с флагом `--no-tree-shake-icons`
 

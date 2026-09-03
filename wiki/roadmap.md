@@ -36,7 +36,7 @@
 ---
 
 ## 📌 Текущее состояние проекта
-- **Текущая ветка:** `feature/mkk-reports-and-archive-export` (все 75 unit & widget тестов пройдены, `dart analyze` — 0 issues).
+- **Текущая ветка:** `feature/mkk-reports-and-archive-export` (все 79 unit & widget тестов пройдены, `dart analyze` — 0 issues).
 - **Релиз:** `SurvivalCalc v1.0.0` (официальный тег и APK-пакет опубликованы на GitHub Releases).
 - **Веб-версия:** Автоматически задеплоена на GitHub Pages (`https://kobaltgit.github.io/SurvivalCalc/`).
 - **Дистрибуция:** Заявка в каталог открытого ПО F-Droid (RFP #4353) успешно прошла первичную автоматическую валидацию ботом.
