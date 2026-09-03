@@ -508,5 +508,695 @@
     "seen": 1788348468.5199227,
     "ast_hash": "834f803754dca4d0146de74c8da4af22",
     "semantic_hash": "834f803754dca4d0146de74c8da4af22"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\assets\\data\\food_db.json": {
+    "mtime": 1788174394.9173563,
+    "seen": 1788423227.595878,
+    "ast_hash": "e1ba9023dddc7ed7dd33d9c3e52b6c63",
+    "semantic_hash": "e1ba9023dddc7ed7dd33d9c3e52b6c63"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\assets\\data\\gear_db.json": {
+    "mtime": 1788174409.4692485,
+    "seen": 1788423227.595878,
+    "ast_hash": "be78fb716f36f75299e28aefb7adbc6f",
+    "semantic_hash": "be78fb716f36f75299e28aefb7adbc6f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\enums\\trip_enums.dart": {
+    "mtime": 1788383185.9210367,
+    "seen": 1788423227.595878,
+    "ast_hash": "38cdb28d29a1f0915c37bbacbd02c213",
+    "semantic_hash": "38cdb28d29a1f0915c37bbacbd02c213"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\export_service.dart": {
+    "mtime": 1788174810.0994978,
+    "seen": 1788423227.595878,
+    "ast_hash": "59511d6509276c1919f3cc02506866dc",
+    "semantic_hash": "59511d6509276c1919f3cc02506866dc"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\file_saver_io.dart": {
+    "mtime": 1788341678.7412062,
+    "seen": 1788423227.595878,
+    "ast_hash": "12f6bf55922253894bcbd587da30f4f4",
+    "semantic_hash": "12f6bf55922253894bcbd587da30f4f4"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\file_saver_service.dart": {
+    "mtime": 1788341684.4906,
+    "seen": 1788423227.595878,
+    "ast_hash": "8b27d479775fbb34b737494161853b90",
+    "semantic_hash": "8b27d479775fbb34b737494161853b90"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\file_saver_stub.dart": {
+    "mtime": 1788341668.618468,
+    "seen": 1788423227.595878,
+    "ast_hash": "346ea6059f9d2a71798a627b3eeb97f7",
+    "semantic_hash": "346ea6059f9d2a71798a627b3eeb97f7"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\file_saver_web.dart": {
+    "mtime": 1788364295.3222165,
+    "seen": 1788423227.595878,
+    "ast_hash": "180d45f10b0151f7b2a724e42924bcba",
+    "semantic_hash": "180d45f10b0151f7b2a724e42924bcba"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\media_storage_service.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "bb31f480f84107992a697547bc295674",
+    "semantic_hash": "bb31f480f84107992a697547bc295674"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\services\\qr_sync_service.dart": {
+    "mtime": 1788372117.4072125,
+    "seen": 1788423227.595878,
+    "ast_hash": "bde0764cfee83de7c2552a8dfa19dcc0",
+    "semantic_hash": "bde0764cfee83de7c2552a8dfa19dcc0"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\theme\\outdoor_theme.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "d32f22a69099f8fc56b93133fb99395f",
+    "semantic_hash": "d32f22a69099f8fc56b93133fb99395f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\utils\\polyline_utils.dart": {
+    "mtime": 1788368689.248286,
+    "seen": 1788423227.595878,
+    "ast_hash": "2c6401507f2bb6fd32647043385de979",
+    "semantic_hash": "2c6401507f2bb6fd32647043385de979"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\widgets\\app_logo.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "5ac645b81e39bf35720f96e93671a6ee",
+    "semantic_hash": "5ac645b81e39bf35720f96e93671a6ee"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\widgets\\fullscreen_qr_dialog.dart": {
+    "mtime": 1788371157.1075876,
+    "seen": 1788423227.595878,
+    "ast_hash": "9c3994e1794a97e5310103bba305e270",
+    "semantic_hash": "9c3994e1794a97e5310103bba305e270"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\core\\widgets\\qr_scanner_dialog.dart": {
+    "mtime": 1788186600.0078065,
+    "seen": 1788423227.595878,
+    "ast_hash": "ca30266e66e1bab2c4948d864bc523a1",
+    "semantic_hash": "ca30266e66e1bab2c4948d864bc523a1"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\calculator\\domain\\models\\macronutrient_targets.dart": {
+    "mtime": 1788174444.0054457,
+    "seen": 1788423227.595878,
+    "ast_hash": "65c268810ec29f8df3b5ea42b7b47060",
+    "semantic_hash": "65c268810ec29f8df3b5ea42b7b47060"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\calculator\\domain\\models\\trip_calculation_result.dart": {
+    "mtime": 1788178893.1804807,
+    "seen": 1788423227.595878,
+    "ast_hash": "b38bc4bfed6bee8c1af36267d580b9f8",
+    "semantic_hash": "b38bc4bfed6bee8c1af36267d580b9f8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\calculator\\domain\\services\\metabolic_calculator.dart": {
+    "mtime": 1788175278.0627518,
+    "seen": 1788423227.595878,
+    "ast_hash": "a2f993637fa2b18b74743a0e85e13da6",
+    "semantic_hash": "a2f993637fa2b18b74743a0e85e13da6"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\calculator\\domain\\services\\trip_calculator_engine.dart": {
+    "mtime": 1788183777.974408,
+    "seen": 1788423227.595878,
+    "ast_hash": "3289b08551c970d064b4b619d091d5b4",
+    "semantic_hash": "3289b08551c970d064b4b619d091d5b4"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\calculator\\presentation\\providers\\calculator_providers.dart": {
+    "mtime": 1788383344.894484,
+    "seen": 1788423227.595878,
+    "ast_hash": "520b5dcafbc293534da468305040ed1d",
+    "semantic_hash": "520b5dcafbc293534da468305040ed1d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\dashboard\\presentation\\screens\\dashboard_screen.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "2be1009b1be0b8c6bda2a0d84847afa1",
+    "semantic_hash": "2be1009b1be0b8c6bda2a0d84847afa1"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\gear\\data\\repositories\\gear_repository.dart": {
+    "mtime": 1788174515.253016,
+    "seen": 1788423227.595878,
+    "ast_hash": "568be532b0b0f28ac6fbe7140a0fbb95",
+    "semantic_hash": "568be532b0b0f28ac6fbe7140a0fbb95"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\gear\\domain\\models\\gear_item.dart": {
+    "mtime": 1788174439.18126,
+    "seen": 1788423227.595878,
+    "ast_hash": "9b155c4315845c1945d7106e0b99fdf8",
+    "semantic_hash": "9b155c4315845c1945d7106e0b99fdf8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\gear\\domain\\services\\gear_calculator_service.dart": {
+    "mtime": 1788178871.3389068,
+    "seen": 1788423227.595878,
+    "ast_hash": "bb04525ee617a5606e785f97e8931c1d",
+    "semantic_hash": "bb04525ee617a5606e785f97e8931c1d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\gear\\presentation\\screens\\gear_checklist_screen.dart": {
+    "mtime": 1788181230.9638057,
+    "seen": 1788423227.595878,
+    "ast_hash": "a8cc91377aed8b3eb23911468bf945db",
+    "semantic_hash": "a8cc91377aed8b3eb23911468bf945db"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\group_distribution\\domain\\models\\participant.dart": {
+    "mtime": 1788383193.1960533,
+    "seen": 1788423227.595878,
+    "ast_hash": "fdd77cb70959ec2d2c0779c17b15670e",
+    "semantic_hash": "fdd77cb70959ec2d2c0779c17b15670e"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\group_distribution\\domain\\services\\load_distribution_service.dart": {
+    "mtime": 1788183804.2985058,
+    "seen": 1788423227.595878,
+    "ast_hash": "eece7fe7d190ccb056e4fb69615e8887",
+    "semantic_hash": "eece7fe7d190ccb056e4fb69615e8887"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\group_distribution\\presentation\\screens\\load_distribution_screen.dart": {
+    "mtime": 1788183849.936918,
+    "seen": 1788423227.595878,
+    "ast_hash": "83ab41ab86681a7b9f0c63b1c0a24925",
+    "semantic_hash": "83ab41ab86681a7b9f0c63b1c0a24925"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\home\\presentation\\screens\\main_navigation_screen.dart": {
+    "mtime": 1788387912.580373,
+    "seen": 1788423227.595878,
+    "ast_hash": "0b50192d588ba432e2b50b5f9f3907e8",
+    "semantic_hash": "0b50192d588ba432e2b50b5f9f3907e8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\mkk_reports\\domain\\services\\expedition_archive_service.dart": {
+    "mtime": 1788384449.7506897,
+    "seen": 1788423227.595878,
+    "ast_hash": "a4c883f283d7c79a7d35e8c0368384c4",
+    "semantic_hash": "a4c883f283d7c79a7d35e8c0368384c4"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\mkk_reports\\domain\\services\\mkk_markdown_generator.dart": {
+    "mtime": 1788384550.9608343,
+    "seen": 1788423227.595878,
+    "ast_hash": "0d26fb5dc40e74007aca989222acf91d",
+    "semantic_hash": "0d26fb5dc40e74007aca989222acf91d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\mkk_reports\\domain\\services\\mkk_pdf_generator.dart": {
+    "mtime": 1788385712.35437,
+    "seen": 1788423227.595878,
+    "ast_hash": "ccc4abf78ad7c04c7a126e3cb2851f00",
+    "semantic_hash": "ccc4abf78ad7c04c7a126e3cb2851f00"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\mkk_reports\\presentation\\dialogs\\mkk_export_sheet.dart": {
+    "mtime": 1788384560.8103726,
+    "seen": 1788423227.595878,
+    "ast_hash": "7551dafa83bedf06454d27e329bd8039",
+    "semantic_hash": "7551dafa83bedf06454d27e329bd8039"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\ration\\data\\repositories\\food_repository.dart": {
+    "mtime": 1788174510.3851843,
+    "seen": 1788423227.595878,
+    "ast_hash": "6fb5ae56d39c2f79e49f67cd2266b3aa",
+    "semantic_hash": "6fb5ae56d39c2f79e49f67cd2266b3aa"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\ration\\domain\\models\\daily_ration.dart": {
+    "mtime": 1788183729.506184,
+    "seen": 1788423227.595878,
+    "ast_hash": "7aab161e4fbc5081d5ea022f32de3c4f",
+    "semantic_hash": "7aab161e4fbc5081d5ea022f32de3c4f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\ration\\domain\\models\\food_item.dart": {
+    "mtime": 1788174434.6336033,
+    "seen": 1788423227.595878,
+    "ast_hash": "eda91713164748a2174f62e9b4ed247d",
+    "semantic_hash": "eda91713164748a2174f62e9b4ed247d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\ration\\domain\\services\\ration_generator_service.dart": {
+    "mtime": 1788183897.1965282,
+    "seen": 1788423227.595878,
+    "ast_hash": "b5b57a901da88656688dec0f4816ca16",
+    "semantic_hash": "b5b57a901da88656688dec0f4816ca16"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\ration\\presentation\\screens\\food_breakdown_screen.dart": {
+    "mtime": 1788183859.3244605,
+    "seen": 1788423227.595878,
+    "ast_hash": "d5e32b44852532acdaed4175efc56872",
+    "semantic_hash": "d5e32b44852532acdaed4175efc56872"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\data\\repositories\\offline_tile_repository.dart": {
+    "mtime": 1788367368.7344365,
+    "seen": 1788423227.595878,
+    "ast_hash": "a9085c9ccf110d7ef51656f4cb164e51",
+    "semantic_hash": "a9085c9ccf110d7ef51656f4cb164e51"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\data\\repositories\\track_storage_repository.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "90d9c2eb3bbd0cdd6c8f3eb6c4d15174",
+    "semantic_hash": "90d9c2eb3bbd0cdd6c8f3eb6c4d15174"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\camp_debrief.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "e5d560f485204a66a1146b1b01c9133f",
+    "semantic_hash": "e5d560f485204a66a1146b1b01c9133f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\daily_camp_note.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "e0f1a6c47d4eabc0368bd108563e755a",
+    "semantic_hash": "e0f1a6c47d4eabc0368bd108563e755a"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\daily_track.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "f279337ba408237f327d7a8f5a7330b8",
+    "semantic_hash": "f279337ba408237f327d7a8f5a7330b8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\gps_point.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "32a61fbef74e0133d0c26fd3e95b8bed",
+    "semantic_hash": "32a61fbef74e0133d0c26fd3e95b8bed"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\map_layer_type.dart": {
+    "mtime": 1788375136.1062202,
+    "seen": 1788423227.595878,
+    "ast_hash": "706daafaab8a22de8d3255af91ad60ee",
+    "semantic_hash": "706daafaab8a22de8d3255af91ad60ee"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\planned_route.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "9e3c6d439fb382cbc8f6ef3e034353ae",
+    "semantic_hash": "9e3c6d439fb382cbc8f6ef3e034353ae"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\models\\way_point.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "efba4895c4cf98fc05191460272af704",
+    "semantic_hash": "efba4895c4cf98fc05191460272af704"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\camp_debrief_calculator.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "68d656f931d21547bca8d8c7817110e7",
+    "semantic_hash": "68d656f931d21547bca8d8c7817110e7"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\distance_calculator.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "76716faf21a022083eab42417d4646fd",
+    "semantic_hash": "76716faf21a022083eab42417d4646fd"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\gpx_exporter.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "1d259d4ca7a9f9b1d59b89f8d000105e",
+    "semantic_hash": "1d259d4ca7a9f9b1d59b89f8d000105e"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\gpx_intent_service.dart": {
+    "mtime": 1788422506.1864727,
+    "seen": 1788423227.595878,
+    "ast_hash": "351a6347afe45f718a4b3568e86f8c60",
+    "semantic_hash": "351a6347afe45f718a4b3568e86f8c60"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\gpx_route_parser.dart": {
+    "mtime": 1788385075.3939435,
+    "seen": 1788423227.595878,
+    "ast_hash": "c05d62569a3bf2d4ca4be776aed40e67",
+    "semantic_hash": "c05d62569a3bf2d4ca4be776aed40e67"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\offline_tile_downloader.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "d101d213856a3452dcb7f0d3fe8808d2",
+    "semantic_hash": "d101d213856a3452dcb7f0d3fe8808d2"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\domain\\services\\tile_math_utils.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "6f75afead6540d7821cc45584dc961b8",
+    "semantic_hash": "6f75afead6540d7821cc45584dc961b8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\providers\\planned_route_providers.dart": {
+    "mtime": 1788368718.3386853,
+    "seen": 1788423227.595878,
+    "ast_hash": "116a41e81b7edb79a28a0e1eb9e21fa3",
+    "semantic_hash": "116a41e81b7edb79a28a0e1eb9e21fa3"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\providers\\tracking_providers.dart": {
+    "mtime": 1788375949.409835,
+    "seen": 1788423227.595878,
+    "ast_hash": "d5b69719f08aff184500d5798ee25f5c",
+    "semantic_hash": "d5b69719f08aff184500d5798ee25f5c"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\screens\\tracking_screen.dart": {
+    "mtime": 1788386300.4738533,
+    "seen": 1788423227.595878,
+    "ast_hash": "a23c28bcbf99abac2d71f93044e4d85d",
+    "semantic_hash": "a23c28bcbf99abac2d71f93044e4d85d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\add_waypoint_dialog.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "de6d40c239c8921d42535ef6caff82bd",
+    "semantic_hash": "de6d40c239c8921d42535ef6caff82bd"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\cached_tile_provider.dart": {
+    "mtime": 1788383542.2461865,
+    "seen": 1788423227.595878,
+    "ast_hash": "c21bd54b0ce430e645287d393f2b050c",
+    "semantic_hash": "c21bd54b0ce430e645287d393f2b050c"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\camp_debrief_sheet.dart": {
+    "mtime": 1788340122.1149504,
+    "seen": 1788423227.595878,
+    "ast_hash": "440109ca78b5e16c132879ad7b8fb9ee",
+    "semantic_hash": "440109ca78b5e16c132879ad7b8fb9ee"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\gpx_import_dialog.dart": {
+    "mtime": 1788422500.3506057,
+    "seen": 1788423227.595878,
+    "ast_hash": "da50d05f00d3c0e8acc521604611a51a",
+    "semantic_hash": "da50d05f00d3c0e8acc521604611a51a"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\map_layer_selector_sheet.dart": {
+    "mtime": 1788375142.439329,
+    "seen": 1788423227.595878,
+    "ast_hash": "a3f15fe4edaffbe397cbf8a1284e57ef",
+    "semantic_hash": "a3f15fe4edaffbe397cbf8a1284e57ef"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\offline_maps_sheet.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "2c87d7e764e9723def710779c09584b9",
+    "semantic_hash": "2c87d7e764e9723def710779c09584b9"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\track_history_sheet.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "d5498b1aa8889a6edee189d17aa497f7",
+    "semantic_hash": "d5498b1aa8889a6edee189d17aa497f7"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\tracking\\presentation\\widgets\\waypoint_details_sheet.dart": {
+    "mtime": 1788326473.0406728,
+    "seen": 1788423227.595878,
+    "ast_hash": "db7b623385dd2f3d48533da380d64057",
+    "semantic_hash": "db7b623385dd2f3d48533da380d64057"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_setup\\data\\repositories\\trip_repository.dart": {
+    "mtime": 1788366210.3017855,
+    "seen": 1788423227.595878,
+    "ast_hash": "562fc2a433bb63adf27621556293a77b",
+    "semantic_hash": "562fc2a433bb63adf27621556293a77b"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_setup\\domain\\models\\planned_day_schedule.dart": {
+    "mtime": 1788422512.574995,
+    "seen": 1788423227.595878,
+    "ast_hash": "a3bd3ae8f4db3316c260dc307be5c50f",
+    "semantic_hash": "a3bd3ae8f4db3316c260dc307be5c50f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_setup\\domain\\models\\trip_profile.dart": {
+    "mtime": 1788383177.2139533,
+    "seen": 1788423227.595878,
+    "ast_hash": "f099b660a8c6ed406d19ea100ca6f2d2",
+    "semantic_hash": "f099b660a8c6ed406d19ea100ca6f2d2"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_setup\\presentation\\dialogs\\planned_itinerary_dialog.dart": {
+    "mtime": 1788384554.750793,
+    "seen": 1788423227.595878,
+    "ast_hash": "ad43829f6dcd265bbf139d5d6df45987",
+    "semantic_hash": "ad43829f6dcd265bbf139d5d6df45987"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_setup\\presentation\\screens\\trip_setup_screen.dart": {
+    "mtime": 1788422567.451152,
+    "seen": 1788423227.595878,
+    "ast_hash": "aac2816f8751b672d77e09c275fdced1",
+    "semantic_hash": "aac2816f8751b672d77e09c275fdced1"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_storage\\data\\repositories\\saved_trips_repository.dart": {
+    "mtime": 1788182253.580283,
+    "seen": 1788423227.595878,
+    "ast_hash": "83ef367b5f184d58799780172f36e8d8",
+    "semantic_hash": "83ef367b5f184d58799780172f36e8d8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_storage\\domain\\models\\saved_trip_entry.dart": {
+    "mtime": 1788366964.4519515,
+    "seen": 1788423227.595878,
+    "ast_hash": "a520e6be97fe682d190e919d901bf6a2",
+    "semantic_hash": "a520e6be97fe682d190e919d901bf6a2"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_storage\\presentation\\dialogs\\trip_lifecycle_dialogs.dart": {
+    "mtime": 1788422766.5584137,
+    "seen": 1788423227.595878,
+    "ast_hash": "daf0150011dae37a97733400c3b9c5a7",
+    "semantic_hash": "daf0150011dae37a97733400c3b9c5a7"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_storage\\presentation\\providers\\saved_trips_providers.dart": {
+    "mtime": 1788422518.5173364,
+    "seen": 1788423227.595878,
+    "ast_hash": "4f10b6be197c518de6673b17e9ac8f80",
+    "semantic_hash": "4f10b6be197c518de6673b17e9ac8f80"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_storage\\presentation\\widgets\\save_trip_dialog.dart": {
+    "mtime": 1788386940.9389887,
+    "seen": 1788423227.595878,
+    "ast_hash": "f64db77dabf70577a072805c563b0cc5",
+    "semantic_hash": "f64db77dabf70577a072805c563b0cc5"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\trip_storage\\presentation\\widgets\\trip_library_sheet.dart": {
+    "mtime": 1788422593.0382416,
+    "seen": 1788423227.595878,
+    "ast_hash": "4502ad3542d194f0dafc0810cc2a758b",
+    "semantic_hash": "4502ad3542d194f0dafc0810cc2a758b"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\data\\wiki_repository.dart": {
+    "mtime": 1788414988.3714433,
+    "seen": 1788423227.595878,
+    "ast_hash": "092c6860173d35d8e98cd479fc42e868",
+    "semantic_hash": "092c6860173d35d8e98cd479fc42e868"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\domain\\models\\wiki_article.dart": {
+    "mtime": 1788348727.3866458,
+    "seen": 1788423227.595878,
+    "ast_hash": "c2df55a4140d6d4deda0696eeacd6b0f",
+    "semantic_hash": "c2df55a4140d6d4deda0696eeacd6b0f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\domain\\models\\wiki_category.dart": {
+    "mtime": 1788362064.6831844,
+    "seen": 1788423227.595878,
+    "ast_hash": "516562ebb54a89ec4b3b312ff09b5917",
+    "semantic_hash": "516562ebb54a89ec4b3b312ff09b5917"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\presentation\\providers\\wiki_providers.dart": {
+    "mtime": 1788348770.718594,
+    "seen": 1788423227.595878,
+    "ast_hash": "2edd79c895c1cb31e558c7cf7a74c5e0",
+    "semantic_hash": "2edd79c895c1cb31e558c7cf7a74c5e0"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\presentation\\screens\\wiki_article_detail_screen.dart": {
+    "mtime": 1788349164.2948997,
+    "seen": 1788423227.595878,
+    "ast_hash": "fb4e52d8e10ad4be9b17bcc031bb3f18",
+    "semantic_hash": "fb4e52d8e10ad4be9b17bcc031bb3f18"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\presentation\\screens\\wiki_screen.dart": {
+    "mtime": 1788353264.5820875,
+    "seen": 1788423227.595878,
+    "ast_hash": "e60841a8e11779e6dc4f9782a5dd2ca1",
+    "semantic_hash": "e60841a8e11779e6dc4f9782a5dd2ca1"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\presentation\\widgets\\wiki_article_card.dart": {
+    "mtime": 1788349175.1136577,
+    "seen": 1788423227.595878,
+    "ast_hash": "65774b3f62c7c4451a2a6426e8891544",
+    "semantic_hash": "65774b3f62c7c4451a2a6426e8891544"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\presentation\\widgets\\wiki_callout_box.dart": {
+    "mtime": 1788348777.2429273,
+    "seen": 1788423227.595878,
+    "ast_hash": "06a485255d33cf65eb92323bbda8163f",
+    "semantic_hash": "06a485255d33cf65eb92323bbda8163f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\features\\wiki\\presentation\\widgets\\wiki_markdown_viewer.dart": {
+    "mtime": 1788363548.3915546,
+    "seen": 1788423227.595878,
+    "ast_hash": "dff617a15cc94f0fdc19934e41ee2092",
+    "semantic_hash": "dff617a15cc94f0fdc19934e41ee2092"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\lib\\main.dart": {
+    "mtime": 1788385736.5984876,
+    "seen": 1788423227.595878,
+    "ast_hash": "d6859c775393fcfbb80b37a1615956cb",
+    "semantic_hash": "d6859c775393fcfbb80b37a1615956cb"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\core\\qr_sync_service_test.dart": {
+    "mtime": 1788186567.1991072,
+    "seen": 1788423227.595878,
+    "ast_hash": "8a2942406d07e8f3d87e6c724268f7c8",
+    "semantic_hash": "8a2942406d07e8f3d87e6c724268f7c8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\calculator\\metabolic_calculator_test.dart": {
+    "mtime": 1788175308.0189798,
+    "seen": 1788423227.595878,
+    "ast_hash": "a44f055bed1a65b7f5e1fb062ed38892",
+    "semantic_hash": "a44f055bed1a65b7f5e1fb062ed38892"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\calculator\\participant_health_test.dart": {
+    "mtime": 1788178964.7768438,
+    "seen": 1788423227.595878,
+    "ast_hash": "f35baf511a685bbf06f83a4346e3bed9",
+    "semantic_hash": "f35baf511a685bbf06f83a4346e3bed9"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\gear\\gear_calculator_test.dart": {
+    "mtime": 1788174608.353576,
+    "seen": 1788423227.595878,
+    "ast_hash": "a3516c6a4c4f4d595cf4a5834dedb2f1",
+    "semantic_hash": "a3516c6a4c4f4d595cf4a5834dedb2f1"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\group_distribution\\load_distribution_service_test.dart": {
+    "mtime": 1788183866.0820262,
+    "seen": 1788423227.595878,
+    "ast_hash": "25fd6a446974ecb5705c18d42aef58d9",
+    "semantic_hash": "25fd6a446974ecb5705c18d42aef58d9"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\mkk_reports\\mkk_reports_test.dart": {
+    "mtime": 1788384586.7909691,
+    "seen": 1788423227.595878,
+    "ast_hash": "65b22f456bc2878acbb270db874584b9",
+    "semantic_hash": "65b22f456bc2878acbb270db874584b9"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\ration\\ration_generator_test.dart": {
+    "mtime": 1788183905.8271463,
+    "seen": 1788423227.595878,
+    "ast_hash": "cc50d539aceb6ce253ec810d279d024f",
+    "semantic_hash": "cc50d539aceb6ce253ec810d279d024f"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\camp_debrief_calculator_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "1970e1c4235db40fe656079f4bf5c86e",
+    "semantic_hash": "1970e1c4235db40fe656079f4bf5c86e"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\distance_calculator_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "8e8de85f4a29f200c91cfeaaf85fa520",
+    "semantic_hash": "8e8de85f4a29f200c91cfeaaf85fa520"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\gpx_and_tile_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "f561ab39dcbb5c42c9dd16dbd532f476",
+    "semantic_hash": "f561ab39dcbb5c42c9dd16dbd532f476"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\gpx_exporter_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "712b7020a97cd6b4620461d7b61ffed8",
+    "semantic_hash": "712b7020a97cd6b4620461d7b61ffed8"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\photo_waypoints_and_notes_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "bfbe9b340fd2e79c678ff9e39f68cc3d",
+    "semantic_hash": "bfbe9b340fd2e79c678ff9e39f68cc3d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\route_simulation_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "a0dc02ee800fecc3f4495ed033fb7bb5",
+    "semantic_hash": "a0dc02ee800fecc3f4495ed033fb7bb5"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\tracking\\track_storage_repository_test.dart": {
+    "mtime": 1788326473.1348302,
+    "seen": 1788423227.595878,
+    "ast_hash": "fa6ffaccfec666cfd4fb8325a53308eb",
+    "semantic_hash": "fa6ffaccfec666cfd4fb8325a53308eb"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\trip_storage\\saved_trips_test.dart": {
+    "mtime": 1788422636.1689012,
+    "seen": 1788423227.595878,
+    "ast_hash": "531d3ca1b084425f8d2af3e2a57990e1",
+    "semantic_hash": "531d3ca1b084425f8d2af3e2a57990e1"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\features\\wiki\\wiki_test.dart": {
+    "mtime": 1788364301.2677011,
+    "seen": 1788423227.595878,
+    "ast_hash": "c8db1e8d6f44f73fc9925ede471e024d",
+    "semantic_hash": "c8db1e8d6f44f73fc9925ede471e024d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\test\\widget_test.dart": {
+    "mtime": 1788326473.137726,
+    "seen": 1788423227.595878,
+    "ast_hash": "834f803754dca4d0146de74c8da4af22",
+    "semantic_hash": "834f803754dca4d0146de74c8da4af22"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\.agents\\rules\\wiki_keeper.md": {
+    "mtime": 1788174217.779834,
+    "seen": 1788423227.595878,
+    "ast_hash": "5ebf007662b58678f08a1a488e6d7d6d",
+    "semantic_hash": "5ebf007662b58678f08a1a488e6d7d6d"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\.agents\\skills\\wiki-keeper\\SKILL.md": {
+    "mtime": 1788174176.6739497,
+    "seen": 1788423227.595878,
+    "ast_hash": "2f2da7e81826ffd635b0343ef0d16451",
+    "semantic_hash": "2f2da7e81826ffd635b0343ef0d16451"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\.github\\workflows\\deploy.yml": {
+    "mtime": 1788326819.8285496,
+    "seen": 1788423227.595878,
+    "ast_hash": "4b1414bb18a8c3749e4d7d2d902a52ac",
+    "semantic_hash": "4b1414bb18a8c3749e4d7d2d902a52ac"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\GEMINI.md": {
+    "mtime": 1788174222.6099274,
+    "seen": 1788423227.595878,
+    "ast_hash": "d8a0a687a0a1b6be2aa0a8bd0a7fa673",
+    "semantic_hash": "d8a0a687a0a1b6be2aa0a8bd0a7fa673"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\README.md": {
+    "mtime": 1788422837.0773253,
+    "seen": 1788423227.595878,
+    "ast_hash": "3e366707616fa88e0aaf29c26d27bb87",
+    "semantic_hash": "3e366707616fa88e0aaf29c26d27bb87"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\analysis_options.yaml": {
+    "mtime": 1788174352.9766965,
+    "seen": 1788423227.595878,
+    "ast_hash": "9e65f4b9beebb674c0dc252f70a5c177",
+    "semantic_hash": "9e65f4b9beebb674c0dc252f70a5c177"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\pubspec.yaml": {
+    "mtime": 1788348977.6049957,
+    "seen": 1788423227.595878,
+    "ast_hash": "9d8d6ae455c07e01df061cdbec7b4077",
+    "semantic_hash": "9d8d6ae455c07e01df061cdbec7b4077"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\wiki\\activity_log.md": {
+    "mtime": 1788422843.497093,
+    "seen": 1788423227.595878,
+    "ast_hash": "5a8408759c844bf2df449ce9e6c0bd7a",
+    "semantic_hash": "5a8408759c844bf2df449ce9e6c0bd7a"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\wiki\\buglist.md": {
+    "mtime": 1788413849.819419,
+    "seen": 1788423227.595878,
+    "ast_hash": "a5da56b7ffb50e181ee78b62f529d785",
+    "semantic_hash": "a5da56b7ffb50e181ee78b62f529d785"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\wiki\\checklist.md": {
+    "mtime": 1788422854.0812685,
+    "seen": 1788423227.595878,
+    "ast_hash": "bdb2d1b65fcc165c4ef1017d8266356e",
+    "semantic_hash": "bdb2d1b65fcc165c4ef1017d8266356e"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\wiki\\plan.md": {
+    "mtime": 1788341076.7567866,
+    "seen": 1788423227.595878,
+    "ast_hash": "7de6523b188bd3531c475749bdb38509",
+    "semantic_hash": "7de6523b188bd3531c475749bdb38509"
+  },
+  "D:\\Projects\\active\\SurvivalCalc\\wiki\\roadmap.md": {
+    "mtime": 1788422860.3118675,
+    "seen": 1788423227.595878,
+    "ast_hash": "397eabcb858c03a95da21063fd0a0464",
+    "semantic_hash": "397eabcb858c03a95da21063fd0a0464"
   }
 }
