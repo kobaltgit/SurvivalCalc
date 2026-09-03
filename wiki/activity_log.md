@@ -321,4 +321,7 @@
     - `ACTION_SEND` (функция «Поделиться файлом» в Android).
   - В `android/app/src/main/kotlin/.../MainActivity.kt` реализована потоковая обработка `ContentResolver` через `MethodChannel` (`com.survivalcalc.app/gpx_intent`), безопасно считывающая `content://` URI даже при строгом Scoped Storage в Android 10–14.
   - В `lib/features/tracking/domain/services/gpx_intent_service.dart` и `MainNavigationScreen` подключен фоновый и холодный прием входящих GPX-треков с автоматическим переключением на вкладку карты и уведомлением пользователя.
-  - Все 79 тестов успешно пройдены (`flutter test`).
+- **[2026-09-03 08:45:00]** | `DOCS` | `README.md`, `wiki/` | **Актуализация документации и синхронизация базы знаний**:
+  - В `README.md` синхронизировано количество тестов (**79/79**), добавлены разделы по Wilderness First Aid, нативной интеграции с GPX на Android, векторным схемам в PDF и экспорту Ключа похода.
+  - Скорректирована формулировка описания статей базы знаний: «15 структурированных офлайн-статей с таблицами и формулами».
+  - Синхронизированы чеклист `wiki/checklist.md`, дорожная карта `wiki/roadmap.md` и реестр багов `wiki/buglist.md` (добавлены BUG-18, BUG-19, BUG-20).
