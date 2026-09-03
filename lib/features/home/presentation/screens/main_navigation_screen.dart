@@ -6,6 +6,7 @@ import 'package:survival_calc/features/calculator/presentation/providers/calcula
 import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
 import 'package:survival_calc/features/ration/presentation/screens/food_breakdown_screen.dart';
+import 'package:survival_calc/features/tracking/domain/services/gpx_intent_service.dart';
 import 'package:survival_calc/features/tracking/presentation/providers/planned_route_providers.dart';
 import 'package:survival_calc/features/tracking/presentation/screens/tracking_screen.dart';
 import 'package:survival_calc/features/trip_setup/presentation/screens/trip_setup_screen.dart';
@@ -33,6 +34,24 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     if (kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         removeWebLoadingIndicator();
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        GpxIntentService.init(
+          ref,
+          onRouteImported: (routeName) {
+            if (mounted) {
+              _switchTab(2); // Switch to Tracking / Map Tab
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('📍 Маршрут «$routeName» успешно импортирован из GPX!'),
+                  backgroundColor: OutdoorTheme.signalOrange,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          },
+        );
       });
     }
   }

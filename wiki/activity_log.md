@@ -314,4 +314,11 @@
   - В «Библиотеке походов» (`TripLibrarySheet`) в контекстное меню каждого похода добавлены пункты:
     - `📋 Скопировать ключ`
     - `📄 Скачать ключ в .txt`
-  - Все 79 тестов успешно пройдены (`flutter test`), веб-релиз `build/web/` пересобран.
+  - Все 79 тестов успешно пройдены (`flutter test`), веб-релиз `build/web/` пересобран.- **[2026-09-03 01:25:00]** | `FEATURE` | `android/`, `lib/features/tracking/` | **Нативная поддержка открытия и импорта GPX-файлов в Android**:
+  - В `android/app/src/main/AndroidManifest.xml` зарегистрированы фильтры намерений (`<intent-filter>`):
+    - `ACTION_VIEW` для схемы `content://` и `file://` со всеми MIME-типами GPX (`application/gpx+xml`, `application/gpx`, `application/xml`, `text/xml`, `application/octet-stream`).
+    - Паттерны расширения файлов `*.gpx`.
+    - `ACTION_SEND` (функция «Поделиться файлом» в Android).
+  - В `android/app/src/main/kotlin/.../MainActivity.kt` реализована потоковая обработка `ContentResolver` через `MethodChannel` (`com.survivalcalc.app/gpx_intent`), безопасно считывающая `content://` URI даже при строгом Scoped Storage в Android 10–14.
+  - В `lib/features/tracking/domain/services/gpx_intent_service.dart` и `MainNavigationScreen` подключен фоновый и холодный прием входящих GPX-треков с автоматическим переключением на вкладку карты и уведомлением пользователя.
+  - Все 79 тестов успешно пройдены (`flutter test`).
