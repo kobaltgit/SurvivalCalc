@@ -138,4 +138,5 @@
 - [x] 100% прохождение всех unit и widget тестов (`flutter test` = 81/81 passed)
 - [x] Скомпилирован релизный установочный пакет Android (`build/SurvivalCalc_v1.0.0.apk`)
 - [x] Скомпилирован и задеплоен production Web-бандл с флагом `--no-tree-shake-icons`
+- [x] Созданы регламенты `SECURITY.md` (политика раскрытия уязвимостей) и `PRIVACY.md` (политика нулевого сбора данных)
 

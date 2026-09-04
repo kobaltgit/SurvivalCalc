@@ -356,3 +356,7 @@
 - **[2026-09-04 12:27:45]** | `GIT` | `feature/mkk-reports-and-archive-export` | **Коммит и пуш изменений в удаленный репозиторий**:
   - Создан коммит `ab3b31e` («feat: integrate official Telegram channel https://t.me/survivalcalc into web, app and docs»).
   - Изменения успешно отправлены на GitHub (`git push origin feature/mkk-reports-and-archive-export`).
+- **[2026-09-04 12:32:00]** | `DOCS` | `SECURITY.md`, `PRIVACY.md`, `README.md`, `wiki/` | **Создание официальных политик безопасности и конфиденциальности**:
+  - Создан `SECURITY.md`: регламент ответственного сообщения об уязвимостях (GitHub Private Vulnerability Reporting, Telegram @survivalcalc), поддерживаемые версии и описание архитектуры защиты (100% Offline, безопасный парсинг GPX/QR, песочница).
+  - Создан `PRIVACY.md`: гарантия нулевого сбора персональных данных (отсутствие телеметрии, трекеров, рекламы и учетных записей), обоснование использования системных разрешений (GPS, камера, хранилище).
+  - В `README.md` в раздел «Свобода платформы, безопасность и приватность» добавлены прямые ссылки на новые документы.
