@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/utils/external_links.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_apk_download_modal.dart';
 import 'package:survival_calc/features/web/presentation/widgets/web_qr_sync_modal.dart';
 import 'package:survival_calc/features/wiki/presentation/screens/wiki_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class WebHeader extends ConsumerWidget {
   const WebHeader({super.key});
-
-  static const String githubRepoUrl =
-      'https://github.com/kobaltgit/SurvivalCalc';
-
-  Future<void> _openGithub() async {
-    final uri = Uri.parse(githubRepoUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -181,8 +171,25 @@ class WebHeader extends ConsumerWidget {
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
+                  OutlinedButton.icon(
+                    onPressed: ExternalLinks.openTelegram,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFF2CA5E0),
+                      side: const BorderSide(color: Color(0xFF2CA5E0)),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    icon: const Icon(Icons.send_rounded, size: 15),
+                    label: const Text(
+                      'Telegram',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   IconButton(
-                    onPressed: _openGithub,
+                    onPressed: ExternalLinks.openGithub,
                     tooltip: 'Исходный код на GitHub',
                     icon: const Icon(
                       Icons.code,

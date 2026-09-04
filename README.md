@@ -29,6 +29,10 @@
   <a href="https://github.com/kobaltgit/SurvivalCalc/releases/latest">
     <img src="https://img.shields.io/badge/📥_Скачать_APK-Android_v1.0.0-2E7D32?style=for-the-badge&logo=android&logoColor=white" alt="Download APK" />
   </a>
+  &nbsp;&nbsp;
+  <a href="https://t.me/survivalcalc">
+    <img src="https://img.shields.io/badge/✈️_Telegram-Канал_@survivalcalc-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Channel" />
+  </a>
 </p>
 
 ---
@@ -466,6 +470,20 @@ flutter build apk --release
 </p>
 
 > *«В защиту Android как свободной и открытой платформы, на которой каждый может создавать, свободно устанавливать и распространять приложения без ограничений.»* — **[KeepAndroidOpen.org](https://keepandroidopen.org/ru/)**
+
+---
+
+## 💬 Сообщество и канал проекта
+
+Следите за обновлениями программы, обсуждайте походные раскладки, предлагайте новые функции и задавайте вопросы в официальном Telegram-канале:
+
+<p align="center">
+  <a href="https://t.me/survivalcalc">
+    <img src="https://img.shields.io/badge/Telegram-Канал_@survivalcalc-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Channel @survivalcalc" />
+  </a>
+</p>
+
+👉 **Ссылка на канал:** [https://t.me/survivalcalc](https://t.me/survivalcalc)
 
 ---
 

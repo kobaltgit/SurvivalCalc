@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/utils/external_links.dart';
 import 'package:survival_calc/features/wiki/domain/models/wiki_category.dart';
 import 'package:survival_calc/features/wiki/presentation/providers/wiki_providers.dart';
 import 'package:survival_calc/features/wiki/presentation/screens/wiki_article_detail_screen.dart';
@@ -69,6 +70,11 @@ class _WikiScreenState extends ConsumerState<WikiScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: 'Telegram-канал: @survivalcalc',
+            icon: const Icon(Icons.send_rounded, color: Color(0xFF2CA5E0)),
+            onPressed: ExternalLinks.openTelegram,
+          ),
           if (MediaQuery.of(context).size.width >= 420)
             Container(
               margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
@@ -329,6 +335,59 @@ class _WikiScreenState extends ConsumerState<WikiScreen> {
                       );
                     },
                   ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: OutdoorTheme.surfaceCard,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF2CA5E0).withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2CA5E0).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.send_rounded, color: Color(0xFF2CA5E0), size: 24),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Официальный Telegram-канал',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              '@survivalcalc — новости, обратная связь и обсуждение раскладок',
+                              style: TextStyle(color: Colors.white70, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: ExternalLinks.openTelegram,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2CA5E0),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        child: const Text('Перейти', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 30),
               ],
             ),

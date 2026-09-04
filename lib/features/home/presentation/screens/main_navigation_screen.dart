@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/utils/external_links.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:survival_calc/features/gear/presentation/screens/gear_checklist_screen.dart';
@@ -149,6 +150,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                             fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.send_rounded,
+                          size: 14, color: Color(0xFF2CA5E0)),
+                      tooltip: 'Telegram: @survivalcalc',
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      constraints: const BoxConstraints(),
+                      onPressed: ExternalLinks.openTelegram,
+                    ),
+                    const SizedBox(width: 4),
                     IconButton(
                       icon: const Icon(Icons.close,
                           size: 14, color: OutdoorTheme.textMuted),

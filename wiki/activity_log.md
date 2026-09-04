@@ -342,3 +342,14 @@
   - Добавлена кнопка «Новый поход» в AppBar (`TripSetupScreen`), в контекстное меню и в шапку «Библиотеки походов» (`TripLibrarySheet`).
   - Добавлены unit-тесты жизненного цикла похода и инвалидации графика движения (`test/features/trip_storage/saved_trips_test.dart`).
   - Все **81/81 тестов** пройдены успешно (`flutter test`), веб-версия `build/web/` пересобрана.
+- **[2026-09-04 12:22:00]** | `FEATURE` | `lib/core/utils/external_links.dart`, `lib/`, `README.md`, `wiki/` | **Интеграция официального Telegram-канала проекта https://t.me/survivalcalc**:
+  - Создан класс-утилита `ExternalLinks` (`lib/core/utils/external_links.dart`) для безопасного и централизованного перехода по ссылкам проекта.
+  - В **веб-версию** (`WebHeader`): добавлена кнопка «Telegram» с фирменным стилем и самолетиком, а также в модальном окне `WebApkDownloadModal` добавлена кнопка перехода в канал `@survivalcalc`.
+  - В **мобильное приложение**: в выпадающее меню AppBar (`TripSetupScreen`), в заголовок и нижний баннер сообщества Базы знаний (`WikiScreen`), а также в мобильный веб-промо-баннер (`MainNavigationScreen`) добавлены пункты и кнопки перехода в Telegram-канал.
+  - В **README.md**: добавлен бейдж Telegram-канала в шапку быстрых ссылок и отдельный раздел «💬 Сообщество и канал проекта» со ссылкой [https://t.me/survivalcalc](https://t.me/survivalcalc).
+  - Статический анализ: 0 ошибок, 0 предупреждений (`analyze_files`).
+  - Все **81/81 тестов** успешно пройдены (`flutter test`).
+- **[2026-09-04 12:24:55]** | `BUILD` | `build/web/` | **Успешная пересборка продакшн веб-версии SurvivalCalc**:
+  - Выполнена команда: `flutter build web --release --base-href "/SurvivalCalc/"`.
+  - Все ресурсы, иконки шрифтов и скомпилированный код `lib/main.dart` успешно упакованы в `build/web/` (время компиляции 44.7s).
+  - Бандл готов к синхронизации и деплою на GitHub Pages.

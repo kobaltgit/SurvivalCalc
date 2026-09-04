@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:survival_calc/core/utils/external_links.dart';
 
 class WebApkDownloadModal extends StatelessWidget {
   const WebApkDownloadModal({super.key});
 
-  static const String apkDownloadUrl =
-      'https://github.com/kobaltgit/SurvivalCalc/releases/latest/download/SurvivalCalc_v1.0.0.apk';
+  static const String apkDownloadUrl = ExternalLinks.apkRelease;
 
   static void show(BuildContext context) {
     showDialog(
@@ -16,12 +15,7 @@ class WebApkDownloadModal extends StatelessWidget {
     );
   }
 
-  Future<void> _launchDownloadUrl() async {
-    final uri = Uri.parse(apkDownloadUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
-  }
+  Future<void> _launchDownloadUrl() => ExternalLinks.openApkDownload();
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +164,26 @@ class WebApkDownloadModal extends StatelessWidget {
                   label: const Text(
                     'Скачать APK файл напрямую',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: ExternalLinks.openTelegram,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF2CA5E0),
+                    side: const BorderSide(color: Color(0xFF2CA5E0)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.send_rounded, size: 18),
+                  label: const Text(
+                    'Telegram-канал: @survivalcalc',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:survival_calc/core/enums/trip_enums.dart';
 import 'package:survival_calc/core/theme/outdoor_theme.dart';
+import 'package:survival_calc/core/utils/external_links.dart';
 import 'package:survival_calc/core/widgets/app_logo.dart';
 import 'package:survival_calc/features/calculator/presentation/providers/calculator_providers.dart';
 import 'package:survival_calc/features/group_distribution/domain/models/participant.dart';
@@ -150,6 +151,8 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                 ref.read(qrSyncServiceProvider).showQrImportModal(context, ref);
               } else if (val == 'library_templates') {
                 TripLibrarySheet.show(context, initialTabIndex: 1);
+              } else if (val == 'telegram') {
+                ExternalLinks.openTelegram();
               }
             },
             itemBuilder: (ctx) => [
@@ -234,6 +237,17 @@ class _TripSetupScreenState extends ConsumerState<TripSetupScreen> {
                     Icon(Icons.content_copy, size: 18, color: OutdoorTheme.signalOrange),
                     SizedBox(width: 8),
                     Text('Готовые шаблоны походов'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'telegram',
+                child: Row(
+                  children: [
+                    Icon(Icons.send_rounded, size: 18, color: Color(0xFF2CA5E0)),
+                    SizedBox(width: 8),
+                    Text('Telegram-канал проекта'),
                   ],
                 ),
               ),
