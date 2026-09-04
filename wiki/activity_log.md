@@ -353,3 +353,6 @@
   - Выполнена команда: `flutter build web --release --base-href "/SurvivalCalc/"`.
   - Все ресурсы, иконки шрифтов и скомпилированный код `lib/main.dart` успешно упакованы в `build/web/` (время компиляции 44.7s).
   - Бандл готов к синхронизации и деплою на GitHub Pages.
+- **[2026-09-04 12:27:45]** | `GIT` | `feature/mkk-reports-and-archive-export` | **Коммит и пуш изменений в удаленный репозиторий**:
+  - Создан коммит `ab3b31e` («feat: integrate official Telegram channel https://t.me/survivalcalc into web, app and docs»).
+  - Изменения успешно отправлены на GitHub (`git push origin feature/mkk-reports-and-archive-export`).
